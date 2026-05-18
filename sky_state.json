@@ -1,0 +1,102 @@
+{
+  "utc": "2026-05-14T09:51:34.184315+00:00",
+  "planets": {
+    "Sun": {
+      "sign": "Taurus",
+      "degree": 23.62
+    },
+    "Moon": {
+      "sign": "Aries",
+      "degree": 19.87
+    },
+    "Mercury": {
+      "sign": "Taurus",
+      "degree": 23.39
+    },
+    "Venus": {
+      "sign": "Gemini",
+      "degree": 24.45
+    },
+    "Mars": {
+      "sign": "Aries",
+      "degree": 26.59
+    },
+    "Jupiter": {
+      "sign": "Cancer",
+      "degree": 20.95
+    },
+    "Saturn": {
+      "sign": "Aries",
+      "degree": 10.59
+    }
+  },
+  "aspects": [
+    {
+      "type": "Conjunction",
+      "planet1": "Sun",
+      "planet2": "Mercury",
+      "angle": 0.23,
+      "orb": 0.23
+    },
+    {
+      "type": "Square",
+      "planet1": "Moon",
+      "planet2": "Jupiter",
+      "angle": 91.09,
+      "orb": 1.09
+    },
+    {
+      "type": "Sextile",
+      "planet1": "Venus",
+      "planet2": "Mars",
+      "angle": 57.86,
+      "orb": 2.14
+    },
+    {
+      "type": "Sextile",
+      "planet1": "Mercury",
+      "planet2": "Jupiter",
+      "angle": 57.56,
+      "orb": 2.44
+    },
+    {
+      "type": "Sextile",
+      "planet1": "Sun",
+      "planet2": "Jupiter",
+      "angle": 57.33,
+      "orb": 2.67
+    },
+    {
+      "type": "Sextile",
+      "planet1": "Moon",
+      "planet2": "Venus",
+      "angle": 64.58,
+      "orb": 4.58
+    },
+    {
+      "type": "Square",
+      "planet1": "Mars",
+      "planet2": "Jupiter",
+      "angle": 84.37,
+      "orb": 5.63
+    },
+    {
+      "type": "Conjunction",
+      "planet1": "Moon",
+      "planet2": "Mars",
+      "angle": 6.72,
+      "orb": 6.72
+    }
+  ],
+  "signature": [
+    "SUN_CON_MER",
+    "MOO_SQR_JUP",
+    "VEN_SXT_MAR",
+    "MER_SXT_JUP",
+    "SUN_SXT_JUP",
+    "MOO_SXT_VEN",
+    "MAR_SQR_JUP",
+    "MOO_CON_MAR",
+    "STACK_ARIES_3"
+  ]
+}
