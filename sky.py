@@ -115,7 +115,7 @@ def build_signature(sky_state: dict, aspects: list, max_aspects: int = 8):
 
 
 def main():
-    now = datetime.datetime.now(datetime.UTC)
+    now = datetime.datetime.now(datetime.timezone.utc)
     jd = swe.julday(
         now.year,
         now.month,
