@@ -1,15 +1,1073 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Cosmic Oracle</title>
-    <style>
-      html, body { margin: 0; padding: 0; background: #000; overflow: hidden; }
-      canvas { display: block; }
-    </style>
-  </head>
-  <body>
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
-    <script src="sketch.js"></script>
-  </body>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Oracle — Today's Reading</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #050505;
+  --fg: #e9e7e2;
+  --dim: #8a8884;
+  --line: #2a2a28;
+  --line-soft: #1a1a18;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  background: #000;
+  color: var(--fg);
+  font-family: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  width: 100%; height: 100%;
+}
+.stage {
+  position: fixed;
+  width: 1500px;
+  height: 1000px;
+  transform-origin: top left;
+}
+.frame {
+  width: 1500px;
+  height: 1000px;
+  background: radial-gradient(ellipse at center, #070707 0%, #030303 70%, #000 100%);
+  border-radius: 14px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px #0e0e0c, 0 30px 120px rgba(0,0,0,0.8);
+}
+.frame::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 90% 70% at 50% 50%, transparent 50%, rgba(0,0,0,0.68) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+.frame::after {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 3px 3px;
+  mix-blend-mode: overlay;
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.grid {
+  position: absolute; inset: 0;
+  display: grid;
+  grid-template-columns: 220px 1fr 200px;
+  grid-template-rows: 1fr 130px;
+  padding: 38px 44px;
+  gap: 0 36px;
+  z-index: 2;
+}
+
+.plus {
+  position: absolute;
+  width: 14px; height: 14px;
+  color: var(--dim);
+  font-size: 14px;
+  line-height: 14px;
+  text-align: center;
+  z-index: 3;
+  user-select: none;
+}
+.plus::before { content: "+"; }
+.plus.tr { top: 230px; right: 220px; }
+.plus.br { bottom: 220px; right: 220px; }
+
+/* Left column */
+.left {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.left h3 {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  font-weight: 500;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+.left .body {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--fg);
+  letter-spacing: 0.06em;
+}
+.planet-row {
+  display: grid;
+  grid-template-columns: 1fr auto 18px;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  line-height: 1.85;
+  align-items: baseline;
+}
+.planet-row .deg { text-align: right; padding-right: 8px; color: var(--dim); }
+.planet-row .gl  { text-align: center; }
+.bar { display: flex; gap: 5px; margin-top: 6px; }
+.bar span { width: 9px; height: 9px; background: var(--fg); display: inline-block; }
+.bar span.off { background: transparent; outline: 1px solid var(--line); outline-offset: -1px; }
+
+/* Center column */
+.center {
+  grid-column: 2;
+  grid-row: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.center .head {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 30px;
+}
+.center .reading {
+  max-width: 500px;
+  position: relative;
+  z-index: 2;
+}
+.center h1 {
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 400;
+  font-size: 44px;
+  line-height: 1.08;
+  letter-spacing: 0.01em;
+  margin: 0 0 14px;
+  text-transform: uppercase;
+}
+.center .rule {
+  width: 28px;
+  border-bottom: 1px solid var(--fg);
+  margin: 12px 0 20px;
+}
+.center p {
+  font-size: 13px;
+  line-height: 1.62;
+  letter-spacing: 0.04em;
+  margin: 0;
+  max-width: 360px;
+  white-space: pre-line;
+  color: var(--fg);
+}
+.center p em {
+  display: block;
+  margin-top: 14px;
+  opacity: 0.42;
+  font-style: italic;
+}
+
+/* Ghost canvas — sits behind the grid (z-index 1 < grid z-index 2) */
+.silhouette {
+  position: absolute;
+  top: 0; left: 520px;
+  width: 740px; height: 960px;
+  z-index: 1;
+  pointer-events: none;
+  overflow: visible;
+}
+.silhouette canvas {
+  position: absolute;
+  top: 0; left: 0;
+  display: block;
+}
+
+/* Right column */
+.right {
+  grid-column: 3;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-left: 10px;
+}
+.right .top {
+  text-align: right;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  line-height: 1.7;
+  text-transform: uppercase;
+}
+.right .stat {
+  border-top: 1px solid var(--line-soft);
+  padding-top: 12px;
+}
+.right .stat .l {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--fg);
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.right .stat .v { font-size: 12px; letter-spacing: 0.06em; }
+.right .stat .ddash { color: var(--dim); letter-spacing: 0.3em; margin-top: 5px; font-size: 10px; }
+
+.stream { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; }
+.stream .row { display: flex; gap: 3px; }
+.stream .d { width: 9px; height: 2px; background: var(--fg); }
+.stream .d.off { background: var(--line); }
+
+.transits { margin-top: 6px; font-size: 11px; letter-spacing: 0.04em; line-height: 1.7; }
+.transit-row {
+  display: grid;
+  grid-template-columns: 52px 16px 52px 1fr 12px;
+  gap: 4px;
+  align-items: baseline;
+}
+.transit-row .gl  { text-align: center; font-size: 12px; }
+.transit-row .orb { text-align: right; color: var(--dim); }
+.legend { margin-top: 10px; font-size: 10.5px; line-height: 1.7; letter-spacing: 0.08em; color: var(--dim); }
+.legend .k { display: inline-block; width: 16px; }
+
+/* Bottom moon strip */
+.bottom {
+  grid-column: 2 / span 2;
+  grid-row: 2;
+  padding-top: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 10px;
+  padding-right: 30px;
+}
+.phase { position: relative; width: 56px; text-align: center; }
+.phase svg { display: block; margin: 0 auto; }
+.phase .lbl {
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  color: var(--dim);
+  margin-top: 8px;
+  height: 14px;
+}
+.phase .ring {
+  position: absolute;
+  top: -6px; left: 50%;
+  transform: translateX(-50%);
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 1px dashed var(--dim);
+  pointer-events: none;
+  display: none;
+}
+.phase.active .ring { display: block; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="frame">
+    <span class="plus tr"></span>
+    <span class="plus br"></span>
+
+    <!-- Avatar sits behind the grid -->
+    <div class="silhouette" aria-hidden="true">
+      <canvas id="astra-c"></canvas>
+    </div>
+
+    <div class="grid">
+
+      <!-- LEFT -->
+      <aside class="left">
+        <div>
+          <h3>Celestial Log</h3>
+          <div id="planet-table"></div>
+        </div>
+        <div>
+          <h3>System Status</h3>
+          <div class="body">CALIBRATING..</div>
+          <div class="bar" id="sys-bar"></div>
+        </div>
+        <div>
+          <h3>Ephemeris Sync</h3>
+          <div class="body" id="ephem-pct">—</div>
+        </div>
+        <div>
+          <h3>Lunar Drift</h3>
+          <div class="body" id="lunar-drift">—</div>
+        </div>
+        <div>
+          <h3>Solar Index</h3>
+          <div class="body">ACTIVE</div>
+        </div>
+        <div>
+          <h3>Dominant Stack</h3>
+          <div class="body" id="dom-stack">—</div>
+        </div>
+        <div>
+          <h3>Time</h3>
+          <div class="body" id="time-display">—</div>
+        </div>
+        <div>
+          <h3>Coordinates</h3>
+          <div class="body" id="coordinates">—</div>
+        </div>
+      </aside>
+
+      <!-- CENTER -->
+      <main class="center">
+        <div class="head">Today's Reading</div>
+        <div class="reading">
+          <h1 id="headline">—</h1>
+          <div class="rule"></div>
+          <p id="reading-body">—</p>
+        </div>
+      </main>
+
+      <!-- RIGHT -->
+      <aside class="right">
+        <div class="top">Oracle v.3.7<br>Signal Ghost</div>
+
+        <div class="stat">
+          <div class="l">Velocity</div>
+          <div class="v" id="r-vel">—</div>
+          <div class="ddash">———</div>
+        </div>
+        <div class="stat">
+          <div class="l">Altitude</div>
+          <div class="v" id="r-alt">—</div>
+          <div class="ddash">———</div>
+        </div>
+        <div class="stat">
+          <div class="l">Magnitude</div>
+          <div class="v" id="r-mag">—</div>
+        </div>
+        <div class="stat">
+          <div class="l">Data Stream</div>
+          <div class="stream" id="stream"></div>
+        </div>
+        <div class="stat">
+          <div class="l">Transits</div>
+          <div class="transits" id="transits"></div>
+          <div class="legend">
+            <div><span class="k">A</span> APPLYING</div>
+            <div><span class="k">S</span> SEPARATING</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- BOTTOM -->
+      <div class="bottom" id="phases"></div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Viewport scale ── */
+(function(){
+  const stage = document.getElementById('stage');
+  function fit(){
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const s  = Math.min((vw - 48) / 1500, (vh - 48) / 1000, 1);
+    stage.style.left      = Math.round((vw - 1500 * s) / 2) + 'px';
+    stage.style.top       = Math.round((vh - 1000 * s) / 2) + 'px';
+    stage.style.transform = 'scale(' + s + ')';
+  }
+  fit();
+  window.addEventListener('resize', fit);
+})();
+</script>
+
+<script>
+'use strict';
+
+/* ── Lookup tables ── */
+const P_SYM   = {Sun:'☉',Moon:'☽',Mercury:'☿',Venus:'♀',Mars:'♂',Jupiter:'♃',Saturn:'♄',Uranus:'♅',Neptune:'♆',Pluto:'♇'};
+const Z_SYM   = {Aries:'♈',Taurus:'♉',Gemini:'♊',Cancer:'♋',Leo:'♌',Virgo:'♍',Libra:'♎',Scorpio:'♏',Sagittarius:'♐',Capricorn:'♑',Aquarius:'♒',Pisces:'♓'};
+const Z_OFF   = {Aries:0,Taurus:30,Gemini:60,Cancer:90,Leo:120,Virgo:150,Libra:180,Scorpio:210,Sagittarius:240,Capricorn:270,Aquarius:300,Pisces:330};
+const Z_NEXT  = {Aries:'Taurus',Taurus:'Gemini',Gemini:'Cancer',Cancer:'Leo',Leo:'Virgo',Virgo:'Libra',Libra:'Scorpio',Scorpio:'Sagittarius',Sagittarius:'Capricorn',Capricorn:'Aquarius',Aquarius:'Pisces',Pisces:'Aries'};
+const Z_ELEM  = {Aries:'Fire',Leo:'Fire',Sagittarius:'Fire',Taurus:'Earth',Virgo:'Earth',Capricorn:'Earth',Gemini:'Air',Libra:'Air',Aquarius:'Air',Cancer:'Water',Scorpio:'Water',Pisces:'Water'};
+const Z_MODE  = {Aries:'Cardinal',Cancer:'Cardinal',Libra:'Cardinal',Capricorn:'Cardinal',Taurus:'Fixed',Leo:'Fixed',Scorpio:'Fixed',Aquarius:'Fixed',Gemini:'Mutable',Virgo:'Mutable',Sagittarius:'Mutable',Pisces:'Mutable'};
+const P_ORDER = ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
+const ASP_SYM = {Conjunction:'☌',Opposition:'☍',Trine:'△',Square:'□',Sextile:'⚹'};
+
+/* ── Fallback data ── */
+const FALLBACK = {
+  utc: new Date().toISOString(),
+  sky_utc: new Date().toISOString(),
+  signature: ['SUN_CON_MER','MOO_SQR_JUP','STACK_ARIES_3'],
+  reading_structured: {
+    headline: 'Thinking and being rarely arrive at the same speed.',
+    omens: [
+      'Whatever is said today lands further than intended, in most directions.',
+      'Articulation is possible. This is rarer than the literature suggests.',
+      'The thing that has not been named is waiting.',
+    ],
+    constraint: 'What is said today tends to persist. The sky has noted this without comment.',
+    aside: 'Administrative note: Sun in Taurus at 23.62°, Moon in Aries at 19.87°. Please return borrowed certainty by closing time.',
+  },
+  sky: {
+    planets: {
+      Sun:     {sign:'Taurus',    degree:23.62},
+      Moon:    {sign:'Aries',     degree:19.87},
+      Mercury: {sign:'Taurus',    degree:23.39},
+      Venus:   {sign:'Gemini',    degree:24.45},
+      Mars:    {sign:'Aries',     degree:26.59},
+      Jupiter: {sign:'Cancer',    degree:20.95},
+      Saturn:  {sign:'Aries',     degree:10.59},
+      Uranus:  {sign:'Gemini',    degree:27.14},
+      Neptune: {sign:'Aries',     degree:2.31},
+      Pluto:   {sign:'Capricorn', degree:1.82},
+    },
+    aspects: [
+      {type:'Conjunction', planet1:'Sun',    planet2:'Mercury', angle:0.23,  orb:0.23},
+      {type:'Square',      planet1:'Moon',   planet2:'Jupiter', angle:91.09, orb:1.09},
+      {type:'Sextile',     planet1:'Venus',  planet2:'Mars',    angle:57.86, orb:2.14},
+      {type:'Sextile',     planet1:'Moon',   planet2:'Venus',   angle:64.58, orb:4.58},
+    ]
+  }
+};
+
+/* ── State ── */
+let data = FALLBACK;
+let lastFetch = -Infinity;
+const FETCH_MS = 63000;
+
+/* ── Moon math ── */
+function eclipticLon(sign, deg){ return (Z_OFF[sign]||0) + (deg||0); }
+function lunarPhase(planets){
+  if (!planets?.Sun || !planets?.Moon) return 0.85;
+  const sl = eclipticLon(planets.Sun.sign, planets.Sun.degree);
+  const ml = eclipticLon(planets.Moon.sign, planets.Moon.degree);
+  return (((ml - sl) % 360) + 360) % 360 / 360;
+}
+function illumination(p){ return Math.round((1 - Math.cos(p * Math.PI * 2)) / 2 * 100); }
+
+/* ── Moon SVG (arc-path approach) ── */
+function moonSVG(p, flipRight){
+  const R = 18, cx = 20, cy = 20;
+  if (p >= 0.995){
+    return '<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="#e9e7e2"/></svg>';
+  }
+  if (p <= 0.005){
+    return '<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="#0a0a0a" stroke="#2a2a28" stroke-width="0.5"/></svg>';
+  }
+  const litLeft = !flipRight;
+  const cos  = 1 - 2*p;
+  const rx   = Math.abs(R * cos);
+  const gibbous = p > 0.5;
+  const top  = cx + ',' + (cy - R);
+  const bot  = cx + ',' + (cy + R);
+  const outerSweep = litLeft ? 0 : 1;
+  const outer = 'A ' + R + ' ' + R + ' 0 0 ' + outerSweep + ' ' + bot;
+  const termSweep = gibbous ? (litLeft ? 0 : 1) : (litLeft ? 1 : 0);
+  const term  = 'A ' + rx.toFixed(2) + ' ' + R + ' 0 0 ' + termSweep + ' ' + top;
+  const path  = 'M ' + top + ' ' + outer + ' ' + term + ' Z';
+  return '<svg width="40" height="40" viewBox="0 0 40 40">'
+    + '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="#0a0a0a" stroke="#2a2a28" stroke-width="0.5"/>'
+    + '<path d="' + path + '" fill="#e9e7e2"/>'
+    + '</svg>';
+}
+
+/* ── Moon strip ── */
+function drawMoonStrip(planets){
+  const el = document.getElementById('phases');
+  el.innerHTML = '';
+  const base = lunarPhase(planets);
+  const PPD  = 1 / 29.53;
+  // 10 cells: offsets -3 through +2.5 in 0.5-day steps, label integer offsets only
+  const offsets = [-3, -2.5, -2, -1.5, -1, 0, 1, 1.5, 2, 2.5];
+  offsets.forEach(off => {
+    const p      = (((base + off * PPD) % 1) + 1) % 1;
+    const active = off === 0;
+    const flip   = p < 0.5;  // waxing phases: lit side on right
+    const lbl    = Number.isInteger(off) ? (off > 0 ? '+' + off : String(off)) : '';
+    const div    = document.createElement('div');
+    div.className = 'phase' + (active ? ' active' : '');
+    div.innerHTML = '<div class="ring"></div>' + moonSVG(p, flip) + '<div class="lbl">' + lbl + '</div>';
+    el.appendChild(div);
+  });
+}
+
+/* ── Render panel ── */
+function renderPanel(d){
+  const planets = d.sky?.planets || {};
+
+  // Planet table
+  const tbl = document.getElementById('planet-table');
+  tbl.innerHTML = '';
+  for (const name of P_ORDER){
+    const p = planets[name]; if (!p) continue;
+    const row = document.createElement('div');
+    row.className = 'planet-row';
+    row.innerHTML =
+      '<span>' + name.toUpperCase() + '</span>' +
+      '<span class="deg">' + (typeof p.degree === 'number' ? p.degree.toFixed(1) + '°' : '—') + '</span>' +
+      '<span class="gl">' + (Z_SYM[p.sign] || '?') + '</span>';
+    tbl.appendChild(row);
+  }
+
+  // Ephemeris sync
+  const aspects = d.sky?.aspects || [];
+  const minOrb  = aspects.length ? Math.min(...aspects.map(a => a.orb)) : 2;
+  document.getElementById('ephem-pct').textContent = Math.max(90, 99.9 - minOrb * 3).toFixed(1) + '%';
+
+  // Lunar drift
+  const moon = planets.Moon;
+  if (moon){
+    const rem = (30 - (moon.degree || 0)).toFixed(2);
+    document.getElementById('lunar-drift').textContent = rem + '° → ' + (Z_NEXT[moon.sign] || '?').toUpperCase();
+  }
+
+  // Dominant stack
+  const stackSig = (d.signature || []).find(s => s.startsWith('STACK_'));
+  if (stackSig){
+    const pts  = stackSig.split('_');
+    const sign = pts[1] ? pts[1].charAt(0) + pts[1].slice(1).toLowerCase() : '?';
+    document.getElementById('dom-stack').textContent =
+      (Z_ELEM[sign] || '—').toUpperCase() + ' / ' + (Z_MODE[sign] || '—').toUpperCase();
+  } else {
+    document.getElementById('dom-stack').textContent = '—';
+  }
+
+  // Time
+  try {
+    const dt = new Date(d.sky_utc || d.utc);
+    document.getElementById('time-display').innerHTML =
+      dt.toISOString().slice(0,10).replace(/-/g,'.') + '<br>' + dt.toISOString().slice(11,19) + ' UTC';
+  } catch(_){}
+
+  // Coordinates
+  const phase = lunarPhase(planets);
+  document.getElementById('coordinates').innerHTML =
+    'AGE&nbsp;&nbsp;' + (phase * 29.53).toFixed(1) + ' DAYS<br>ILLUMINATION ' + illumination(phase) + '%';
+
+  // Right panel stats
+  const vel  = (1.022 + Math.sin(phase * Math.PI * 2) * 0.032).toFixed(1);
+  const dist = Math.round(384400 + Math.cos((phase - 0.5) * Math.PI * 2) * 21000);
+  document.getElementById('r-vel').textContent = vel + ' KM/S';
+  document.getElementById('r-alt').textContent = dist.toLocaleString() + ' KM';
+  document.getElementById('r-mag').textContent = '−26.74';
+
+  // Transits
+  const transitEl = document.getElementById('transits');
+  transitEl.innerHTML = '';
+  const top4 = [...aspects].sort((a,b) => a.orb - b.orb).slice(0, 4);
+  for (const asp of top4){
+    const row = document.createElement('div');
+    row.className = 'transit-row';
+    row.innerHTML =
+      '<span>' + asp.planet1.toUpperCase().slice(0,4) + '</span>' +
+      '<span class="gl">' + (ASP_SYM[asp.type] || '·') + '</span>' +
+      '<span>' + asp.planet2.toUpperCase().slice(0,4) + '</span>' +
+      '<span class="orb">' + asp.orb.toFixed(2) + '°</span>' +
+      '<span>' + (asp.orb < 1.5 ? 'A' : 'S') + '</span>';
+    transitEl.appendChild(row);
+  }
+
+  // Moon strip
+  drawMoonStrip(planets);
+}
+
+/* ── Render reading ── */
+function renderReading(d){
+  const rs = d.reading_structured; if (!rs) return;
+
+  document.getElementById('headline').textContent = rs.headline || '—';
+
+  const body = document.getElementById('reading-body');
+  body.innerHTML = '';
+
+  let main = '';
+  if (rs.omens)     main += rs.omens.join('\n');
+  if (rs.constraint) main += (main ? '\n' : '') + rs.constraint;
+  if (main) body.appendChild(document.createTextNode(main));
+
+  if (rs.aside){
+    const em = document.createElement('em');
+    em.textContent = rs.aside;
+    body.appendChild(em);
+  }
+}
+
+function renderAll(d){ renderPanel(d); renderReading(d); }
+
+/* ── Fetch ── */
+async function fetchData(){
+  try {
+    const res = await fetch('oracle.json?_=' + Date.now());
+    if (!res.ok) throw new Error(res.status);
+    data = await res.json();
+    renderAll(data);
+  } catch(e){
+    console.warn('oracle.json unavailable — fallback active.');
+  }
+}
+
+/* ── Data stream ── */
+(function(){
+  const stream = document.getElementById('stream');
+  const ROWS = 8, COLS = 14;
+  for (let r = 0; r < ROWS; r++){
+    const row = document.createElement('div');
+    row.className = 'row';
+    const len = 2 + Math.floor(Math.random() * (COLS - 3));
+    for (let c = 0; c < COLS; c++){
+      const d = document.createElement('span');
+      d.className = 'd' + (c < len ? '' : ' off');
+      row.appendChild(d);
+    }
+    stream.appendChild(row);
+  }
+  setInterval(() => {
+    const rows = stream.querySelectorAll('.row');
+    const r = Math.floor(Math.random() * ROWS);
+    const cells = rows[r]?.querySelectorAll('.d');
+    if (!cells) return;
+    const len = 2 + Math.floor(Math.random() * (COLS - 3));
+    cells.forEach((cell, i) => { cell.className = 'd' + (i < len ? '' : ' off'); });
+  }, 380);
+})();
+
+/* ── System status bar ── */
+(function(){
+  const bar = document.getElementById('sys-bar');
+  const TOTAL = 9;
+  for (let i = 0; i < TOTAL; i++){
+    const s = document.createElement('span');
+    if (i >= 6) s.className = 'off';
+    bar.appendChild(s);
+  }
+  let frame = 0;
+  setInterval(() => {
+    frame++;
+    const f = Math.min(TOTAL, Math.round(3 + (frame / 55) * 6) % (TOTAL + 1));
+    bar.querySelectorAll('span').forEach((s, i) => { s.className = i < f ? '' : 'off'; });
+  }, 750);
+})();
+
+/* ── Particle avatar (Astra hooded figure) ── */
+(function(){
+  const canvas = document.getElementById('astra-c');
+  const ctx = canvas.getContext('2d', { alpha: false });
+
+  // Fixed container dimensions in CSS px (matches .silhouette size)
+  const W_CSS = 740, H_CSS = 960;
+  let W = 0, H = 0, DPR = 1;
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+    W = Math.floor(W_CSS * DPR);
+    H = Math.floor(H_CSS * DPR);
+    canvas.width  = W;
+    canvas.height = H;
+    canvas.style.width  = W_CSS + 'px';
+    canvas.style.height = H_CSS + 'px';
+    buildParticles();
+  }
+
+  // ---------- Silhouette geometry ----------
+  function halfWidthN(yn) {
+    const ss = (t) => { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t); };
+    const lerp = (a, b, t) => a + (b - a) * ss(t);
+    if (yn < 0.020) return lerp(0.000, 0.075, yn / 0.020);
+    if (yn < 0.070) return lerp(0.075, 0.150, (yn - 0.020) / 0.050);
+    if (yn < 0.150) return lerp(0.150, 0.180, (yn - 0.070) / 0.080);
+    if (yn < 0.230) return lerp(0.180, 0.198, (yn - 0.150) / 0.080);
+    if (yn < 0.320) return lerp(0.198, 0.275, (yn - 0.230) / 0.090);
+    if (yn < 0.420) return lerp(0.275, 0.420, (yn - 0.320) / 0.100);
+    if (yn < 0.520) return lerp(0.420, 0.520, (yn - 0.420) / 0.100);
+    if (yn < 0.650) return lerp(0.520, 0.560, (yn - 0.520) / 0.130);
+    return             lerp(0.560, 0.600, (yn - 0.650) / 0.350);
+  }
+
+  // ---------- RNG ----------
+  function rand(a, b) { return a + Math.random() * (b - a); }
+  function gauss() {
+    let u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+
+  // ---------- Polygon outline ----------
+  const NPTS = 240;
+  let outlineRight = null;
+  let totalArc = 0;
+
+  function buildOutline() {
+    outlineRight = [];
+    let prev = null, arc = 0;
+    for (let i = 0; i <= NPTS; i++) {
+      const yn = i / NPTS;
+      const hw = halfWidthN(yn);
+      const pt = { x: hw, y: yn, arc: 0 };
+      if (prev) arc += Math.hypot(pt.x - prev.x, pt.y - prev.y);
+      pt.arc = arc;
+      outlineRight.push(pt);
+      prev = pt;
+    }
+    totalArc = arc;
+    for (let i = 0; i < outlineRight.length; i++) {
+      const p0 = outlineRight[Math.max(0, i - 1)];
+      const p1 = outlineRight[Math.min(outlineRight.length - 1, i + 1)];
+      const tx = p1.x - p0.x, ty = p1.y - p0.y;
+      const nx = ty, ny = -tx;
+      const len = Math.hypot(nx, ny) || 1;
+      outlineRight[i].nx = nx / len;
+      outlineRight[i].ny = ny / len;
+    }
+  }
+
+  function samplePolygon(t) {
+    const target = t * totalArc;
+    let lo = 0, hi = outlineRight.length - 1;
+    while (lo < hi - 1) {
+      const mid = (lo + hi) >> 1;
+      if (outlineRight[mid].arc < target) lo = mid; else hi = mid;
+    }
+    const a = outlineRight[lo], b = outlineRight[hi];
+    const span = b.arc - a.arc;
+    const u = span > 0 ? (target - a.arc) / span : 0;
+    return {
+      x:  a.x  + (b.x  - a.x ) * u,
+      y:  a.y  + (b.y  - a.y ) * u,
+      nx: a.nx + (b.nx - a.nx) * u,
+      ny: a.ny + (b.ny - a.ny) * u,
+    };
+  }
+
+  // ---------- Particles ----------
+  const COUNT = 100000;
+  const STRIDE = 9;
+  let particles = new Float32Array(COUNT * STRIDE);
+  let fig = { cx: 0, top: 0, figW: 0, figH: 0 };
+
+  const LIGHT_X = -0.6;
+  const LIGHT_Z =  0.8;
+
+  function buildParticles() {
+    if (!outlineRight) buildOutline();
+
+    const aspect = 0.66;
+    let figH = H * 0.77;
+    let figW = figH * aspect;
+    // Cap so figure fills canvas comfortably with margin
+    if (figW > W * 0.78) { figW = W * 0.78; figH = figW / aspect; }
+    const cx  = W * 0.52;   // centered in container
+    const top = Math.max(0, (H - figH) * 0.08);
+    fig = { cx, top, figW, figH };
+
+    const edgeCount      = Math.floor(COUNT * 0.10);
+    const haloCount      = Math.floor(COUNT * 0.22);
+    const bodyInnerCount = Math.floor(COUNT * 0.42);
+    const hoodInnerCount = Math.floor(COUNT * 0.09);
+    const baseDustCount  = Math.floor(COUNT * 0.11);
+    const orbitCount     = Math.floor(COUNT * 0.04);
+    const driftCount     = Math.floor(COUNT * 0.02);
+    const sparkCount     = COUNT - edgeCount - haloCount - bodyInnerCount - hoodInnerCount - baseDustCount - orbitCount - driftCount;
+
+    let i = 0;
+
+    // 1. EDGE
+    for (let n = 0; n < edgeCount; n++) {
+      const t = Math.random(), side = Math.random() < 0.5 ? -1 : 1;
+      const p = samplePolygon(t);
+      let dEdge;
+      const r = Math.random();
+      if (r < 0.45)       dEdge = gauss() * 0.030;
+      else if (r < 0.78)  dEdge = Math.pow(Math.random(), 1.4) * 0.080;
+      else                dEdge = -Math.pow(Math.random(), 1.4) * 0.060;
+      const px = cx + side * (p.x * figW + dEdge * figW * p.nx);
+      const py = fig.top + p.y * figH + dEdge * figW * p.ny;
+      writeParticle(i++, px, py, 0);
+    }
+
+    // 2. HALO
+    for (let n = 0; n < haloCount; n++) {
+      const t = Math.random(), side = Math.random() < 0.5 ? -1 : 1;
+      const p = samplePolygon(t);
+      const dist = Math.abs(gauss()) * 0.045;
+      const px = cx + side * (p.x * figW + dist * figW * p.nx) + gauss() * 4 * DPR;
+      const py = fig.top + p.y * figH + dist * figW * p.ny + gauss() * 4 * DPR;
+      const distFade = Math.exp(-dist * 12);
+      writeParticle(i++, px, py, 2, 0, distFade, 0);
+    }
+
+    // 3. BODY INTERIOR
+    let placed = 0, safety = bodyInnerCount * 18;
+    const HW_MAX = 0.60;
+    while (placed < bodyInnerCount && safety-- > 0) {
+      const yn = 0.18 + Math.random() * 0.90;
+      const hw = halfWidthN(yn < 1.0 ? yn : 1.0);
+      if (hw < 0.005) continue;
+      if (Math.random() > (hw / HW_MAX)) continue;
+      if (yn > 1.0) {
+        const fadeT = (yn - 1.0) / 0.08;
+        if (Math.random() > Math.pow(1 - fadeT, 2.2)) continue;
+      }
+      const hd = hw * 0.55;
+      let u, v;
+      do { u = (Math.random() - 0.5) * 2; v = (Math.random() - 0.5) * 2; }
+      while (u * u + v * v > 1);
+      const xn = u * hw, zn = v * hd;
+      const rim = Math.sqrt(u * u + v * v);
+      const nUnit = rim > 0.0001 ? 1 / rim : 0;
+      const lightDot = u * nUnit * LIGHT_X + v * nUnit * LIGHT_Z;
+      const px = cx + xn * figW;
+      let py = fig.top + yn * figH;
+      if (yn > 0.85) {
+        const xnNorm = xn / 0.5;
+        py += (Math.sin(xnNorm * 5.1 + 0.9) * 0.022 + Math.sin(xnNorm * 11.7 + 2.3) * 0.012)
+              * Math.min(1, (yn - 0.85) / 0.15) * figH;
+      }
+      writeParticle(i++, px, py, 1, zn * figW, rim, lightDot);
+      placed++;
+    }
+
+    // 4. HOOD INTERIOR
+    placed = 0; safety = hoodInnerCount * 6;
+    while (placed < hoodInnerCount && safety-- > 0) {
+      const yn = 0.03 + Math.random() * 0.31;
+      const hw = halfWidthN(yn);
+      if (hw < 0.002) continue;
+      const xn = (Math.random() - 0.5) * 2 * hw;
+      const px = cx + xn * figW;
+      const py = fig.top + yn * figH;
+      const softFade = 0.45 + 0.55 * (Math.abs(xn) / hw);
+      writeParticle(i++, px, py, 1, 0, softFade, 0);
+      placed++;
+    }
+
+    // 4b. BASE DUST
+    let baseDustPlaced = 0, baseDustSafety = baseDustCount * 6;
+    while (baseDustPlaced < baseDustCount && baseDustSafety-- > 0) {
+      const yn = 0.70 + Math.random() * 0.50;
+      const hwRef = halfWidthN(Math.min(0.99, yn));
+      const xn = (Math.random() - 0.5) * 2.0 * (hwRef + 0.04);
+      let accept;
+      if (yn < 1.0) accept = Math.min(1, Math.abs(xn) / (hwRef + 0.04));
+      else {
+        const below = (yn - 1.0) / 0.20;
+        accept = Math.exp(-below * 3.2) * (1 - Math.min(1, Math.abs(xn) / (hwRef + 0.04)) * 0.4);
+      }
+      if (Math.random() > accept) continue;
+      const px = cx + xn * figW + gauss() * 2 * DPR;
+      const py = fig.top + yn * figH + gauss() * 2 * DPR;
+      const bri = rand(0.35, 0.90) * (yn < 1.0 ? 1.0 : Math.exp(-(yn - 1.0) * 8));
+      writeParticle(i++, px, py, 6, 0, bri, 0);
+      baseDustPlaced++;
+    }
+
+    // 4c. ORBIT
+    for (let n = 0; n < orbitCount; n++) {
+      const yn = 0.10 + Math.random() * 0.85;
+      const hw = halfWidthN(yn);
+      const radius = hw * (0.55 + Math.random() * 0.75);
+      const py = fig.top + yn * figH;
+      const o = i * STRIDE;
+      particles[o + 0] = cx;
+      particles[o + 1] = py;
+      particles[o + 2] = Math.random() * Math.PI * 2;
+      particles[o + 3] = (Math.random() < 0.5 ? -1 : 1) * rand(0.08, 0.25);
+      particles[o + 4] = radius * figW;
+      particles[o + 5] = rand(0.35, 0.85);
+      particles[o + 6] = Math.random() < 0.10 ? 2 : 1;
+      particles[o + 7] = 5;
+      particles[o + 8] = 0;
+      i++;
+    }
+
+    // 5. DRIFT
+    for (let n = 0; n < driftCount; n++) {
+      const t = Math.random(), side = Math.random() < 0.5 ? -1 : 1;
+      const p = samplePolygon(t);
+      const dist = Math.pow(Math.random(), 1.6) * 0.18;
+      const px = cx + side * (p.x * figW + dist * figW * p.nx) + gauss() * 8 * DPR;
+      const py = fig.top + p.y * figH + dist * figW * p.ny + gauss() * 12 * DPR;
+      writeParticle(i++, px, py, 3);
+    }
+
+    // 6. AMBIENT SPARKS
+    for (let n = 0; n < sparkCount; n++) {
+      writeParticle(i++, Math.random() * W, Math.random() * H, 4);
+    }
+  }
+
+  function writeParticle(i, x, y, kind, z, rim, lightDot) {
+    const o = i * STRIDE;
+    particles[o + 0] = x;
+    particles[o + 1] = y;
+    particles[o + 2] = Math.random() * Math.PI * 2;
+    particles[o + 3] = rand(0.20, 1.05);
+    let amp, bright, size;
+    if (kind === 0) {
+      amp = rand(0.5, 1.8) * DPR;
+      bright = rand(0.65, 1.10);
+      const sr = Math.random();
+      if (sr < 0.12) size = 3; else if (sr < 0.18) size = 2; else size = 1;
+    } else if (kind === 1) {
+      amp = rand(0.4, 1.3) * DPR;
+      const base = Math.pow(Math.random(), 1.6) * 1.05 + 0.05;
+      const rimFactor   = 0.75 + 0.25 * (rim || 0);
+      const lightFactor = 0.85 + 0.15 * Math.max(-1, Math.min(1, (lightDot || 0)));
+      bright = base * rimFactor * lightFactor;
+      const sr = Math.random();
+      if (sr < 0.32) size = 3; else if (sr < 0.36) size = 2; else size = 1;
+    } else if (kind === 2) {
+      amp = rand(0.6, 2.0) * DPR;
+      bright = rand(0.45, 0.90) * (rim != null ? rim : 1.0);
+      size = Math.random() < 0.02 ? 2 : 1;
+    } else if (kind === 3) {
+      amp = rand(1.5, 4.5) * DPR;
+      bright = rand(0.20, 0.55);
+      size = Math.random() < 0.06 ? 2 : 1;
+    } else if (kind === 6) {
+      amp = rand(0.2, 0.9) * DPR;
+      bright = rand(0.55, 1.00) * (rim || 0);
+      size = Math.random() < 0.06 ? 2 : 1;
+    } else {
+      amp = rand(0.3, 0.9) * DPR;
+      bright = rand(0.04, 0.16);
+      size = 1;
+    }
+    particles[o + 4] = amp;
+    particles[o + 5] = bright;
+    particles[o + 6] = size;
+    particles[o + 7] = kind;
+    particles[o + 8] = z || 0;
+  }
+
+  // ---------- Pixel buffer ----------
+  let imgData, buf32;
+  function ensureImageData() {
+    if (!imgData || imgData.width !== W || imgData.height !== H) {
+      imgData = ctx.createImageData(W, H);
+      buf32 = new Uint32Array(imgData.data.buffer);
+    }
+  }
+  function clearBuf() { buf32.fill(0xFF000000); }
+
+  function plot(x, y, b) {
+    if (x < 0 || x >= W || y < 0 || y >= H) return;
+    const i = (y * W + x) | 0;
+    const cur = buf32[i] & 0xFF;
+    let nc = cur + ((b * 255) | 0);
+    if (nc > 255) nc = 255;
+    buf32[i] = 0xFF000000 | (nc << 16) | (nc << 8) | nc;
+  }
+  function plot2(x, y, b) {
+    plot(x, y, b); plot(x + 1, y, b * 0.55);
+    plot(x, y + 1, b * 0.55); plot(x + 1, y + 1, b * 0.30);
+  }
+  function plotStreak(x, y, b, dx, dy, halfLen) {
+    for (let k = -halfLen; k <= halfLen; k++) {
+      const t = Math.abs(k) / (halfLen + 0.5);
+      plot((x + dx * k) | 0, (y + dy * k) | 0, b * (1 - t * 0.55));
+    }
+  }
+
+  // ---------- Loop ----------
+  let t = 0, last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    t += dt;
+
+    ensureImageData();
+    clearBuf();
+
+    const breath  = Math.sin(t * 0.55) * 0.7 * DPR;
+    const sway    = Math.sin(t * 0.30) * 0.5 * DPR;
+    const yaw     = Math.sin(t * 0.22) * 0.10 + Math.sin(t * 0.07) * 0.05;
+    const cosYaw  = Math.cos(yaw);
+    const sinYaw  = Math.sin(yaw);
+    const cx      = fig.cx;
+    const centerY = fig.top + fig.figH * 0.50;
+
+    for (let i = 0; i < COUNT; i++) {
+      const o  = i * STRIDE;
+      const x0 = particles[o + 0], y0 = particles[o + 1];
+      const ph = particles[o + 2], sp = particles[o + 3];
+      const am = particles[o + 4];
+      let   br = particles[o + 5];
+      const sz = particles[o + 6], kd = particles[o + 7], z0 = particles[o + 8];
+      const sa = Math.sin(t * sp + ph), ca = Math.cos(t * sp * 0.72 + ph * 0.83);
+      let x, y;
+
+      if (kd === 5) {
+        const angle = ph + t * sp + yaw;
+        const ox = Math.sin(angle) * am, oz = Math.cos(angle) * am;
+        x = x0 + ox + sway;
+        y = y0 + breath + Math.sin(t * 0.4 + ph * 1.3) * 0.5 * DPR;
+        const dnorm = oz / am;
+        br = br * (0.30 + 0.70 * Math.max(0, dnorm))
+                * (0.65 + 0.35 * ((ox / am) * LIGHT_X + dnorm * LIGHT_Z));
+      } else if (kd === 1) {
+        x = x0 + sinYaw * z0 + sa * am + sway;
+        y = y0 + ca * am * 0.85 + breath;
+        br = br * Math.max(0.85, Math.min(1.10, 1.0 + 0.08 * (z0 / (fig.figW * 0.35 + 1))));
+      } else if (kd === 3) {
+        const life = ((t * 0.16) + ph * 0.5) % 1;
+        const dirX = x0 - cx, dirY = y0 - centerY;
+        const len  = Math.hypot(dirX, dirY) || 1;
+        const push = life * 110 * DPR;
+        x = x0 + sa * am + sway + (dirX / len) * push;
+        y = y0 + ca * am * 0.85 + breath + (dirY / len) * push * 0.9;
+        br = br * Math.sin(life * Math.PI);
+      } else if (kd === 4) {
+        x = x0 + sa * am;
+        y = y0 + ca * am * 0.85;
+        br = br * (0.45 + 0.55 * Math.sin(t * (1.4 + sp) + ph * 2));
+      } else {
+        x = x0 + sa * am + sway;
+        y = y0 + ca * am * 0.85 + breath;
+      }
+
+      // Global opacity — keeps figure ethereal so text reads over it
+      br *= 0.58;
+
+      const ix = x | 0, iy = y | 0;
+      if (sz === 3) {
+        plotStreak(ix, iy, br, Math.cos(ph), Math.sin(ph), (2 + (i & 1)));
+      } else if (sz === 2) {
+        plot2(ix, iy, br);
+      } else {
+        plot(ix, iy, br);
+      }
+    }
+
+    ctx.putImageData(imgData, 0, 0);
+    requestAnimationFrame(frame);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame((n) => { last = n; frame(n); });
+
+  // gentle pointer parallax (reduced amplitude for layout context)
+  let tmx = 0, tmy = 0, mx = 0, my = 0;
+  window.addEventListener('pointermove', (e) => {
+    tmx = ((e.clientX / window.innerWidth)  - 0.5) * 2;
+    tmy = ((e.clientY / window.innerHeight) - 0.5) * 2;
+  });
+  (function parallax() {
+    mx += (tmx - mx) * 0.04;
+    my += (tmy - my) * 0.04;
+    canvas.style.transform = `translate(${(-mx * 5).toFixed(2)}px, ${(-my * 4).toFixed(2)}px)`;
+    requestAnimationFrame(parallax);
+  })();
+})();
+
+/* ── Init ── */
+renderAll(data);
+
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    lastFetch = performance.now();
+    fetchData();
+    setInterval(() => { if (performance.now() - lastFetch > FETCH_MS){ lastFetch = performance.now(); fetchData(); } }, FETCH_MS);
+  });
+});
+</script>
+</body>
 </html>
