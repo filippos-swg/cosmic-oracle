@@ -2,7 +2,8 @@ import json
 import sys
 import time
 import subprocess
-from datetime import datetime, UTC
+from datetime import datetime, timezone
+UTC = timezone.utc
 from pathlib import Path
 
 UPDATE_SECONDS = 60        # re-run sky + write oracle.json every 60s
