@@ -2,64 +2,57 @@ import json
 import sys
 import time
 import subprocess
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from pathlib import Path
 
-UPDATE_SECONDS = 60  # planets move on minutes/hours, not seconds
+UPDATE_SECONDS = 60        # re-run sky + write oracle.json every 60s
+PRINT_LOGS     = True
 
-PRINT_LOGS = True
-
-HERE = Path(__file__).resolve().parent
-
-# Ensure librarian.py is importable regardless of working directory
-if str(HERE) not in sys.path:
-    sys.path.insert(0, str(HERE))
-
-from librarian import build_reading  # noqa: E402 (import after sys.path)
-
-SKY_PY    = HERE / "sky.py"
-SKY_JSON  = HERE / "sky_state.json"
+HERE       = Path(__file__).resolve().parent
+SKY_PY     = HERE / "sky.py"
+SKY_JSON   = HERE / "sky_state.json"
+SIG_TXT    = HERE / "sky_signature.txt"
 VISUAL_DIR = HERE / "visual"
 ORACLE_JSON = VISUAL_DIR / "oracle.json"
 
+# librarian.py lives alongside this file
+sys.path.insert(0, str(HERE))
+import librarian   # FIX: was never imported — reading generation was bypassed entirely
 
 def log(msg: str):
     if PRINT_LOGS:
         print(msg, flush=True)
 
-
 def run_sky():
-    subprocess.run([sys.executable, str(SKY_PY)], cwd=HERE, check=True)
+    subprocess.run(["python3", str(SKY_PY)], cwd=HERE, check=True)
 
-
-def read_sky_state():
+def read_sky_state() -> dict:
     if not SKY_JSON.exists():
         return {}
     return json.loads(SKY_JSON.read_text(encoding="utf-8"))
 
-
-def write_oracle_json(sky_state, stamp, headline, omens, constraint, aside):
-    # reading: single string — backward compatible with current p5 visual
-    reading_text = "\n\n".join([
-        headline,
-        "\n".join(f"- {o}" for o in omens),
-        constraint,
-        aside,
-    ])
+def write_oracle_json(sky_state: dict):
+    # FIX: was calling a hardcoded make_reading() stub; now calls librarian properly
+    _stamp, headline, omens, constraint, aside = librarian.build_reading(sky_state)
 
     payload = {
-        "utc": datetime.now(timezone.utc).isoformat(),
+        "utc":     datetime.now(UTC).isoformat(),
         "sky_utc": sky_state.get("utc"),
         "signature": sky_state.get("signature", []),
-        "reading": reading_text,
+
+        # FIX: field was "reading" (string); frontend expects "reading_structured" (object)
         "reading_structured": {
-            "stamp": stamp,
-            "headline": headline,
-            "omens": omens,
+            "headline":   headline,
+            "omens":      omens,
             "constraint": constraint,
-            "aside": aside,
+            "aside":      aside,
         },
-        "sky": sky_state,
+
+        # Pass full sky data through for Celestial Log, Transits, Moon strip, etc.
+        "sky": {
+            "planets": sky_state.get("planets", {}),
+            "aspects": sky_state.get("aspects", []),
+        },
     }
 
     VISUAL_DIR.mkdir(parents=True, exist_ok=True)
@@ -68,29 +61,26 @@ def write_oracle_json(sky_state, stamp, headline, omens, constraint, aside):
         encoding="utf-8"
     )
 
-
 def main():
     log("\n==============================")
-    log(" ASTRA — RUNNING")
+    log("  ASTRA — ORACLE RUNNING")
     log("==============================\n")
 
     while True:
         try:
             run_sky()
             sky_state = read_sky_state()
-            stamp, headline, omens, constraint, aside = build_reading(sky_state)
-            write_oracle_json(sky_state, stamp, headline, omens, constraint, aside)
-            log(f"✅ wrote: visual/oracle.json  tokens={len(sky_state.get('signature', []))}")
+            write_oracle_json(sky_state)
+            sig_count = len(sky_state.get("signature", []))
+            log(f"✅  wrote: visual/oracle.json  (tokens={sig_count})  [{datetime.now(UTC).strftime('%H:%M:%S')} UTC]")
             time.sleep(UPDATE_SECONDS)
 
         except KeyboardInterrupt:
-            log("\n🛑 stopped (Ctrl+C)")
+            log("\n⏹  stopped (Ctrl+C)")
             break
-
         except Exception as e:
-            log(f"\n⚠️ error: {e}\nretrying in 10s...")
-            time.sleep(10)
-
+            log(f"\n⚠️  error: {e}\n   retrying in 5s...")
+            time.sleep(5)
 
 if __name__ == "__main__":
     main()
