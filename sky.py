@@ -1,7 +1,11 @@
 import datetime
+from datetime import timezone
 import json
 from math import fmod
 import swisseph as swe
+
+# Python 3.9 compat
+datetime.UTC = timezone.utc
 
 SIGNS = [
     "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
