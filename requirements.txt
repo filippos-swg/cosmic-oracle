@@ -1,0 +1,14 @@
+# Cosmic Oracle — Python dependencies
+#
+# Install:
+#   pip install -r requirements.txt
+#
+# Python 3.10+ recommended (tested on whatever version was running 2026-05-20)
+
+# Astronomical computation — Swiss Ephemeris bindings
+# Imported as: import swisseph as swe
+# Used in: Astrologer_UPLOAD/sky.py
+pyswisseph>=2.10.0
+
+# All other dependencies are Python stdlib:
+#   json, pathlib, datetime, math, subprocess, sys, time, http.server, os
