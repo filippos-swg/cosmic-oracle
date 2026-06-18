@@ -1,0 +1,93 @@
+{
+  "utc": "2026-05-20T13:26:01.099969+00:00",
+  "sky_utc": "2026-05-20T13:26:01.095817+00:00",
+  "signature": [
+    "MOO_CON_JUP",
+    "VEN_SXT_MAR",
+    "MER_SXT_SAT",
+    "SUN_CON_MER",
+    "STACK_CANCER_3"
+  ],
+  "reading": "The mind is loud; the world is listening. A noticeable Cancer concentration (3 bodies): intuition up, boundaries negotiable.\n\n- Your words land with extra weight—choose them carefully.\n- Clarity is available if you stop multitasking for 90 seconds.\n- Naming the thing makes it manageable.\n\nAvoid reactive hot takes. Precision beats velocity.\n\nAdministrative note from the stacks: Sun in Taurus at 29.55° and Moon in Cancer at 21.98°. Please return borrowed certainty by closing time.",
+  "reading_structured": {
+    "stamp": "2026-05-20 13:26 UTC",
+    "headline": "The mind is loud; the world is listening. A noticeable Cancer concentration (3 bodies): intuition up, boundaries negotiable.",
+    "omens": [
+      "Your words land with extra weight—choose them carefully.",
+      "Clarity is available if you stop multitasking for 90 seconds.",
+      "Naming the thing makes it manageable."
+    ],
+    "constraint": "Avoid reactive hot takes. Precision beats velocity.",
+    "aside": "Administrative note from the stacks: Sun in Taurus at 29.55° and Moon in Cancer at 21.98°. Please return borrowed certainty by closing time."
+  },
+  "sky": {
+    "utc": "2026-05-20T13:26:01.095817+00:00",
+    "planets": {
+      "Sun": {
+        "sign": "Taurus",
+        "degree": 29.55
+      },
+      "Moon": {
+        "sign": "Cancer",
+        "degree": 21.98
+      },
+      "Mercury": {
+        "sign": "Gemini",
+        "degree": 6.77
+      },
+      "Venus": {
+        "sign": "Cancer",
+        "degree": 1.81
+      },
+      "Mars": {
+        "sign": "Taurus",
+        "degree": 1.22
+      },
+      "Jupiter": {
+        "sign": "Cancer",
+        "degree": 21.99
+      },
+      "Saturn": {
+        "sign": "Aries",
+        "degree": 11.21
+      }
+    },
+    "aspects": [
+      {
+        "type": "Conjunction",
+        "planet1": "Moon",
+        "planet2": "Jupiter",
+        "angle": 0.01,
+        "orb": 0.01
+      },
+      {
+        "type": "Sextile",
+        "planet1": "Venus",
+        "planet2": "Mars",
+        "angle": 60.59,
+        "orb": 0.59
+      },
+      {
+        "type": "Sextile",
+        "planet1": "Mercury",
+        "planet2": "Saturn",
+        "angle": 55.57,
+        "orb": 4.43
+      },
+      {
+        "type": "Conjunction",
+        "planet1": "Sun",
+        "planet2": "Mercury",
+        "angle": 7.22,
+        "orb": 7.22
+      }
+    ],
+    "signature": [
+      "MOO_CON_JUP",
+      "VEN_SXT_MAR",
+      "MER_SXT_SAT",
+      "SUN_CON_MER",
+      "STACK_CANCER_3"
+    ]
+  }
+}

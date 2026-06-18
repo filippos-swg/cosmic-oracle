@@ -1,0 +1,70 @@
+{
+  "utc": "2026-05-20T13:26:01.095817+00:00",
+  "planets": {
+    "Sun": {
+      "sign": "Taurus",
+      "degree": 29.55
+    },
+    "Moon": {
+      "sign": "Cancer",
+      "degree": 21.98
+    },
+    "Mercury": {
+      "sign": "Gemini",
+      "degree": 6.77
+    },
+    "Venus": {
+      "sign": "Cancer",
+      "degree": 1.81
+    },
+    "Mars": {
+      "sign": "Taurus",
+      "degree": 1.22
+    },
+    "Jupiter": {
+      "sign": "Cancer",
+      "degree": 21.99
+    },
+    "Saturn": {
+      "sign": "Aries",
+      "degree": 11.21
+    }
+  },
+  "aspects": [
+    {
+      "type": "Conjunction",
+      "planet1": "Moon",
+      "planet2": "Jupiter",
+      "angle": 0.01,
+      "orb": 0.01
+    },
+    {
+      "type": "Sextile",
+      "planet1": "Venus",
+      "planet2": "Mars",
+      "angle": 60.59,
+      "orb": 0.59
+    },
+    {
+      "type": "Sextile",
+      "planet1": "Mercury",
+      "planet2": "Saturn",
+      "angle": 55.57,
+      "orb": 4.43
+    },
+    {
+      "type": "Conjunction",
+      "planet1": "Sun",
+      "planet2": "Mercury",
+      "angle": 7.22,
+      "orb": 7.22
+    }
+  ],
+  "signature": [
+    "MOO_CON_JUP",
+    "VEN_SXT_MAR",
+    "MER_SXT_SAT",
+    "SUN_CON_MER",
+    "STACK_CANCER_3"
+  ]
+}
