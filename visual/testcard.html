@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>ASTRA — Test Card</title>
+<style>
+/*
+  ASTRA TEST CARD — CRT calibration page
+  Purpose: display on the DUX television through the real converter chain,
+  then measure with your eyes (and a phone photo):
+    1. Which SAFE rectangle survives the tube mask on all four edges?
+    2. Which corner arc is fully visible? (mask rounding)
+    3. Smallest text row that is comfortably legible from 1.5m?
+    4. Do the 1px lines flicker/disappear? Do 2px hold?
+    5. Does the blinking block flicker smoothly (sync ok)?
+  Every measurement feeds tv.html. Keyboard: 'i' inverts (white screen),
+  'g' toggles grid only.
+*/
+:root { --fg: #e9e7e2; --dim: #8a8884; }
+* { box-sizing: border-box; }
+html, body { margin:0; height:100%; background:#000; color:var(--fg);
+  font-family:"Courier Prime","JetBrains Mono",monospace; overflow:hidden; }
+.stage { position:fixed; width:1024px; height:768px; transform-origin:top left; }
+.stage.invert { filter: invert(1); }
+svg { position:absolute; inset:0; }
+.label { font-size:16px; fill:var(--fg); font-family:inherit; letter-spacing:.08em; }
+.rows { position:absolute; left:50%; top:388px; transform:translateX(-50%);
+  width:660px; text-align:center; line-height:1.25; }
+.rows div { white-space:nowrap; }
+.title { position:absolute; top:96px; width:100%; text-align:center;
+  font-size:44px; letter-spacing:.18em; }
+.sub { position:absolute; top:152px; width:100%; text-align:center;
+  font-size:20px; letter-spacing:.14em; color:var(--dim); }
+.blink { position:absolute; right:180px; bottom:150px; width:40px; height:40px;
+  background:var(--fg); }
+.clock { position:absolute; left:180px; bottom:150px; font-size:24px; letter-spacing:.1em; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <svg viewBox="0 0 1024 768">
+    <!-- full frame -->
+    <rect x="1" y="1" width="1022" height="766" fill="none" stroke="#e9e7e2" stroke-width="2"/>
+    <!-- safe rectangles: 90 / 80 / 70 % -->
+    <rect x="51.2" y="38.4" width="921.6" height="691.2" fill="none" stroke="#e9e7e2" stroke-width="2"/>
+    <rect x="102.4" y="76.8" width="819.2" height="614.4" fill="none" stroke="#8a8884" stroke-width="2" stroke-dasharray="10 6"/>
+    <rect x="153.6" y="115.2" width="716.8" height="537.6" fill="none" stroke="#555" stroke-width="2" stroke-dasharray="4 6"/>
+    <text class="label" x="60" y="60">90</text>
+    <text class="label" x="111" y="99">80</text>
+    <text class="label" x="162" y="137">70</text>
+    <!-- center crosshair + circles -->
+    <line x1="512" y1="330" x2="512" y2="438" stroke="#e9e7e2" stroke-width="2"/>
+    <line x1="458" y1="384" x2="566" y2="384" stroke="#e9e7e2" stroke-width="2"/>
+    <circle cx="512" cy="384" r="330" fill="none" stroke="#555" stroke-width="2"/>
+    <circle cx="512" cy="384" r="220" fill="none" stroke="#8a8884" stroke-width="2"/>
+    <!-- corner arcs to gauge mask rounding -->
+    <g fill="none" stroke="#e9e7e2" stroke-width="2">
+      <path d="M 1 121 A 120 120 0 0 1 121 1"/>
+      <path d="M 903 1 A 120 120 0 0 1 1023 121"/>
+      <path d="M 1023 647 A 120 120 0 0 1 903 767"/>
+      <path d="M 121 767 A 120 120 0 0 1 1 647"/>
+      <path d="M 1 201 A 200 200 0 0 1 201 1" stroke="#8a8884"/>
+      <path d="M 823 1 A 200 200 0 0 1 1023 201" stroke="#8a8884"/>
+      <path d="M 1023 567 A 200 200 0 0 1 823 767" stroke="#8a8884"/>
+      <path d="M 201 767 A 200 200 0 0 1 1 567" stroke="#8a8884"/>
+    </g>
+    <!-- line-weight samples, horizontal + vertical -->
+    <g stroke="#e9e7e2">
+      <line x1="200" y1="240" x2="824" y2="240" stroke-width="1"/>
+      <line x1="200" y1="252" x2="824" y2="252" stroke-width="2"/>
+      <line x1="200" y1="266" x2="824" y2="266" stroke-width="3"/>
+      <line x1="236" y1="200" x2="236" y2="300" stroke-width="1"/>
+      <line x1="248" y1="200" x2="248" y2="300" stroke-width="2"/>
+      <line x1="262" y1="200" x2="262" y2="300" stroke-width="3"/>
+    </g>
+    <text class="label" x="200" y="228">LINES 1 / 2 / 3 PX</text>
+    <!-- grayscale steps -->
+    <g>
+      <rect x="262" y="660" width="100" height="36" fill="#1a1a1a"/>
+      <rect x="362" y="660" width="100" height="36" fill="#3a3a3a"/>
+      <rect x="462" y="660" width="100" height="36" fill="#6a6a6a"/>
+      <rect x="562" y="660" width="100" height="36" fill="#a0a09c"/>
+      <rect x="662" y="660" width="100" height="36" fill="#e9e7e2"/>
+    </g>
+  </svg>
+
+  <div class="title">ASTRA</div>
+  <div class="sub">TEST TRANSMISSION — DO NOT ADJUST YOUR SET</div>
+
+  <div class="rows" id="rows"></div>
+  <div class="clock" id="clock">--:--:--</div>
+  <div class="blink" id="blink"></div>
+</div>
+
+<script>
+'use strict';
+// text-size ladder
+(function(){
+  const rows = document.getElementById('rows');
+  [18, 22, 26, 32, 44].forEach(px => {
+    const d = document.createElement('div');
+    d.style.fontSize = px + 'px';
+    d.textContent = px <= 26
+      ? px + 'PX  ASTRA 0123456789 QUIET LIBRARY'
+      : px + 'PX  ASTRA 0123456789';
+    rows.appendChild(d);
+  });
+})();
+// fit 1024x768 stage to viewport
+(function(){
+  const stage = document.getElementById('stage');
+  function fit(){
+    const s = Math.min(innerWidth / 1024, innerHeight / 768);
+    stage.style.left = Math.round((innerWidth - 1024 * s) / 2) + 'px';
+    stage.style.top  = Math.round((innerHeight - 768 * s) / 2) + 'px';
+    stage.style.transform = 'scale(' + s + ')';
+  }
+  fit(); addEventListener('resize', fit);
+})();
+// clock + blinker (1 Hz — reveals sync/interlace trouble)
+(function(){
+  const c = document.getElementById('clock'), b = document.getElementById('blink');
+  setInterval(() => {
+    c.textContent = new Date().toTimeString().slice(0,8);
+    b.style.visibility = b.style.visibility === 'hidden' ? 'visible' : 'hidden';
+  }, 500);
+})();
+// 'i' inverts for a full-white burn check, 'g' hides text for grid-only
+addEventListener('keydown', e => {
+  if (e.key === 'i') document.getElementById('stage').classList.toggle('invert');
+  if (e.key === 'g') document.querySelectorAll('.rows,.title,.sub,.clock')
+    .forEach(el => el.style.visibility = el.style.visibility === 'hidden' ? 'visible' : 'hidden');
+});
+</script>
+</body>
+</html>

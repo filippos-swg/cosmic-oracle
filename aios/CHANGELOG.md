@@ -4,6 +4,19 @@ Newest-first.
 
 ---
 
+## 2026-07-16 — Installation build begins (Phase A)
+
+- Name resolved: ASTRA (DECISIONS.md)
+- Decisions logged: rotary-dial DOB input, fully local architecture, installation-first
+- v1 desktop dashboard frozen in snapshots/v1-2026-07-16-desktop-dashboard/ (runnable)
+- Added visual/testcard.html — CRT calibration card (safe rects 90/80/70, corner-mask
+  arcs, 1/2/3px line samples, 18–44px type ladder, grayscale steps, 1 Hz blinker,
+  'i' invert / 'g' grid-only). First thing to display on the DUX through the converter.
+- Added aios/STATUS_REPORT.md — status + finalization plan (UX ceremony, TV legibility
+  audit, MacBook appliance checklist, roadmap)
+
+---
+
 ## 2026-07-16 — Design-parity + data-layer pass (AI session, reviewed by filippos)
 
 **sky.py**

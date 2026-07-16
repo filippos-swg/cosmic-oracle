@@ -4,6 +4,54 @@ Newest-first. Log every architectural, product, and naming decision here.
 
 ---
 
+## 2026-07-16 — Project name: ASTRA
+
+**Status:** APPROVED (filippos)
+**Decision:** The project and the piece are named ASTRA. Resolves the open v2/v3 naming
+question. Startup screen, sign-off cards, and all user-facing copy use ASTRA. Repo/folder
+names stay `cosmic-oracle` (rename not worth the churn).
+
+---
+
+## 2026-07-16 — Visitor input: date of birth via rotary telephone dial
+
+**Status:** APPROVED (filippos)
+**Decision:** The installation takes the visitor's date of birth (DD·MM·YYYY), entered on a
+rotary telephone dial wired through a microcontroller emulating a USB keyboard. The frontend
+listens for plain digit keystrokes, so a normal keyboard works for development and as a
+fallback. Supersedes "V1 user input: zodiac sign selection only" below — that decision was
+scoped to the web MVP; the installation leads with DOB.
+
+---
+
+## 2026-07-16 — Installation architecture: fully local
+
+**Status:** APPROVED (filippos)
+**Decision:** The installation runs entirely on the dedicated MacBook Pro: oracle loop,
+local server, and site, with zero network dependency. The Cloudflare web MVP remains a
+later, separate track that reuses the TV build's state machine and content engine.
+
+---
+
+## 2026-07-16 — Installation before web MVP
+
+**Status:** APPROVED (implicit in installation build)
+**Decision:** The physical TV installation is being built first, running fully on a dedicated
+MacBook Pro. Supersedes "Physical object deferred until web MVP validated" below. The web MVP
+(stars.kidbutton.com) remains planned and inherits the TV build's state machine and content
+engine.
+
+---
+
+## 2026-07-16 — Snapshot before experience rebuild
+
+**Status:** DONE
+**Decision:** The v1 desktop-dashboard experience is frozen in
+`snapshots/v1-2026-07-16-desktop-dashboard/` (runnable copy) before the installation UX
+(tv.html, ceremony state machine) is built.
+
+---
+
 ## 2026-06-18 — AIOS v1 preservation pass
 
 **Status:** APPROVED
