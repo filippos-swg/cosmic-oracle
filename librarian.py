@@ -126,6 +126,87 @@ STACK_BY_ELEMENT = {
 }
 
 # ---------------------------------------------------------------------------
+# Composed readings — fallback layer
+#
+# The curated TOKEN_MEANINGS table covers a handful of aspects. Most days,
+# none of them are exact. Rather than falling through to the generic
+# "quiet library" reading every time, this layer composes a reading from
+# the tightest aspect involving a fast-moving planet. Same voice, assembled
+# from parts: each planet is a department of the archive; each aspect type
+# is a mode of inter-departmental relations.
+# ---------------------------------------------------------------------------
+
+PERSONAL_PLANETS = ["Moon", "Sun", "Mercury", "Venus", "Mars"]
+
+PLANET_DESK = {
+    "Sun":     "the self",
+    "Moon":    "the emotional record",
+    "Mercury": "the correspondence desk",
+    "Venus":   "the department of affection",
+    "Mars":    "the engine room",
+    "Jupiter": "the office of expansion",
+    "Saturn":  "the structural engineer",
+    "Uranus":  "the department of surprises",
+    "Neptune": "the fog archive",
+    "Pluto":   "deep storage",
+}
+
+ASPECT_MODES = {
+    "Conjunction": {
+        "verb": "are sharing a desk today",
+        "omens": [
+            "Two departments have merged for the day. Their filing systems have not.",
+            "What one wants and what the other notices are currently indistinguishable.",
+        ],
+        "constraint": "Proximity is not the same as agreement. The sky files them separately.",
+    },
+    "Opposition": {
+        "verb": "are negotiating across a long table",
+        "omens": [
+            "Both parties are correct. This is the inconvenient kind of correct.",
+            "The distance between the two positions is the actual subject of the meeting.",
+        ],
+        "constraint": "A tension held properly is load-bearing. Dropped, it is only noise.",
+    },
+    "Trine": {
+        "verb": "are cooperating without being asked",
+        "omens": [
+            "Something works today that usually requires supervision.",
+            "No memo was sent. The thing happened anyway.",
+        ],
+        "constraint": "Ease is pleasant and teaches nothing. Enjoy it anyway.",
+    },
+    "Square": {
+        "verb": "are filing complaints about each other",
+        "omens": [
+            "The friction is structural, not personal. It may still feel personal.",
+            "Neither party will yield today. Something useful is being machined between them.",
+        ],
+        "constraint": "What grinds today is being shaped into something. The sky has not said what.",
+    },
+    "Sextile": {
+        "verb": "are exchanging polite memos",
+        "omens": [
+            "An opportunity exists. It is small, well-labeled, and easily ignored.",
+            "The door is not locked. It is, however, closed, and someone must still open it.",
+        ],
+        "constraint": "Doors that open quietly still require walking through.",
+    },
+}
+
+def compose_from_aspect(aspect: dict):
+    """Build a reading fragment from a single aspect dict (sky_state format)."""
+    mode = ASPECT_MODES.get(aspect.get("type"))
+    if not mode:
+        return None
+    p1, p2 = aspect.get("planet1"), aspect.get("planet2")
+    d1, d2 = PLANET_DESK.get(p1), PLANET_DESK.get(p2)
+    if not d1 or not d2:
+        return None
+    headline = f"{d1[0].upper()}{d1[1:]} and {d2} {mode['verb']}."
+    return headline, list(mode["omens"]), mode["constraint"]
+
+# ---------------------------------------------------------------------------
 # Aside: rotating daily closings
 # ---------------------------------------------------------------------------
 
@@ -191,6 +272,20 @@ def build_reading(sky):
                 headlines.append(stack["headline"])
                 omens.extend(stack["omens"])
                 constraints.append(stack["constraint"])
+
+    # Composed layer — when no curated token matched, build a reading from
+    # the tightest aspect involving a personal planet (aspects arrive
+    # orb-sorted from sky.py, so the first match is the tightest).
+    if not headlines:
+        for a in sky.get("aspects", []):
+            if a.get("planet1") in PERSONAL_PLANETS or a.get("planet2") in PERSONAL_PLANETS:
+                composed = compose_from_aspect(a)
+                if composed:
+                    c_head, c_omens, c_constraint = composed
+                    headlines.append(c_head)
+                    omens.extend(c_omens)
+                    constraints.append(c_constraint)
+                break
 
     # Fallbacks — used when no tokens match
     headline = (

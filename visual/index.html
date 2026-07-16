@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet" />
 <style>
 :root {
   --bg: #050505;
@@ -20,7 +20,7 @@ html, body {
   margin: 0; padding: 0;
   background: #000;
   color: var(--fg);
-  font-family: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  font-family: "Courier Prime", "JetBrains Mono", ui-monospace, Menlo, monospace;
   width: 100%; height: 100%;
 }
 .stage {
@@ -77,8 +77,18 @@ html, body {
   user-select: none;
 }
 .plus::before { content: "+"; }
-.plus.tr { top: 230px; right: 220px; }
-.plus.br { bottom: 220px; right: 220px; }
+.plus.tr { top: 145px; right: 42px; }
+.plus.br { bottom: 366px; right: 42px; }
+.vline {
+  position: absolute;
+  right: 48px;
+  top: 172px;
+  height: 448px;
+  border-left: 1px dashed var(--line);
+  opacity: 0.7;
+  z-index: 3;
+  pointer-events: none;
+}
 
 /* Left column */
 .left {
@@ -138,7 +148,7 @@ html, body {
   z-index: 2;
 }
 .center h1 {
-  font-family: "JetBrains Mono", monospace;
+  font-family: "Courier Prime", "JetBrains Mono", monospace;
   font-weight: 400;
   font-size: 44px;
   line-height: 1.08;
@@ -170,8 +180,8 @@ html, body {
 /* Ghost canvas — sits behind the grid (z-index 1 < grid z-index 2) */
 .silhouette {
   position: absolute;
-  top: 0; left: 520px;
-  width: 740px; height: 960px;
+  top: 0; left: 0;
+  width: 1500px; height: 1000px;
   z-index: 1;
   pointer-events: none;
   overflow: visible;
@@ -217,11 +227,11 @@ html, body {
 .stream .d { width: 9px; height: 2px; background: var(--fg); }
 .stream .d.off { background: var(--line); }
 
-.transits { margin-top: 6px; font-size: 11px; letter-spacing: 0.04em; line-height: 1.7; }
+.transits { margin-top: 6px; font-size: 10px; letter-spacing: 0.03em; line-height: 1.8; }
 .transit-row {
   display: grid;
-  grid-template-columns: 52px 16px 52px 1fr 12px;
-  gap: 4px;
+  grid-template-columns: 56px 14px 56px 1fr 10px;
+  gap: 3px;
   align-items: baseline;
 }
 .transit-row .gl  { text-align: center; font-size: 12px; }
@@ -267,6 +277,7 @@ html, body {
   <div class="frame">
     <span class="plus tr"></span>
     <span class="plus br"></span>
+    <span class="vline"></span>
 
     <!-- Avatar sits behind the grid -->
     <div class="silhouette" aria-hidden="true">
@@ -442,8 +453,12 @@ function lunarPhase(planets){
 }
 function illumination(p){ return Math.round((1 - Math.cos(p * Math.PI * 2)) / 2 * 100); }
 
-/* ── Moon SVG (arc-path approach) ── */
-function moonSVG(p, flipRight){
+/* ── Moon SVG (arc-path approach) ──
+   `frac` is the ILLUMINATED FRACTION (0 = new, 1 = full) — NOT the cycle
+   fraction. Callers must convert: k = (1 - cos(2π·cycle)) / 2.           */
+function moonSVG(frac, waxing){
+  const p = frac;
+  const flipRight = waxing;  // waxing: lit side on the right (N hemisphere)
   const R = 18, cx = 20, cy = 20;
   if (p >= 0.995){
     return '<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="#e9e7e2"/></svg>';
@@ -474,16 +489,18 @@ function drawMoonStrip(planets){
   el.innerHTML = '';
   const base = lunarPhase(planets);
   const PPD  = 1 / 29.53;
-  // 10 cells: offsets -3 through +2.5 in 0.5-day steps, label integer offsets only
-  const offsets = [-3, -2.5, -2, -1.5, -1, 0, 1, 1.5, 2, 2.5];
+  // 13 cells: symmetric -3..+3 days in half-day steps, today centered,
+  // integer offsets labeled (matches the design strip)
+  const offsets = [-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3];
   offsets.forEach(off => {
-    const p      = (((base + off * PPD) % 1) + 1) % 1;
+    const cyc    = (((base + off * PPD) % 1) + 1) % 1;              // cycle fraction
+    const frac   = (1 - Math.cos(cyc * Math.PI * 2)) / 2;           // illuminated fraction
+    const waxing = cyc < 0.5;
     const active = off === 0;
-    const flip   = p < 0.5;  // waxing phases: lit side on right
     const lbl    = Number.isInteger(off) ? (off > 0 ? '+' + off : String(off)) : '';
     const div    = document.createElement('div');
     div.className = 'phase' + (active ? ' active' : '');
-    div.innerHTML = '<div class="ring"></div>' + moonSVG(p, flip) + '<div class="lbl">' + lbl + '</div>';
+    div.innerHTML = '<div class="ring"></div>' + moonSVG(frac, waxing) + '<div class="lbl">' + lbl + '</div>';
     el.appendChild(div);
   });
 }
@@ -500,7 +517,7 @@ function renderPanel(d){
     const row = document.createElement('div');
     row.className = 'planet-row';
     row.innerHTML =
-      '<span>' + name.toUpperCase() + '</span>' +
+      '<span>' + name.toUpperCase() + (p.retrograde ? ' <span style="opacity:.5">R</span>' : '') + '</span>' +
       '<span class="deg">' + (typeof p.degree === 'number' ? p.degree.toFixed(1) + '°' : '—') + '</span>' +
       '<span class="gl">' + (Z_SYM[p.sign] || '?') + '</span>';
     tbl.appendChild(row);
@@ -553,14 +570,22 @@ function renderPanel(d){
   transitEl.innerHTML = '';
   const top4 = [...aspects].sort((a,b) => a.orb - b.orb).slice(0, 4);
   for (const asp of top4){
+    const dInt = Math.floor(asp.orb);
+    const mInt = Math.round((asp.orb - dInt) * 60);
+    const orbStr = dInt + '°' + String(mInt).padStart(2, '0') + "'";
+    // Real applying/separating comes from sky.py (planetary speeds);
+    // orb-size heuristic kept only as fallback for old oracle.json files.
+    const as = typeof asp.applying === 'boolean'
+      ? (asp.applying ? 'A' : 'S')
+      : (asp.orb < 1.5 ? 'A' : 'S');
     const row = document.createElement('div');
     row.className = 'transit-row';
     row.innerHTML =
-      '<span>' + asp.planet1.toUpperCase().slice(0,4) + '</span>' +
+      '<span>' + asp.planet1.toUpperCase() + '</span>' +
       '<span class="gl">' + (ASP_SYM[asp.type] || '·') + '</span>' +
-      '<span>' + asp.planet2.toUpperCase().slice(0,4) + '</span>' +
-      '<span class="orb">' + asp.orb.toFixed(2) + '°</span>' +
-      '<span>' + (asp.orb < 1.5 ? 'A' : 'S') + '</span>';
+      '<span>' + asp.planet2.toUpperCase() + '</span>' +
+      '<span class="orb">' + orbStr + '</span>' +
+      '<span>' + as + '</span>';
     transitEl.appendChild(row);
   }
 
@@ -631,16 +656,16 @@ async function fetchData(){
 /* ── System status bar ── */
 (function(){
   const bar = document.getElementById('sys-bar');
-  const TOTAL = 9;
+  const TOTAL = 12;
   for (let i = 0; i < TOTAL; i++){
     const s = document.createElement('span');
-    if (i >= 6) s.className = 'off';
+    if (i >= 8) s.className = 'off';
     bar.appendChild(s);
   }
   let frame = 0;
   setInterval(() => {
     frame++;
-    const f = Math.min(TOTAL, Math.round(3 + (frame / 55) * 6) % (TOTAL + 1));
+    const f = Math.min(TOTAL, Math.round(3 + (frame / 55) * 9) % (TOTAL + 1));
     bar.querySelectorAll('span').forEach((s, i) => { s.className = i < f ? '' : 'off'; });
   }, 750);
 })();
@@ -648,10 +673,14 @@ async function fetchData(){
 /* ── Particle avatar (Astra hooded figure) ── */
 (function(){
   const canvas = document.getElementById('astra-c');
-  const ctx = canvas.getContext('2d', { alpha: false });
+  // Alpha-enabled: the particle field composites over the frame's radial
+  // gradient instead of painting an opaque black slab (which produced a
+  // visible rectangular seam around the canvas).
+  const ctx = canvas.getContext('2d');
 
-  // Fixed container dimensions in CSS px (matches .silhouette size)
-  const W_CSS = 740, H_CSS = 960;
+  // Full-frame canvas: starfield and dust span the whole interface (as in
+  // the reference); the figure itself is placed right-of-center below.
+  const W_CSS = 1500, H_CSS = 1000;
   let W = 0, H = 0, DPR = 1;
 
   function resize() {
@@ -666,18 +695,43 @@ async function fetchData(){
   }
 
   // ---------- Silhouette geometry ----------
+  // Profile measured from the reference mockup: per-row half-widths as a
+  // fraction of figure width. A smooth bell — rounded head (widest ~0.18),
+  // a barely-there neck dip, then a long S-curve that keeps widening all
+  // the way down, reaching maximum width near the base where the figure
+  // fades out. Piecewise-smoothstep through the sampled points.
+  // Measured from the close-up reference of the entity: rounded head
+  // (~0.29 of max width), a short smooth transition (no deep notch),
+  // shoulders sweeping wide into arm-like sides, widest ~62% down, then
+  // near-vertical sides dissolving toward the base.
+  const PROFILE = [
+    [0.000, 0.000],
+    [0.008, 0.050],   // crown rounds over immediately — no central notch
+    [0.020, 0.078],
+    [0.050, 0.115],
+    [0.090, 0.140],
+    [0.130, 0.147],   // head widest (cheeks)
+    [0.210, 0.143],   // face
+    [0.260, 0.132],   // jaw pinch — the dome separates from the shoulders
+    [0.330, 0.170],   // trapezius begins
+    [0.420, 0.330],   // concentrated shoulder flare
+    [0.520, 0.440],
+    [0.620, 0.500],   // widest (upper arms)
+    [0.800, 0.485],
+    [1.000, 0.465],   // sides taper slightly, fading out
+  ];
   function halfWidthN(yn) {
-    const ss = (t) => { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t); };
-    const lerp = (a, b, t) => a + (b - a) * ss(t);
-    if (yn < 0.020) return lerp(0.000, 0.075, yn / 0.020);
-    if (yn < 0.070) return lerp(0.075, 0.150, (yn - 0.020) / 0.050);
-    if (yn < 0.150) return lerp(0.150, 0.180, (yn - 0.070) / 0.080);
-    if (yn < 0.230) return lerp(0.180, 0.198, (yn - 0.150) / 0.080);
-    if (yn < 0.320) return lerp(0.198, 0.275, (yn - 0.230) / 0.090);
-    if (yn < 0.420) return lerp(0.275, 0.420, (yn - 0.320) / 0.100);
-    if (yn < 0.520) return lerp(0.420, 0.520, (yn - 0.420) / 0.100);
-    if (yn < 0.650) return lerp(0.520, 0.560, (yn - 0.520) / 0.130);
-    return             lerp(0.560, 0.600, (yn - 0.650) / 0.350);
+    yn = Math.max(0, Math.min(1, yn));
+    for (let k = 1; k < PROFILE.length; k++) {
+      if (yn <= PROFILE[k][0]) {
+        const y0 = PROFILE[k-1][0], w0 = PROFILE[k-1][1];
+        const y1 = PROFILE[k][0],   w1 = PROFILE[k][1];
+        const t = (yn - y0) / (y1 - y0);
+        const s = t * t * (3 - 2 * t);
+        return w0 + (w1 - w0) * s;
+      }
+    }
+    return PROFILE[PROFILE.length - 1][1];
   }
 
   // ---------- RNG ----------
@@ -737,6 +791,9 @@ async function fetchData(){
   }
 
   // ---------- Particles ----------
+  // 70k (down from 100k): the design's figure is sparse dust with black
+  // showing through, not a saturated mass — and the kiosk Mac mini will
+  // thank us. Lower further (~30k) for the installation machine if needed.
   const COUNT = 100000;
   const STRIDE = 9;
   let particles = new Float32Array(COUNT * STRIDE);
@@ -748,22 +805,26 @@ async function fetchData(){
   function buildParticles() {
     if (!outlineRight) buildOutline();
 
-    const aspect = 0.66;
-    let figH = H * 0.77;
+    // Reference proportions: figure max width ≈ 0.75 × its height, bust
+    // fills ~78% of frame height, centered at ~0.69 of frame width
+    const aspect = 0.75;
+    let figH = H * 0.785;
     let figW = figH * aspect;
-    // Cap so figure fills canvas comfortably with margin
-    if (figW > W * 0.78) { figW = W * 0.78; figH = figW / aspect; }
-    const cx  = W * 0.52;   // centered in container
-    const top = Math.max(0, (H - figH) * 0.08);
+    const cx  = W * 0.687;
+    const top = Math.max(0, (H - figH) * 0.38);   // head top ≈ 8% of frame
     fig = { cx, top, figW, figH };
 
-    const edgeCount      = Math.floor(COUNT * 0.10);
-    const haloCount      = Math.floor(COUNT * 0.22);
+    // The close-up reference shows the entity is RIM-DEFINED: a bright,
+    // ragged band of scratchy strokes traces the head and shoulder tops;
+    // the interior stays dark with sparse dust that thickens toward the
+    // rim; halo spray scatters outward from the rim.
+    const edgeCount      = Math.floor(COUNT * 0.22);
+    const haloCount      = Math.floor(COUNT * 0.10);
     const bodyInnerCount = Math.floor(COUNT * 0.42);
-    const hoodInnerCount = Math.floor(COUNT * 0.09);
-    const baseDustCount  = Math.floor(COUNT * 0.11);
+    const hoodInnerCount = Math.floor(COUNT * 0.02);
+    const baseDustCount  = Math.floor(COUNT * 0.05);
     const orbitCount     = Math.floor(COUNT * 0.04);
-    const driftCount     = Math.floor(COUNT * 0.02);
+    const driftCount     = Math.floor(COUNT * 0.04);
     const sparkCount     = COUNT - edgeCount - haloCount - bodyInnerCount - hoodInnerCount - baseDustCount - orbitCount - driftCount;
 
     let i = 0;
@@ -772,55 +833,63 @@ async function fetchData(){
     for (let n = 0; n < edgeCount; n++) {
       const t = Math.random(), side = Math.random() < 0.5 ? -1 : 1;
       const p = samplePolygon(t);
+      // The rim fragments away down the sides — strongest on the head
+      // dome and shoulder tops.
+      if (p.y > 0.55 && Math.random() < (p.y - 0.55) / 0.40) continue;
       let dEdge;
       const r = Math.random();
-      if (r < 0.45)       dEdge = gauss() * 0.030;
-      else if (r < 0.78)  dEdge = Math.pow(Math.random(), 1.4) * 0.080;
-      else                dEdge = -Math.pow(Math.random(), 1.4) * 0.060;
+      // Reference rim: tight bright core + broad rough band + spray —
+      // a thick ragged ribbon, not a thin line
+      if (r < 0.40)       dEdge = gauss() * 0.016;                       // bright core
+      else if (r < 0.75)  dEdge = (Math.random() * 2 - 1) * 0.035;       // rough band
+      else if (r < 0.90)  dEdge = Math.pow(Math.random(), 1.4) * 0.090;  // outward spray
+      else                dEdge = -Math.pow(Math.random(), 1.4) * 0.050; // inward bleed
       const px = cx + side * (p.x * figW + dEdge * figW * p.nx);
       const py = fig.top + p.y * figH + dEdge * figW * p.ny;
-      writeParticle(i++, px, py, 0);
+      const topBoost = p.y < 0.25 ? 1.30 : 1.0;   // head rim is the brightest arc
+      writeParticle(i++, px, py, 0, 0, 0, 0, vFade(p.y) * topBoost);
     }
 
     // 2. HALO
     for (let n = 0; n < haloCount; n++) {
       const t = Math.random(), side = Math.random() < 0.5 ? -1 : 1;
       const p = samplePolygon(t);
-      const dist = Math.abs(gauss()) * 0.045;
+      if (p.y > 0.66 && Math.random() < (p.y - 0.66) / 0.40) continue;
+      const dist = Math.abs(gauss()) * 0.070;
       const px = cx + side * (p.x * figW + dist * figW * p.nx) + gauss() * 4 * DPR;
       const py = fig.top + p.y * figH + dist * figW * p.ny + gauss() * 4 * DPR;
-      const distFade = Math.exp(-dist * 12);
-      writeParticle(i++, px, py, 2, 0, distFade, 0);
+      const distFade = Math.exp(-dist * 9);
+      writeParticle(i++, px, py, 2, 0, distFade, 0, vFade(p.y));
     }
 
     // 3. BODY INTERIOR
+    // Uniform areal dust across the whole silhouette (head included) —
+    // matches the reference's flat, even grain. Mild edge brightening via
+    // the rim factor; a little z-depth kept for the yaw sway.
     let placed = 0, safety = bodyInnerCount * 18;
-    const HW_MAX = 0.60;
+    const HW_MAX = 0.50;
     while (placed < bodyInnerCount && safety-- > 0) {
-      const yn = 0.18 + Math.random() * 0.90;
-      const hw = halfWidthN(yn < 1.0 ? yn : 1.0);
+      const yn = 0.02 + Math.random() * 0.98;
+      const hw = halfWidthN(yn);
       if (hw < 0.005) continue;
-      if (Math.random() > (hw / HW_MAX)) continue;
-      if (yn > 1.0) {
-        const fadeT = (yn - 1.0) / 0.08;
-        if (Math.random() > Math.pow(1 - fadeT, 2.2)) continue;
+      if (Math.random() > (hw / HW_MAX)) continue;   // uniform areal density
+      // gentle extra thinning toward the base (brightness fade does the rest)
+      if (yn > 0.68) {
+        const fadeT = Math.min(1, (yn - 0.68) / 0.32);
+        if (Math.random() < fadeT * 0.60) continue;
       }
-      const hd = hw * 0.55;
-      let u, v;
-      do { u = (Math.random() - 0.5) * 2; v = (Math.random() - 0.5) * 2; }
-      while (u * u + v * v > 1);
-      const xn = u * hw, zn = v * hd;
-      const rim = Math.sqrt(u * u + v * v);
-      const nUnit = rim > 0.0001 ? 1 / rim : 0;
-      const lightDot = u * nUnit * LIGHT_X + v * nUnit * LIGHT_Z;
+      const xn = (Math.random() * 2 - 1) * hw;
+      const zn = (Math.random() * 2 - 1) * hw * 0.5;
+      const rim = Math.abs(xn) / hw;
+      // Interior: real dust everywhere (2-3× the background star density),
+      // denser toward the rim, but the face/chest still read darker than
+      // the bright ribbon around them
+      // Body dust is essentially uniform in the reference; only the face
+      // region thins toward its center
+      if (yn < 0.30 && Math.random() > 0.48 + 0.52 * Math.pow(rim, 1.5)) continue;
       const px = cx + xn * figW;
-      let py = fig.top + yn * figH;
-      if (yn > 0.85) {
-        const xnNorm = xn / 0.5;
-        py += (Math.sin(xnNorm * 5.1 + 0.9) * 0.022 + Math.sin(xnNorm * 11.7 + 2.3) * 0.012)
-              * Math.min(1, (yn - 0.85) / 0.15) * figH;
-      }
-      writeParticle(i++, px, py, 1, zn * figW, rim, lightDot);
+      const py = fig.top + yn * figH;
+      writeParticle(i++, px, py, 1, zn * figW, rim, 0, vFade(yn) * 0.95);
       placed++;
     }
 
@@ -841,26 +910,26 @@ async function fetchData(){
     // 4b. BASE DUST
     let baseDustPlaced = 0, baseDustSafety = baseDustCount * 6;
     while (baseDustPlaced < baseDustCount && baseDustSafety-- > 0) {
-      const yn = 0.70 + Math.random() * 0.50;
+      const yn = 0.66 + Math.random() * 0.38;
       const hwRef = halfWidthN(Math.min(0.99, yn));
       const xn = (Math.random() - 0.5) * 2.0 * (hwRef + 0.04);
       let accept;
-      if (yn < 1.0) accept = Math.min(1, Math.abs(xn) / (hwRef + 0.04));
+      if (yn < 0.86) accept = Math.min(1, Math.abs(xn) / (hwRef + 0.04));
       else {
-        const below = (yn - 1.0) / 0.20;
+        const below = (yn - 0.86) / 0.20;
         accept = Math.exp(-below * 3.2) * (1 - Math.min(1, Math.abs(xn) / (hwRef + 0.04)) * 0.4);
       }
       if (Math.random() > accept) continue;
       const px = cx + xn * figW + gauss() * 2 * DPR;
       const py = fig.top + yn * figH + gauss() * 2 * DPR;
-      const bri = rand(0.35, 0.90) * (yn < 1.0 ? 1.0 : Math.exp(-(yn - 1.0) * 8));
+      const bri = rand(0.35, 0.90) * (yn < 0.86 ? 1.0 : Math.exp(-(yn - 0.86) * 8));
       writeParticle(i++, px, py, 6, 0, bri, 0);
       baseDustPlaced++;
     }
 
     // 4c. ORBIT
     for (let n = 0; n < orbitCount; n++) {
-      const yn = 0.10 + Math.random() * 0.85;
+      const yn = 0.10 + Math.random() * 0.70;
       const hw = halfWidthN(yn);
       const radius = hw * (0.55 + Math.random() * 0.75);
       const py = fig.top + yn * figH;
@@ -893,7 +962,14 @@ async function fetchData(){
     }
   }
 
-  function writeParticle(i, x, y, kind, z, rim, lightDot) {
+  // Vertical luminance falloff: bright at the head, dimming toward the
+  // base so the figure dissolves rather than terminating.
+  function vFade(yn) {
+    if (yn < 0.48) return 1;
+    return Math.max(0.10, 1 - (yn - 0.48) * 1.6);
+  }
+
+  function writeParticle(i, x, y, kind, z, rim, lightDot, fade) {
     const o = i * STRIDE;
     particles[o + 0] = x;
     particles[o + 1] = y;
@@ -901,10 +977,11 @@ async function fetchData(){
     particles[o + 3] = rand(0.20, 1.05);
     let amp, bright, size;
     if (kind === 0) {
+      // Ragged bright rim — heavy on short scratchy streaks
       amp = rand(0.5, 1.8) * DPR;
-      bright = rand(0.65, 1.10);
+      bright = rand(0.70, 1.15);
       const sr = Math.random();
-      if (sr < 0.12) size = 3; else if (sr < 0.18) size = 2; else size = 1;
+      if (sr < 0.45) size = 3; else if (sr < 0.60) size = 2; else size = 1;
     } else if (kind === 1) {
       amp = rand(0.4, 1.3) * DPR;
       const base = Math.pow(Math.random(), 1.6) * 1.05 + 0.05;
@@ -926,12 +1003,13 @@ async function fetchData(){
       bright = rand(0.55, 1.00) * (rim || 0);
       size = Math.random() < 0.06 ? 2 : 1;
     } else {
+      // Background starfield — the reference grain is clearly visible
       amp = rand(0.3, 0.9) * DPR;
-      bright = rand(0.04, 0.16);
+      bright = rand(0.08, 0.30);
       size = 1;
     }
     particles[o + 4] = amp;
-    particles[o + 5] = bright;
+    particles[o + 5] = bright * (fade == null ? 1 : fade);
     particles[o + 6] = size;
     particles[o + 7] = kind;
     particles[o + 8] = z || 0;
@@ -945,15 +1023,17 @@ async function fetchData(){
       buf32 = new Uint32Array(imgData.data.buffer);
     }
   }
-  function clearBuf() { buf32.fill(0xFF000000); }
+  function clearBuf() { buf32.fill(0); }
 
   function plot(x, y, b) {
     if (x < 0 || x >= W || y < 0 || y >= H) return;
     const i = (y * W + x) | 0;
-    const cur = buf32[i] & 0xFF;
+    // Accumulate brightness in the alpha channel; RGB stays warm white
+    // (#e9e7e2) so particles match the interface foreground colour.
+    const cur = buf32[i] >>> 24;
     let nc = cur + ((b * 255) | 0);
     if (nc > 255) nc = 255;
-    buf32[i] = 0xFF000000 | (nc << 16) | (nc << 8) | nc;
+    buf32[i] = (nc << 24) | 0x00E2E7E9;
   }
   function plot2(x, y, b) {
     plot(x, y, b); plot(x + 1, y, b * 0.55);
@@ -1024,7 +1104,7 @@ async function fetchData(){
       }
 
       // Global opacity — keeps figure ethereal so text reads over it
-      br *= 0.58;
+      br *= 0.64;
 
       const ix = x | 0, iy = y | 0;
       if (sz === 3) {
