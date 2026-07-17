@@ -151,56 +151,174 @@ PLANET_DESK = {
     "Pluto":   "deep storage",
 }
 
+# Corpus per ASTRA_MIND_v0.1: each mode carries multiple verbs, omens built
+# on the Adams operations (bathos, specificity, escalation, swerve,
+# understatement, institutional pathos), and several constraints. Selection
+# is seeded — stable for a given visitor-day, different across them.
+
 ASPECT_MODES = {
     "Conjunction": {
-        "verb_one": "is sharing a desk with",
-        "verb": "are sharing a desk today",
+        "verbs_one": [
+            "is sharing a desk with",
+            "has moved its things onto the desk of",
+            "is standing unreasonably close to",
+            "has merged, without consultation, with",
+        ],
+        "verbs": [
+            "are sharing a desk today",
+            "have merged for the day, pending review",
+            "are occupying the same office and pretending this is normal",
+            "have been issued a single chair between them",
+        ],
         "omens": [
             "Two departments have merged for the day. Their filing systems have not.",
-            "What one wants and what the other notices are currently indistinguishable.",
+            "What one wants and what the other notices are currently indistinguishable. The archive has stapled the two reports together and hopes no one asks which is which.",
+            "There is one chair. Both departments believe it is theirs. Minutes are being kept.",
+            "The merger was not announced. Mergers of this kind never are. One simply arrives to find the nameplates changed.",
+            "Expect the day's business to arrive pre-combined, like a form printed on both sides without warning.",
         ],
-        "constraint": "Proximity is not the same as agreement. The sky files them separately.",
+        "constraints": [
+            "Proximity is not the same as agreement. The sky files them separately.",
+            "What has merged today will unmerge on schedule. The schedule is not published.",
+            "Shared desks produce either partnerships or incidents. The archive stocks forms for both.",
+        ],
     },
     "Opposition": {
-        "verb_one": "is negotiating across a long table with",
-        "verb": "are negotiating across a long table",
+        "verbs_one": [
+            "is negotiating across a long table with",
+            "has taken the seat directly opposite",
+            "is maintaining formal correspondence with",
+            "has tabled a counter-proposal against",
+        ],
+        "verbs": [
+            "are negotiating across a long table",
+            "have taken opposite ends of a very long table",
+            "are in formal correspondence, copies filed",
+            "have agreed to disagree, in writing, in triplicate",
+        ],
         "omens": [
             "Both parties are correct. This is the inconvenient kind of correct.",
-            "The distance between the two positions is the actual subject of the meeting.",
+            "The table between them is long, polished, and older than either position. It has heard worse.",
+            "Negotiations continue. Refreshments were requested in 1997. They are expected shortly.",
+            "The distance between the two positions is the actual subject of the meeting. Nobody has said this aloud. Everybody knows.",
+            "Correspondence is being exchanged at great speed and enormous length. The archive summarizes: both of them miss the point, beautifully.",
         ],
-        "constraint": "A tension held properly is load-bearing. Dropped, it is only noise.",
+        "constraints": [
+            "A tension held properly is load-bearing. Dropped, it is only noise.",
+            "The archive does not resolve oppositions. It seats them facing each other and takes minutes.",
+            "Neither end of the table is going to move. The table, however, can be walked around. This is mentioned in no manual.",
+        ],
     },
     "Trine": {
-        "verb_one": "is cooperating, unprompted, with",
-        "verb": "are cooperating without being asked",
+        "verbs_one": [
+            "is cooperating, unprompted, with",
+            "has quietly done a favor for",
+            "is on unexpectedly good terms with",
+            "has waved through the paperwork of",
+        ],
+        "verbs": [
+            "are cooperating without being asked",
+            "are on suspiciously good terms today",
+            "have waved each other through without inspection",
+            "are, for once, not the problem",
+        ],
         "omens": [
             "Something works today that usually requires supervision.",
-            "No memo was sent. The thing happened anyway.",
+            "No memo was sent. The thing happened anyway. Several supervisors are quietly unsettled by this.",
+            "The gears have aligned. The archive wishes to note that nobody oiled them. They simply chose to.",
+            "A door that normally sticks has opened at a touch. Do not stand there admiring the hinge.",
+            "Approvals are moving through the system faster than the system was designed to allow. Enjoy this. Do not audit it.",
         ],
-        "constraint": "Ease is pleasant and teaches nothing. Enjoy it anyway.",
+        "constraints": [
+            "Ease is pleasant and teaches nothing. Enjoy it anyway.",
+            "Days like this are not owed to you. They are lent. See the standard terms.",
+            "When the machine runs smoothly, the temptation is to add more machine. Resist this.",
+        ],
     },
     "Square": {
-        "verb_one": "is filing complaints about",
-        "verb": "are filing complaints about each other",
-        "omens": [
-            "The friction is structural, not personal. It may still feel personal.",
-            "Neither party will yield today. Something useful is being machined between them.",
+        "verbs_one": [
+            "is filing complaints about",
+            "has raised a structural objection to",
+            "is disputing the corridor rights of",
+            "has scheduled a grievance hearing with",
         ],
-        "constraint": "What grinds today is being shaped into something. The sky has not said what.",
+        "verbs": [
+            "are filing complaints about each other",
+            "have raised structural objections, each about the other",
+            "are disputing the same corridor",
+            "have escalated the matter to a committee that does not exist",
+        ],
+        "omens": [
+            "The friction is structural, not personal. It may still feel personal. Structures are like that.",
+            "Two departments want the same corridor today. Neither will use it once they have it. This is standard.",
+            "A structural objection has been raised. It has been logged with the other four thousand.",
+            "Neither party will yield, and something useful is being machined between them. Machining is loud. Wear what protection you have.",
+            "The grievance is genuine, ancient, and procedurally perfect. Nobody remembers the original incident. The complaint form remembers.",
+        ],
+        "constraints": [
+            "What grinds today is being shaped into something. The sky has not said what.",
+            "Friction is the archive's oldest supplier. Its invoices are always paid, eventually, by someone.",
+            "You may pick a side if you like. The corridor does not care. The corridor has seen committees come and go.",
+        ],
     },
     "Sextile": {
-        "verb_one": "is exchanging polite memos with",
-        "verb": "are exchanging polite memos",
-        "omens": [
-            "An opportunity exists. It is small, well-labeled, and easily ignored.",
-            "The door is not locked. It is, however, closed, and someone must still open it.",
+        "verbs_one": [
+            "is exchanging polite memos with",
+            "has extended a modest invitation to",
+            "is holding a door, pointedly, for",
+            "has left a note in the pigeonhole of",
         ],
-        "constraint": "Doors that open quietly still require walking through.",
+        "verbs": [
+            "are exchanging polite memos",
+            "are circulating a modest proposal",
+            "have opened a side door and are standing near it meaningfully",
+            "are being courteous in a way that implies homework",
+        ],
+        "omens": [
+            "An opportunity exists. It is small, well-labeled, and easily ignored. Most are.",
+            "The door is not locked. The archive would like to know who keeps suggesting it should be.",
+            "A note has been left where you will find it. Finding it is, technically, your department.",
+            "The invitation is real but modest, like a biscuit offered at a serious meeting. Take the biscuit.",
+            "Somewhere, a small door has been propped open with a wedge of folded paper. The paper is a form. The form was always going to end up doing this.",
+        ],
+        "constraints": [
+            "Doors that open quietly still require walking through.",
+            "Opportunities of this size are not announced twice. The second announcement is called regret.",
+            "The archive files unclaimed invitations under 'evidence.' Evidence of what is a question for later.",
+        ],
     },
 }
 
-def compose_from_aspect(aspect: dict):
-    """Build a reading fragment from a single aspect dict (sky_state format)."""
+# Marginalia — the librarian's own notes, precedents, and incidents. One is
+# folded into most readings; this is where the archive's history and mild
+# suffering show through (institutional pathos, per ASTRA_MIND).
+MARGINALIA = [
+    "A similar configuration occurred in October 1962. The archive prefers not to elaborate.",
+    "Precedent exists. Precedent always exists. That is the trouble with precedent.",
+    "Form 30-B (Request for Clarity) remains available at the front desk. None has ever been approved.",
+    "The margin of your file contains a note in pencil. It says: 'again?'",
+    "An asterisk has followed this entry since 1994. Its referent has been lost. The asterisk remains vigilant.",
+    "Regulation 7 forbids the archive from saying 'we told you so.' Regulation 7 is tested daily.",
+    "Three previous visitors asked the sky to be more specific. Their requests were filed under 'optimism.'",
+    "The relevant drawer sticks in humid weather. Today it opened at once. Draw what conclusions you must.",
+    "The Department of Outcomes has declined to comment. This is itself a comment, and has been filed as one.",
+    "Your file was consulted once before. The date stamp is smudged. The archive apologizes for the previous librarian, in general.",
+    "A biro has gone missing from the annotations desk. This has no bearing on your reading. It is simply where the archive's attention is.",
+    "The catalogue lists today's configuration as 'seen previously.' The catalogue lists everything as 'seen previously.' It has been right so far.",
+    "Someone has dog-eared a page of your file. It was not the librarian. The librarian uses bookmarks.",
+    "The ledger for days like this is kept on the high shelf, which is understood to be a statement.",
+    "There was an incident in 1977 involving a comparable sky and a dinner party. The file is sealed. The tablecloth was not recovered.",
+]
+
+def _pick(pool, seed, salt=0):
+    if not pool:
+        return None
+    return pool[(seed * 31 + salt * 7) % len(pool)]
+
+def compose_from_aspect(aspect: dict, seed: int = 0):
+    """Build a reading fragment from a single aspect dict (sky_state format).
+    The seed selects among verb/omen/constraint variants — stable for a
+    given day/sign/visitor, different across them."""
     mode = ASPECT_MODES.get(aspect.get("type"))
     if not mode:
         return None
@@ -208,8 +326,16 @@ def compose_from_aspect(aspect: dict):
     d1, d2 = PLANET_DESK.get(p1), PLANET_DESK.get(p2)
     if not d1 or not d2:
         return None
-    headline = f"{d1[0].upper()}{d1[1:]} and {d2} {mode['verb']}."
-    return headline, list(mode["omens"]), mode["constraint"]
+    verb = _pick(mode["verbs"], seed, 1)
+    headline = f"{d1[0].upper()}{d1[1:]} and {d2} {verb}."
+    n = len(mode["omens"])
+    i = (seed * 31 + 14) % n
+    j = (i + 1 + (seed % max(1, n - 1))) % n
+    if j == i:
+        j = (i + 1) % n
+    omens = [mode["omens"][i], mode["omens"][j]]
+    constraint = _pick(mode["constraints"], seed, 4)
+    return headline, omens, constraint
 
 # ---------------------------------------------------------------------------
 # Sign temperament layer — the visitor's natal sun sign as a filter.
@@ -269,15 +395,53 @@ SIGN_TEMPERAMENT = {
     },
 }
 
-def compose_transit(planet, aspect_type, target="Sun"):
+# Second-person notes per aspect mode — used when a transit addresses the
+# visitor directly. Two variants each; selection is seeded by birthdate so
+# two visitors with the same transit type still hear different sentences.
+TRANSIT_NOTES = {
+    "Conjunction": [
+        "Expect the theme to sit unusually close today. It has taken your chair.",
+        "It will be difficult to tell where the day ends and you begin. File carefully.",
+        "This is not a visit. The department has brought its own nameplate and a small plant. Plan accordingly.",
+        "You are, for the duration, the office in question. The archive recommends tidying the desk you actually are.",
+    ],
+    "Opposition": [
+        "The pull you feel is not indecision. It is geometry.",
+        "Someone across the table holds the other half of this. Possibly it is also you.",
+        "You have been seated at one end of a very long table. The correct posture is upright and amused.",
+        "Whatever stands opposite you today is not an enemy. It is a counterweight, and you are the other one.",
+    ],
+    "Trine": [
+        "The door is already open. Your only task is to notice.",
+        "Today, competence will look suspiciously like luck. Accept the accounting error.",
+        "The paperwork has gone through before you finished filling it in. Do not report this. Use it.",
+        "Something in your vicinity is working on your behalf without being asked. The archive suggests gratitude, silently performed.",
+    ],
+    "Square": [
+        "The resistance is precisely fitted to you. Treat it as tailoring.",
+        "What blocks you today is load-bearing. Lean on it; do not kick it.",
+        "The obstacle has your name on it — spelled correctly, which should tell you how long it has been planned.",
+        "You will want to file a complaint. The complaint window is, today, the mirror. This is noted without cruelty.",
+    ],
+    "Sextile": [
+        "A modest opening, addressed to you by name. RSVP optional.",
+        "The sky is offering. It will not offer twice in the same tone.",
+        "A side door stands open at roughly your height. Coincidences of this kind are rarely coincidences and never doors.",
+        "The invitation is small enough to fit in a coat pocket, which is where such things are usually lost. Check the pocket.",
+    ],
+}
+
+def compose_transit(planet, aspect_type, target="Sun", variant=0):
     """One personal line about a current planet aspecting the visitor's
     natal Sun or Moon. Same voice, same parts bin as the composed layer."""
     mode = ASPECT_MODES.get(aspect_type)
     desk = PLANET_DESK.get(planet)
     if not mode or not desk:
         return None
-    line = f"{desk[0].upper()}{desk[1:]} {mode['verb_one']} your natal {target}."
-    return {"line": line, "note": mode["omens"][0]}
+    verb = _pick(mode["verbs_one"], variant, 3)
+    line = f"{desk[0].upper()}{desk[1:]} {verb} your natal {target}."
+    notes = TRANSIT_NOTES.get(aspect_type, mode["omens"])
+    return {"line": line, "note": notes[variant % len(notes)]}
 
 
 # Rulerships (modern primary, traditional fallback where they differ).
@@ -321,7 +485,7 @@ for _s, _rl in SIGN_RULERS.items():
     _seen_rulers[_p] = _seen_rulers.get(_p, 0) + 1
 
 
-def _leads_for_rulers(rulers, sig, aspects):
+def _leads_for_rulers(rulers, sig, aspects, seed=0):
     """Ordered candidate leads for a sign's ruler(s): curated tokens first
     (best writing), then composed aspects freshest-first. Only falls through
     to the traditional ruler if the modern one has nothing at all."""
@@ -345,7 +509,7 @@ def _leads_for_rulers(rulers, sig, aspects):
                 hits.append((SPEED_RANK.get(other, 9), a.get("orb", 99), a))
         hits.sort(key=lambda h: (h[0], h[1]))
         for _, _, a in hits:
-            c = compose_from_aspect(a)
+            c = compose_from_aspect(a, seed=seed)
             if c:
                 cands.append((c, r))
         if cands:
@@ -366,6 +530,11 @@ def build_sign_readings(sky):
     aspects = sky.get("aspects", [])
     sig = sky.get("signature", [])
     sign_order = list(SIGN_TEMPERAMENT.keys())
+    try:
+        day_seed = int(datetime.fromisoformat(
+            sky.get("utc", "").replace("Z", "+00:00")).strftime("%j"))
+    except Exception:
+        day_seed = 0
 
     out = {}
     for sign, t in SIGN_TEMPERAMENT.items():
@@ -377,7 +546,9 @@ def build_sign_readings(sky):
         # (Taurus/Libra, Gemini/Virgo) take DIFFERENT candidates from the
         # same list, so they only converge when the ruler has exactly one
         # aspect all day.
-        cands = _leads_for_rulers(rulers, sig, aspects)
+        # per-sign, per-day seed: variants rotate daily AND differ by sign
+        s_seed = day_seed * 13 + sign_idx
+        cands = _leads_for_rulers(rulers, sig, aspects, seed=s_seed)
         lead, used_ruler = (cands[_GROUP_POS[sign] % len(cands)]
                             if cands else (None, rulers[0]))
 
@@ -390,6 +561,9 @@ def build_sign_readings(sky):
             n = len(pool)
             off = (sign_idx + _GROUP_POS[sign] * 2) % n if n else 0
             omens = [pool[(off + k) % n] for k in range(min(3, n))]
+            # the librarian's marginal note — most readings carry one
+            if n and s_seed % 3 != 0:
+                omens = omens[:2] + [_pick(MARGINALIA, s_seed, 9)]
             constraint = lead[2]
         else:
             governor += f" {used_ruler} reports nothing unusual today."
@@ -445,6 +619,11 @@ def build_reading(sky):
     planets = sky.get("planets", {})
     utc     = sky.get("utc", "")
 
+    try:
+        day_seed = int(datetime.fromisoformat(utc.replace("Z", "+00:00")).strftime("%j"))
+    except Exception:
+        day_seed = 0
+
     headlines   = []
     omens       = []
     constraints = []
@@ -478,7 +657,7 @@ def build_reading(sky):
     if not headlines:
         for a in sky.get("aspects", []):
             if a.get("planet1") in PERSONAL_PLANETS or a.get("planet2") in PERSONAL_PLANETS:
-                composed = compose_from_aspect(a)
+                composed = compose_from_aspect(a, seed=day_seed)
                 if composed:
                     c_head, c_omens, c_constraint = composed
                     headlines.append(c_head)

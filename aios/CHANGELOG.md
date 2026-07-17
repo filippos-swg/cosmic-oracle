@@ -4,6 +4,41 @@ Newest-first.
 
 ---
 
+## 2026-07-17 — ASTRA MIND + corpus deepening (from designing-intelligence review)
+
+- Reviewed the designing-intelligence repo (Character Actor theory, Aio mind
+  package). Adopted its structure: aios/ASTRA_MIND_v0.1.md now defines the
+  librarian as a character — identity, worldview ("the sky is a bureaucracy
+  that works"), relationship-to-visitor, thinking model, and VOICE MECHANICS:
+  the six Douglas Adams operations (bathos, specificity, escalation, swerve,
+  understatement, institutional pathos) with explicit failure modes. Doubles
+  as the future web-MVP system prompt (Aio build-brief pattern).
+- librarian.py corpus rebuilt to the mind doc: 4 verb variants + 5 omens +
+  3 constraints per aspect mode (all rewritten with objects, precedents,
+  incidents); TRANSIT_NOTES doubled to 4 per mode; new MARGINALIA pool (15
+  librarian's-notes — Form 30-B, the 1994 asterisk, the sealed 1977 dinner
+  file) folded into ~2/3 of readings; all selection seeded by day + sign +
+  birthdate so variants rotate daily and differ per visitor.
+- Runtime decision noted in ASTRA_MIND: pre-authored corpus for the local
+  installation; the same mind package becomes the LLM system prompt for the
+  web MVP later.
+
+---
+
+## 2026-07-17 — Transit-led reading spine
+
+- The reading now leads with the visitor's tightest NATAL TRANSIT (the thing
+  that genuinely differs per birthdate), not the sign story: headline = the
+  transit line, followed by a "WHAT THIS MEANS" second-person note (new
+  TRANSIT_NOTES pools, two variants per aspect mode, seeded by birthdate),
+  then the sign's ruler-story as "MEANWHILE, IN THE ARCHIVE", two seeded
+  observations, constraint, remaining transits, lens, close.
+- /natal returns up to 3 transits; note variant seeded by DOB.
+- Verified: three same-sign (Aries) birthdates from different years open
+  with three entirely different headlines.
+
+---
+
 ## 2026-07-17 — Ruler-led sign readings, collision fixes
 
 - Rulers now tried in PRIORITY order (modern first, traditional only if the

@@ -503,13 +503,29 @@ function enterReading(){
 
   const transits = natalResult?.transits || [];
 
+  // The visitor's natal transits are the SPINE of the reading — they are
+  // what genuinely differs between birthdates. The sign's ruler-story
+  // becomes one observation among several. A birthdate-derived seed
+  // rotates the supporting texts so even same-sign visitors diverge.
+  const seed = (dob.d || 0) + (dob.m || 0) * 31 + (dob.y || 0);
+  const lead = transits[0] || null;
+  const rest = transits.slice(1);
+  const omens = r.omens || [];
+  const pick = (arr, k) => arr.length ? arr[(seed + k) % arr.length] : null;
+
   readingScreens = [
     { k: 'FILE ' + (SIGN_GLYPH[sign] || '') + ' ' + sign.toUpperCase(), b: r.address, small: true, n: natalLine },
-    { k: 'TODAY’S READING', b: r.headline, n: r.governor || '' },
-    ...r.omens.map((o, i) => ({ k: 'OBSERVATION ' + (i+1) + ' OF ' + r.omens.length, b: o, small: true, n: '' })),
+    lead
+      ? { k: 'TODAY’S READING', b: lead.line,
+          n: lead.approx ? 'Your natal moon is approximate.' : '' }
+      : { k: 'TODAY’S READING', b: r.headline, n: r.governor || '' },
+    ...(lead ? [{ k: 'WHAT THIS MEANS', b: lead.note, small: true, n: '' }] : []),
+    ...(lead ? [{ k: 'MEANWHILE, IN THE ARCHIVE', b: r.headline, small: true, n: r.governor || '' }] : []),
+    ...[pick(omens, 0), pick(omens, 1)].filter(Boolean).map((o, i) =>
+      ({ k: 'OBSERVATION ' + (i+1), b: o, small: true, n: '' })),
     { k: 'CONSTRAINT', b: r.constraint, small: true, n: '' },
-    ...transits.map(tr => ({
-      k: 'IN YOUR SKY TODAY',
+    ...rest.map(tr => ({
+      k: 'ALSO IN YOUR SKY',
       b: tr.line,
       small: true,
       n: tr.note + (tr.approx ? ' (Your natal moon is approximate.)' : ''),

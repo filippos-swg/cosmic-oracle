@@ -44,12 +44,12 @@ def natal(day: int, month: int, year: int) -> dict:
         "moon_sign": SIGNS[int(moon // 30)],
         "moon_deg":  round(moon % 30, 2),
         "moon_confidence": "approximate (noon UT assumed)",
-        "transits":  find_transits(sun, moon),
+        "transits":  find_transits(sun, moon, seed=day + month * 31 + year),
     }
     return result
 
 
-def find_transits(natal_sun_lon: float, natal_moon_lon: float, max_hits: int = 2):
+def find_transits(natal_sun_lon: float, natal_moon_lon: float, max_hits: int = 3, seed: int = 0):
     """Aspects from the CURRENT sky (sky_state.json, written by oracle.py)
     to the visitor's natal Sun and Moon — this is what makes two birthdates
     genuinely different readings on the same day. Tightest orbs first."""
@@ -85,7 +85,7 @@ def find_transits(natal_sun_lon: float, natal_moon_lon: float, max_hits: int = 2
             break
     out = []
     for off, name, asp_name, target in picked:
-        composed = librarian.compose_transit(name, asp_name, target) or {}
+        composed = librarian.compose_transit(name, asp_name, target, variant=seed) or {}
         out.append({
             "planet": name, "type": asp_name, "target": target,
             "orb": round(off, 2),
