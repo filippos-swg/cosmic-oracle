@@ -310,6 +310,48 @@ SPEED_RANK = {
 def _tok(planet):
     return planet.upper()[:3]
 
+# Position of each sign within its shared-ruler group (Taurus 0 / Libra 1
+# under Venus; Gemini 0 / Virgo 1 under Mercury; everyone else 0). Twins
+# draw DIFFERENT stories from the same ruler's aspect list.
+_GROUP_POS = {}
+_seen_rulers = {}
+for _s, _rl in SIGN_RULERS.items():
+    _p = _rl[0]
+    _GROUP_POS[_s] = _seen_rulers.get(_p, 0)
+    _seen_rulers[_p] = _seen_rulers.get(_p, 0) + 1
+
+
+def _leads_for_rulers(rulers, sig, aspects):
+    """Ordered candidate leads for a sign's ruler(s): curated tokens first
+    (best writing), then composed aspects freshest-first. Only falls through
+    to the traditional ruler if the modern one has nothing at all."""
+    for r in rulers:
+        cands = []
+        curated_pairs = set()
+        for tok_name in sig:
+            if tok_name in TOKEN_MEANINGS and _tok(r) in tok_name:
+                m = TOKEN_MEANINGS[tok_name]
+                cands.append(((m["headline"], list(m["omens"]), m["constraint"]), r))
+                parts = tok_name.split("_")
+                if len(parts) == 3:
+                    curated_pairs.add(frozenset((parts[0], parts[2])))
+        hits = []
+        for a in aspects:
+            p1, p2 = a.get("planet1"), a.get("planet2")
+            if r in (p1, p2):
+                if frozenset((_tok(p1), _tok(p2))) in curated_pairs:
+                    continue  # already covered by a curated token
+                other = p2 if p1 == r else p1
+                hits.append((SPEED_RANK.get(other, 9), a.get("orb", 99), a))
+        hits.sort(key=lambda h: (h[0], h[1]))
+        for _, _, a in hits:
+            c = compose_from_aspect(a)
+            if c:
+                cands.append((c, r))
+        if cands:
+            return cands
+    return []
+
 
 def build_sign_readings(sky):
     """One reading per sign, led by the sign's ruling planet.
@@ -323,42 +365,34 @@ def build_sign_readings(sky):
     stamp, base_headline, base_omens, base_constraint, aside = build_reading(sky)
     aspects = sky.get("aspects", [])
     sig = sky.get("signature", [])
+    sign_order = list(SIGN_TEMPERAMENT.keys())
 
     out = {}
     for sign, t in SIGN_TEMPERAMENT.items():
         rulers = SIGN_RULERS[sign]
-        desk = PLANET_DESK[rulers[0]]
-        governor = f"Your file is kept by {desk}."
+        sign_idx = sign_order.index(sign)
         headline, omens, constraint = base_headline, list(base_omens), base_constraint
 
-        # 1. curated token involving a ruler
-        lead = None
-        for tok_name in sig:
-            if tok_name in TOKEN_MEANINGS and any(_tok(r) in tok_name for r in rulers):
-                m = TOKEN_MEANINGS[tok_name]
-                lead = (m["headline"], list(m["omens"]), m["constraint"])
-                break
+        # Candidate stories from the ruler's day, best-first. Ruler-twins
+        # (Taurus/Libra, Gemini/Virgo) take DIFFERENT candidates from the
+        # same list, so they only converge when the ruler has exactly one
+        # aspect all day.
+        cands = _leads_for_rulers(rulers, sig, aspects)
+        lead, used_ruler = (cands[_GROUP_POS[sign] % len(cands)]
+                            if cands else (None, rulers[0]))
 
-        # 2. composed from the freshest ruler aspect
-        if lead is None:
-            hits = []
-            for a in aspects:
-                p1, p2 = a.get("planet1"), a.get("planet2")
-                for r in rulers:
-                    if r in (p1, p2):
-                        other = p2 if p1 == r else p1
-                        hits.append((SPEED_RANK.get(other, 9), a.get("orb", 99), a))
-                        break
-            if hits:
-                hits.sort(key=lambda h: (h[0], h[1]))
-                lead = compose_from_aspect(hits[0][2])
+        desk = PLANET_DESK[used_ruler]
+        governor = f"Your file is kept by {desk}."
 
         if lead:
             headline = lead[0]
-            omens = uniq(list(lead[1]) + base_omens)[:3]
+            pool = uniq(list(lead[1]) + base_omens)
+            n = len(pool)
+            off = (sign_idx + _GROUP_POS[sign] * 2) % n if n else 0
+            omens = [pool[(off + k) % n] for k in range(min(3, n))]
             constraint = lead[2]
         else:
-            governor += f" {rulers[0]} reports nothing unusual today."
+            governor += f" {used_ruler} reports nothing unusual today."
 
         out[sign] = {
             "address":    t["address"],

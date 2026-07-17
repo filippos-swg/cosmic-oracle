@@ -4,6 +4,19 @@ Newest-first.
 
 ---
 
+## 2026-07-17 — Ruler-led sign readings, collision fixes
+
+- Rulers now tried in PRIORITY order (modern first, traditional only if the
+  modern ruler is unaspected) — previously Scorpio collapsed into Aries
+  whenever Mars was busy, which is most days.
+- Ruler-twins (Taurus/Libra under Venus, Gemini/Virgo under Mercury) now
+  draw DIFFERENT stories from their shared ruler's aspect list (first vs
+  second candidate), with rotated observation pools. Full-identity collision
+  check across all 12 signs: none.
+- Governor line reflects the ruler actually used.
+
+---
+
 ## 2026-07-17 — Ruler-led sign readings
 
 - build_sign_readings() now leads each sign's reading with what its RULING

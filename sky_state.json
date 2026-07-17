@@ -1,33 +1,33 @@
 {
-  "utc": "2026-07-17T06:43:45.037995+00:00",
+  "utc": "2026-07-17T06:59:39.923878+00:00",
   "planets": {
     "Sun": {
       "sign": "Cancer",
-      "degree": 24.73,
+      "degree": 24.74,
       "speed": 0.9544,
       "retrograde": false
     },
     "Moon": {
       "sign": "Virgo",
-      "degree": 3.87,
-      "speed": 13.9998,
+      "degree": 4.03,
+      "speed": 13.9948,
       "retrograde": false
     },
     "Mercury": {
       "sign": "Cancer",
       "degree": 18.19,
-      "speed": -0.5147,
+      "speed": -0.5141,
       "retrograde": true
     },
     "Venus": {
       "sign": "Virgo",
-      "degree": 8.34,
+      "degree": 8.36,
       "speed": 1.0935,
       "retrograde": false
     },
     "Mars": {
       "sign": "Gemini",
-      "degree": 12.99,
+      "degree": 13.0,
       "speed": 0.6932,
       "retrograde": false
     },
@@ -91,16 +91,16 @@
       "type": "Square",
       "planet1": "Moon",
       "planet2": "Uranus",
-      "angle": 89.41,
-      "orb": 0.59,
+      "angle": 89.57,
+      "orb": 0.43,
       "applying": true
     },
     {
       "type": "Trine",
       "planet1": "Jupiter",
       "planet2": "Neptune",
-      "angle": 119.31,
-      "orb": 0.69,
+      "angle": 119.32,
+      "orb": 0.68,
       "applying": true
     },
     {
@@ -123,32 +123,32 @@
       "type": "Sextile",
       "planet1": "Mars",
       "planet2": "Saturn",
-      "angle": 58.32,
-      "orb": 1.68,
+      "angle": 58.33,
+      "orb": 1.67,
       "applying": true
     },
     {
       "type": "Square",
       "planet1": "Mercury",
       "planet2": "Saturn",
-      "angle": 93.52,
-      "orb": 3.52,
+      "angle": 93.51,
+      "orb": 3.51,
       "applying": true
     },
     {
       "type": "Square",
       "planet1": "Venus",
       "planet2": "Uranus",
-      "angle": 93.88,
-      "orb": 3.88,
+      "angle": 93.9,
+      "orb": 3.9,
       "applying": false
     },
     {
       "type": "Conjunction",
       "planet1": "Moon",
       "planet2": "Venus",
-      "angle": 4.47,
-      "orb": 4.47,
+      "angle": 4.33,
+      "orb": 4.33,
       "applying": true
     },
     {
@@ -163,8 +163,8 @@
       "type": "Conjunction",
       "planet1": "Sun",
       "planet2": "Mercury",
-      "angle": 6.54,
-      "orb": 6.54,
+      "angle": 6.56,
+      "orb": 6.56,
       "applying": false
     }
   ],
