@@ -2,3 +2,7 @@ __pycache__/
 venv/
 *.pyc
 .DS_Store
+sky_state.json
+sky_signature.txt
+visual/oracle.json
+_to_delete/

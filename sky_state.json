@@ -1,33 +1,33 @@
 {
-  "utc": "2026-07-17T06:59:39.923878+00:00",
+  "utc": "2026-07-17T07:12:40.954394+00:00",
   "planets": {
     "Sun": {
       "sign": "Cancer",
-      "degree": 24.74,
+      "degree": 24.75,
       "speed": 0.9544,
       "retrograde": false
     },
     "Moon": {
       "sign": "Virgo",
-      "degree": 4.03,
-      "speed": 13.9948,
+      "degree": 4.15,
+      "speed": 13.9908,
       "retrograde": false
     },
     "Mercury": {
       "sign": "Cancer",
-      "degree": 18.19,
-      "speed": -0.5141,
+      "degree": 18.18,
+      "speed": -0.5136,
       "retrograde": true
     },
     "Venus": {
       "sign": "Virgo",
-      "degree": 8.36,
+      "degree": 8.37,
       "speed": 1.0935,
       "retrograde": false
     },
     "Mars": {
       "sign": "Gemini",
-      "degree": 13.0,
+      "degree": 13.01,
       "speed": 0.6932,
       "retrograde": false
     },
@@ -91,8 +91,8 @@
       "type": "Square",
       "planet1": "Moon",
       "planet2": "Uranus",
-      "angle": 89.57,
-      "orb": 0.43,
+      "angle": 89.69,
+      "orb": 0.31,
       "applying": true
     },
     {
@@ -123,8 +123,8 @@
       "type": "Sextile",
       "planet1": "Mars",
       "planet2": "Saturn",
-      "angle": 58.33,
-      "orb": 1.67,
+      "angle": 58.34,
+      "orb": 1.66,
       "applying": true
     },
     {
@@ -139,32 +139,32 @@
       "type": "Square",
       "planet1": "Venus",
       "planet2": "Uranus",
-      "angle": 93.9,
-      "orb": 3.9,
+      "angle": 93.91,
+      "orb": 3.91,
       "applying": false
     },
     {
       "type": "Conjunction",
       "planet1": "Moon",
       "planet2": "Venus",
-      "angle": 4.33,
-      "orb": 4.33,
+      "angle": 4.21,
+      "orb": 4.21,
       "applying": true
     },
     {
       "type": "Square",
       "planet1": "Venus",
       "planet2": "Mars",
-      "angle": 85.35,
-      "orb": 4.65,
+      "angle": 85.36,
+      "orb": 4.64,
       "applying": true
     },
     {
       "type": "Conjunction",
       "planet1": "Sun",
       "planet2": "Mercury",
-      "angle": 6.56,
-      "orb": 6.56,
+      "angle": 6.57,
+      "orb": 6.57,
       "applying": false
     }
   ],
