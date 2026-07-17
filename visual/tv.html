@@ -139,7 +139,7 @@ html, body {
     <div class="h-sub">dial your date of birth</div>
     <div class="slots" id="slots"></div>
     <div class="h-error" id="h-error"></div>
-    <div class="h-hint">DAY · MONTH · YEAR</div>
+    <div class="h-hint">DAY · MONTH · YEAR<br><span style="opacity:.65">MISTAKE? DIAL 0 · 0 · 0 TO START OVER</span></div>
   </div>
 
   <!-- CONSULT -->
@@ -421,6 +421,19 @@ function renderSlots(){
 function identifyDigit(d){
   if (dob.digits.length >= 8) return;
   dob.digits.push(d);
+  // 0·0·0 mid-entry = start over (the rotary dial has no backspace).
+  // A completed 8th digit always validates first, so birthdates ending
+  // in -000 (born in 2000) pass through untouched — and no valid date
+  // contains three consecutive zeros anywhere else.
+  if (dob.digits.length < 8 && dob.digits.slice(-3).join('') === '000'){
+    dob.digits = [];
+    renderSlots();
+    const err = document.getElementById('h-error');
+    err.textContent = 'THE SLATE IS CLEARED. DIAL AGAIN.';
+    after(2200, () => { err.textContent = ''; });
+    armIdentifyTimeout();
+    return;
+  }
   renderSlots();
   armIdentifyTimeout();
   if (dob.digits.length === 8) after(500, validateDob);
