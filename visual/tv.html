@@ -533,6 +533,20 @@ function enterReading(){
     ...(r.lens ? [{ k: 'FOR YOU IN PARTICULAR', b: r.lens, small: true, n: '' }] : []),
     { k: 'THE ARCHIVE CLOSES YOUR FILE', b: 'THE SKY CONTINUES WITHOUT YOU.', n: r.aside },
   ];
+  // Belt and braces: no sentence appears twice in one reading, whatever
+  // pool it came from. Duplicate bodies drop the screen; duplicate notes
+  // just blank the note.
+  const seen = new Set();
+  readingScreens = readingScreens.filter(sc => {
+    const b = (sc.b || '').trim();
+    if (b && seen.has(b)) return false;
+    if (b) seen.add(b);
+    const nn = (sc.n || '').trim();
+    if (nn && seen.has(nn)) sc.n = '';
+    else if (nn) seen.add(nn);
+    return true;
+  });
+
   readingIdx = 0;
   renderInstrumentPanels(transits);
   renderReadingScreen();

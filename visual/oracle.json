@@ -1,6 +1,6 @@
 {
-  "utc": "2026-07-17T07:48:34.189045+00:00",
-  "sky_utc": "2026-07-17T07:48:34.185099+00:00",
+  "utc": "2026-07-17T09:04:47.123554+00:00",
+  "sky_utc": "2026-07-17T09:04:47.119088+00:00",
   "signature": [
     "MOO_SQR_URA",
     "MOO_CON_VEN",
@@ -19,34 +19,34 @@
       "The thing that has not been named is waiting."
     ],
     "constraint": "What is said today tends to persist. The sky has noted this without comment.",
-    "aside": "Sun in Cancer at 24.77°. Moon in Virgo at 4.50°. Your reading is complete. The sky will continue without you."
+    "aside": "Sun in Cancer at 24.82°. Moon in Virgo at 5.24°. Your reading is complete. The sky will continue without you."
   },
   "readings_by_sign": {
     "Aries": {
       "address": "Filed under ARIES. The folder is slightly singed.",
       "governor": "Your file is kept by the engine room.",
-      "headline": "The department of affection and the engine room are filing complaints about each other.",
+      "headline": "The department of affection and the engine room have raised structural objections, each about the other.",
       "omens": [
-        "The friction is structural, not personal. It may still feel personal.",
-        "Neither party will yield today. Something useful is being machined between them.",
+        "Neither party will yield, and something useful is being machined between them. Machining is loud. Wear what protection you have.",
+        "Two departments want the same corridor today. Neither will use it once they have it. This is standard.",
         "Whatever is said today lands further than intended, in most directions."
       ],
-      "constraint": "What grinds today is being shaped into something. The sky has not said what.",
+      "constraint": "Friction is the archive's oldest supplier. Its invoices are always paid, eventually, by someone.",
       "lens": "You will want to act on this immediately. The sky suggests reading to the end first.",
-      "aside": "Sun in Cancer at 24.77°. Moon in Virgo at 4.50°. Your reading is complete. The sky will continue without you."
+      "aside": "Sun in Cancer at 24.82°. Moon in Virgo at 5.24°. Your reading is complete. The sky will continue without you."
     },
     "Taurus": {
       "address": "Filed under TAURUS. The folder has not moved in some time.",
       "governor": "Your file is kept by the department of affection.",
       "headline": "The emotional record and the department of affection are sharing a desk today.",
       "omens": [
-        "What one wants and what the other notices are currently indistinguishable.",
+        "The merger was not announced. Mergers of this kind never are. One simply arrives to find the nameplates changed.",
         "Whatever is said today lands further than intended, in most directions.",
-        "Articulation is possible. This is rarer than the literature suggests."
+        "The ledger for days like this is kept on the high shelf, which is understood to be a statement."
       ],
-      "constraint": "Proximity is not the same as agreement. The sky files them separately.",
+      "constraint": "Shared desks produce either partnerships or incidents. The archive stocks forms for both.",
       "lens": "You will want this to stay as it is. The sky declines to promise that.",
-      "aside": "Sun in Cancer at 24.77°. Moon in Virgo at 4.50°. Your reading is complete. The sky will continue without you."
+      "aside": "Sun in Cancer at 24.82°. Moon in Virgo at 5.24°. Your reading is complete. The sky will continue without you."
     },
     "Gemini": {
       "address": "Filed under GEMINI. The folder is cross-referenced with everything.",
@@ -55,24 +55,24 @@
       "omens": [
         "The thing that has not been named is waiting.",
         "Whatever is said today lands further than intended, in most directions.",
-        "Articulation is possible. This is rarer than the literature suggests."
+        "There was an incident in 1977 involving a comparable sky and a dinner party. The file is sealed. The tablecloth was not recovered."
       ],
       "constraint": "What is said today tends to persist. The sky has noted this without comment.",
       "lens": "You will want to discuss this with someone. Possibly several someones. Possibly at once.",
-      "aside": "Sun in Cancer at 24.77°. Moon in Virgo at 4.50°. Your reading is complete. The sky will continue without you."
+      "aside": "Sun in Cancer at 24.82°. Moon in Virgo at 5.24°. Your reading is complete. The sky will continue without you."
     },
     "Cancer": {
       "address": "Filed under CANCER. The folder is kept close to the chest.",
       "governor": "Your file is kept by the emotional record.",
-      "headline": "The emotional record and the department of affection are sharing a desk today.",
+      "headline": "The emotional record and the department of affection are occupying the same office and pretending this is normal.",
       "omens": [
         "Articulation is possible. This is rarer than the literature suggests.",
         "The thing that has not been named is waiting.",
-        "Two departments have merged for the day. Their filing systems have not."
+        "What one wants and what the other notices are currently indistinguishable. The archive has stapled the two reports together and hopes no one asks which is which."
       ],
-      "constraint": "Proximity is not the same as agreement. The sky files them separately.",
+      "constraint": "What has merged today will unmerge on schedule. The schedule is not published.",
       "lens": "You will feel this before you understand it. For you, that is the correct order.",
-      "aside": "Sun in Cancer at 24.77°. Moon in Virgo at 4.50°. Your reading is complete. The sky will continue without you."
+      "aside": "Sun in Cancer at 24.82°. Moon in Virgo at 5.24°. Your reading is complete. The sky will continue without you."
     },
     "Leo": {
       "address": "Filed under LEO. The folder has requested better lighting.",
@@ -81,11 +81,11 @@
       "omens": [
         "Articulation is possible. This is rarer than the literature suggests.",
         "The thing that has not been named is waiting.",
-        "Whatever is said today lands further than intended, in most directions."
+        "Precedent exists. Precedent always exists. That is the trouble with precedent."
       ],
       "constraint": "What is said today tends to persist. The sky has noted this without comment.",
       "lens": "You will want to be seen handling this well. Handling it well is the part that matters.",
-      "aside": "Sun in Cancer at 24.77°. Moon in Virgo at 4.50°. Your reading is complete. The sky will continue without you."
+      "aside": "Sun in Cancer at 24.82°. Moon in Virgo at 5.24°. Your reading is complete. The sky will continue without you."
     },
     "Virgo": {
       "address": "Filed under VIRGO. The folder has been annotated. Twice.",
@@ -94,50 +94,50 @@
       "omens": [
         "Whatever is said today lands further than intended, in most directions.",
         "Articulation is possible. This is rarer than the literature suggests.",
-        "The thing that has not been named is waiting."
+        "Form 30-B (Request for Clarity) remains available at the front desk. None has ever been approved."
       ],
       "constraint": "What grinds today is being shaped into something. The sky has not said what.",
       "lens": "You will notice the flaw in this reading. Noted. The flaw is load-bearing.",
-      "aside": "Sun in Cancer at 24.77°. Moon in Virgo at 4.50°. Your reading is complete. The sky will continue without you."
+      "aside": "Sun in Cancer at 24.82°. Moon in Virgo at 5.24°. Your reading is complete. The sky will continue without you."
     },
     "Libra": {
       "address": "Filed under LIBRA. The folder sits exactly between two shelves.",
       "governor": "Your file is kept by the department of affection.",
-      "headline": "The department of affection and the engine room are filing complaints about each other.",
+      "headline": "The department of affection and the engine room have escalated the matter to a committee that does not exist.",
       "omens": [
         "Articulation is possible. This is rarer than the literature suggests.",
         "The thing that has not been named is waiting.",
-        "The friction is structural, not personal. It may still feel personal."
+        "The grievance is genuine, ancient, and procedurally perfect. Nobody remembers the original incident. The complaint form remembers."
       ],
-      "constraint": "What grinds today is being shaped into something. The sky has not said what.",
+      "constraint": "Friction is the archive's oldest supplier. Its invoices are always paid, eventually, by someone.",
       "lens": "You will want to weigh both sides. At some point, the scale must be read.",
-      "aside": "Sun in Cancer at 24.77°. Moon in Virgo at 4.50°. Your reading is complete. The sky will continue without you."
+      "aside": "Sun in Cancer at 24.82°. Moon in Virgo at 5.24°. Your reading is complete. The sky will continue without you."
     },
     "Scorpio": {
       "address": "Filed under SCORPIO. The folder is sealed. You sealed it.",
       "governor": "Your file is kept by deep storage.",
-      "headline": "The office of expansion and deep storage are negotiating across a long table.",
+      "headline": "The office of expansion and deep storage are in formal correspondence, copies filed.",
       "omens": [
         "Whatever is said today lands further than intended, in most directions.",
         "Articulation is possible. This is rarer than the literature suggests.",
-        "The thing that has not been named is waiting."
+        "An asterisk has followed this entry since 1994. Its referent has been lost. The asterisk remains vigilant."
       ],
-      "constraint": "A tension held properly is load-bearing. Dropped, it is only noise.",
+      "constraint": "Neither end of the table is going to move. The table, however, can be walked around. This is mentioned in no manual.",
       "lens": "You will suspect there is more beneath this. There is. There always is.",
-      "aside": "Sun in Cancer at 24.77°. Moon in Virgo at 4.50°. Your reading is complete. The sky will continue without you."
+      "aside": "Sun in Cancer at 24.82°. Moon in Virgo at 5.24°. Your reading is complete. The sky will continue without you."
     },
     "Sagittarius": {
       "address": "Filed under SAGITTARIUS. The folder was found some distance from its shelf.",
       "governor": "Your file is kept by the office of expansion.",
-      "headline": "The office of expansion and the department of surprises are exchanging polite memos.",
+      "headline": "The office of expansion and the department of surprises are circulating a modest proposal.",
       "omens": [
         "Articulation is possible. This is rarer than the literature suggests.",
         "The thing that has not been named is waiting.",
-        "An opportunity exists. It is small, well-labeled, and easily ignored."
+        "Regulation 7 forbids the archive from saying 'we told you so.' Regulation 7 is tested daily."
       ],
       "constraint": "Doors that open quietly still require walking through.",
       "lens": "You will want the larger meaning. Fine. Today's paperwork still applies.",
-      "aside": "Sun in Cancer at 24.77°. Moon in Virgo at 4.50°. Your reading is complete. The sky will continue without you."
+      "aside": "Sun in Cancer at 24.82°. Moon in Virgo at 5.24°. Your reading is complete. The sky will continue without you."
     },
     "Capricorn": {
       "address": "Filed under CAPRICORN. The folder is structurally sound.",
@@ -145,88 +145,88 @@
       "headline": "The correspondence desk and the structural engineer are filing complaints about each other.",
       "omens": [
         "The thing that has not been named is waiting.",
-        "The friction is structural, not personal. It may still feel personal.",
-        "Neither party will yield today. Something useful is being machined between them."
+        "A structural objection has been raised. It has been logged with the other four thousand.",
+        "Two departments want the same corridor today. Neither will use it once they have it. This is standard."
       ],
-      "constraint": "What grinds today is being shaped into something. The sky has not said what.",
+      "constraint": "Friction is the archive's oldest supplier. Its invoices are always paid, eventually, by someone.",
       "lens": "You will ask what this is useful for. Not everything is. Some of it is anyway.",
-      "aside": "Sun in Cancer at 24.77°. Moon in Virgo at 4.50°. Your reading is complete. The sky will continue without you."
+      "aside": "Sun in Cancer at 24.82°. Moon in Virgo at 5.24°. Your reading is complete. The sky will continue without you."
     },
     "Aquarius": {
       "address": "Filed under AQUARIUS. The folder is filed under a system of its own devising.",
       "governor": "Your file is kept by the department of surprises.",
-      "headline": "The emotional record and the department of surprises are filing complaints about each other.",
+      "headline": "The emotional record and the department of surprises have escalated the matter to a committee that does not exist.",
       "omens": [
-        "The friction is structural, not personal. It may still feel personal.",
-        "Neither party will yield today. Something useful is being machined between them.",
-        "Whatever is said today lands further than intended, in most directions."
+        "Neither party will yield, and something useful is being machined between them. Machining is loud. Wear what protection you have.",
+        "The grievance is genuine, ancient, and procedurally perfect. Nobody remembers the original incident. The complaint form remembers.",
+        "The relevant drawer sticks in humid weather. Today it opened at once. Draw what conclusions you must."
       ],
-      "constraint": "What grinds today is being shaped into something. The sky has not said what.",
+      "constraint": "You may pick a side if you like. The corridor does not care. The corridor has seen committees come and go.",
       "lens": "You will want to improve the premise. The premise thanks you, and remains.",
-      "aside": "Sun in Cancer at 24.77°. Moon in Virgo at 4.50°. Your reading is complete. The sky will continue without you."
+      "aside": "Sun in Cancer at 24.82°. Moon in Virgo at 5.24°. Your reading is complete. The sky will continue without you."
     },
     "Pisces": {
       "address": "Filed under PISCES. The folder's edges are soft from handling.",
       "governor": "Your file is kept by the fog archive.",
-      "headline": "The office of expansion and the fog archive are cooperating without being asked.",
+      "headline": "The office of expansion and the fog archive have waved each other through without inspection.",
       "omens": [
-        "No memo was sent. The thing happened anyway.",
+        "No memo was sent. The thing happened anyway. Several supervisors are quietly unsettled by this.",
         "Whatever is said today lands further than intended, in most directions.",
-        "Articulation is possible. This is rarer than the literature suggests."
+        "The Department of Outcomes has declined to comment. This is itself a comment, and has been filed as one."
       ],
       "constraint": "Ease is pleasant and teaches nothing. Enjoy it anyway.",
       "lens": "You will absorb more of this than intended. Please return what is not yours.",
-      "aside": "Sun in Cancer at 24.77°. Moon in Virgo at 4.50°. Your reading is complete. The sky will continue without you."
+      "aside": "Sun in Cancer at 24.82°. Moon in Virgo at 5.24°. Your reading is complete. The sky will continue without you."
     }
   },
   "sky": {
     "planets": {
       "Sun": {
         "sign": "Cancer",
-        "degree": 24.77,
+        "degree": 24.82,
         "speed": 0.9544,
         "retrograde": false
       },
       "Moon": {
         "sign": "Virgo",
-        "degree": 4.5,
-        "speed": 13.9796,
+        "degree": 5.24,
+        "speed": 13.9558,
         "retrograde": false
       },
       "Mercury": {
         "sign": "Cancer",
-        "degree": 18.17,
-        "speed": -0.5123,
+        "degree": 18.14,
+        "speed": -0.5095,
         "retrograde": true
       },
       "Venus": {
         "sign": "Virgo",
-        "degree": 8.39,
-        "speed": 1.0934,
+        "degree": 8.45,
+        "speed": 1.0932,
         "retrograde": false
       },
       "Mars": {
         "sign": "Gemini",
-        "degree": 13.03,
+        "degree": 13.06,
         "speed": 0.6931,
         "retrograde": false
       },
       "Jupiter": {
         "sign": "Leo",
-        "degree": 3.72,
-        "speed": 0.2203,
+        "degree": 3.73,
+        "speed": 0.2204,
         "retrograde": false
       },
       "Saturn": {
         "sign": "Aries",
         "degree": 14.67,
-        "speed": 0.0162,
+        "speed": 0.0161,
         "retrograde": false
       },
       "Uranus": {
         "sign": "Gemini",
         "degree": 4.46,
-        "speed": 0.0419,
+        "speed": 0.0418,
         "retrograde": false
       },
       "Neptune": {
@@ -244,19 +244,11 @@
     },
     "aspects": [
       {
-        "type": "Square",
-        "planet1": "Moon",
-        "planet2": "Uranus",
-        "angle": 90.04,
-        "orb": 0.04,
-        "applying": false
-      },
-      {
         "type": "Trine",
         "planet1": "Uranus",
         "planet2": "Pluto",
-        "angle": 119.94,
-        "orb": 0.06,
+        "angle": 119.95,
+        "orb": 0.05,
         "applying": true
       },
       {
@@ -271,80 +263,88 @@
         "type": "Sextile",
         "planet1": "Neptune",
         "planet2": "Pluto",
-        "angle": 59.87,
-        "orb": 0.13,
+        "angle": 59.88,
+        "orb": 0.12,
         "applying": true
       },
       {
         "type": "Trine",
         "planet1": "Jupiter",
         "planet2": "Neptune",
-        "angle": 119.32,
-        "orb": 0.68,
+        "angle": 119.34,
+        "orb": 0.66,
         "applying": true
       },
       {
         "type": "Sextile",
         "planet1": "Jupiter",
         "planet2": "Uranus",
-        "angle": 59.25,
-        "orb": 0.75,
+        "angle": 59.26,
+        "orb": 0.74,
         "applying": true
+      },
+      {
+        "type": "Square",
+        "planet1": "Moon",
+        "planet2": "Uranus",
+        "angle": 90.78,
+        "orb": 0.78,
+        "applying": false
       },
       {
         "type": "Opposition",
         "planet1": "Jupiter",
         "planet2": "Pluto",
-        "angle": 179.2,
-        "orb": 0.8,
+        "angle": 179.21,
+        "orb": 0.79,
         "applying": true
       },
       {
         "type": "Sextile",
         "planet1": "Mars",
         "planet2": "Saturn",
-        "angle": 58.35,
-        "orb": 1.65,
-        "applying": true
-      },
-      {
-        "type": "Square",
-        "planet1": "Mercury",
-        "planet2": "Saturn",
-        "angle": 93.5,
-        "orb": 3.5,
+        "angle": 58.39,
+        "orb": 1.61,
         "applying": true
       },
       {
         "type": "Conjunction",
         "planet1": "Moon",
         "planet2": "Venus",
-        "angle": 3.89,
-        "orb": 3.89,
+        "angle": 3.21,
+        "orb": 3.21,
+        "applying": true
+      },
+      {
+        "type": "Square",
+        "planet1": "Mercury",
+        "planet2": "Saturn",
+        "angle": 93.47,
+        "orb": 3.47,
         "applying": true
       },
       {
         "type": "Square",
         "planet1": "Venus",
         "planet2": "Uranus",
-        "angle": 93.93,
-        "orb": 3.93,
+        "angle": 93.99,
+        "orb": 3.99,
         "applying": false
       },
       {
         "type": "Square",
         "planet1": "Venus",
         "planet2": "Mars",
-        "angle": 85.37,
-        "orb": 4.63,
+        "angle": 85.39,
+        "orb": 4.61,
         "applying": true
       },
       {
         "type": "Conjunction",
         "planet1": "Sun",
         "planet2": "Mercury",
-        "angle": 6.61,
-        "orb": 6.61,
+        "angle": 6.68,
+        "orb": 6.68,
         "applying": false
       }
     ]

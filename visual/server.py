@@ -84,8 +84,10 @@ def find_transits(natal_sun_lon: float, natal_moon_lon: float, max_hits: int = 3
         if len(picked) == max_hits:
             break
     out = []
-    for off, name, asp_name, target in picked:
-        composed = librarian.compose_transit(name, asp_name, target, variant=seed) or {}
+    for idx, (off, name, asp_name, target) in enumerate(picked):
+        # offset the variant per transit — two same-type transits must not
+        # produce the same sentence twice in one reading
+        composed = librarian.compose_transit(name, asp_name, target, variant=seed + idx) or {}
         out.append({
             "planet": name, "type": asp_name, "target": target,
             "orb": round(off, 2),

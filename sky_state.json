@@ -1,52 +1,52 @@
 {
-  "utc": "2026-07-17T07:48:34.185099+00:00",
+  "utc": "2026-07-17T09:04:47.119088+00:00",
   "planets": {
     "Sun": {
       "sign": "Cancer",
-      "degree": 24.77,
+      "degree": 24.82,
       "speed": 0.9544,
       "retrograde": false
     },
     "Moon": {
       "sign": "Virgo",
-      "degree": 4.5,
-      "speed": 13.9796,
+      "degree": 5.24,
+      "speed": 13.9558,
       "retrograde": false
     },
     "Mercury": {
       "sign": "Cancer",
-      "degree": 18.17,
-      "speed": -0.5123,
+      "degree": 18.14,
+      "speed": -0.5095,
       "retrograde": true
     },
     "Venus": {
       "sign": "Virgo",
-      "degree": 8.39,
-      "speed": 1.0934,
+      "degree": 8.45,
+      "speed": 1.0932,
       "retrograde": false
     },
     "Mars": {
       "sign": "Gemini",
-      "degree": 13.03,
+      "degree": 13.06,
       "speed": 0.6931,
       "retrograde": false
     },
     "Jupiter": {
       "sign": "Leo",
-      "degree": 3.72,
-      "speed": 0.2203,
+      "degree": 3.73,
+      "speed": 0.2204,
       "retrograde": false
     },
     "Saturn": {
       "sign": "Aries",
       "degree": 14.67,
-      "speed": 0.0162,
+      "speed": 0.0161,
       "retrograde": false
     },
     "Uranus": {
       "sign": "Gemini",
       "degree": 4.46,
-      "speed": 0.0419,
+      "speed": 0.0418,
       "retrograde": false
     },
     "Neptune": {
@@ -64,19 +64,11 @@
   },
   "aspects": [
     {
-      "type": "Square",
-      "planet1": "Moon",
-      "planet2": "Uranus",
-      "angle": 90.04,
-      "orb": 0.04,
-      "applying": false
-    },
-    {
       "type": "Trine",
       "planet1": "Uranus",
       "planet2": "Pluto",
-      "angle": 119.94,
-      "orb": 0.06,
+      "angle": 119.95,
+      "orb": 0.05,
       "applying": true
     },
     {
@@ -91,80 +83,88 @@
       "type": "Sextile",
       "planet1": "Neptune",
       "planet2": "Pluto",
-      "angle": 59.87,
-      "orb": 0.13,
+      "angle": 59.88,
+      "orb": 0.12,
       "applying": true
     },
     {
       "type": "Trine",
       "planet1": "Jupiter",
       "planet2": "Neptune",
-      "angle": 119.32,
-      "orb": 0.68,
+      "angle": 119.34,
+      "orb": 0.66,
       "applying": true
     },
     {
       "type": "Sextile",
       "planet1": "Jupiter",
       "planet2": "Uranus",
-      "angle": 59.25,
-      "orb": 0.75,
+      "angle": 59.26,
+      "orb": 0.74,
       "applying": true
+    },
+    {
+      "type": "Square",
+      "planet1": "Moon",
+      "planet2": "Uranus",
+      "angle": 90.78,
+      "orb": 0.78,
+      "applying": false
     },
     {
       "type": "Opposition",
       "planet1": "Jupiter",
       "planet2": "Pluto",
-      "angle": 179.2,
-      "orb": 0.8,
+      "angle": 179.21,
+      "orb": 0.79,
       "applying": true
     },
     {
       "type": "Sextile",
       "planet1": "Mars",
       "planet2": "Saturn",
-      "angle": 58.35,
-      "orb": 1.65,
-      "applying": true
-    },
-    {
-      "type": "Square",
-      "planet1": "Mercury",
-      "planet2": "Saturn",
-      "angle": 93.5,
-      "orb": 3.5,
+      "angle": 58.39,
+      "orb": 1.61,
       "applying": true
     },
     {
       "type": "Conjunction",
       "planet1": "Moon",
       "planet2": "Venus",
-      "angle": 3.89,
-      "orb": 3.89,
+      "angle": 3.21,
+      "orb": 3.21,
+      "applying": true
+    },
+    {
+      "type": "Square",
+      "planet1": "Mercury",
+      "planet2": "Saturn",
+      "angle": 93.47,
+      "orb": 3.47,
       "applying": true
     },
     {
       "type": "Square",
       "planet1": "Venus",
       "planet2": "Uranus",
-      "angle": 93.93,
-      "orb": 3.93,
+      "angle": 93.99,
+      "orb": 3.99,
       "applying": false
     },
     {
       "type": "Square",
       "planet1": "Venus",
       "planet2": "Mars",
-      "angle": 85.37,
-      "orb": 4.63,
+      "angle": 85.39,
+      "orb": 4.61,
       "applying": true
     },
     {
       "type": "Conjunction",
       "planet1": "Sun",
       "planet2": "Mercury",
-      "angle": 6.61,
-      "orb": 6.61,
+      "angle": 6.68,
+      "orb": 6.68,
       "applying": false
     }
   ],

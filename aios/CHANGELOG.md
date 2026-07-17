@@ -4,6 +4,19 @@ Newest-first.
 
 ---
 
+## 2026-07-17 — Duplication fix + vocabulary expansion (post review)
+
+- Fixed same-sentence-twice within a reading: same-type transits now take
+  consecutive note/verb variants (stride-1 offsets; a 36-birthdate sweep
+  shows no collisions), and tv.html deduplicates the final screen sequence
+  as a guarantee regardless of source.
+- Corpus expanded ~45 lines per ASTRA_MIND voice rules: every aspect mode
+  now 6+6 verbs / 8 omens / 5 constraints; MARGINALIA 15→25 (the 1931
+  junior clerk, the archive's deliberately fast clock, the moth in the O
+  section); TRANSIT_NOTES 4→6 per mode; ASIDE_CLOSINGS 7→12.
+
+---
+
 ## 2026-07-17 — ASTRA MIND + corpus deepening (from designing-intelligence review)
 
 - Reviewed the designing-intelligence repo (Character Actor theory, Aio mind
