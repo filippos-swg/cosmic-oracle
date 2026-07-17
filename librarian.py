@@ -153,6 +153,7 @@ PLANET_DESK = {
 
 ASPECT_MODES = {
     "Conjunction": {
+        "verb_one": "is sharing a desk with",
         "verb": "are sharing a desk today",
         "omens": [
             "Two departments have merged for the day. Their filing systems have not.",
@@ -161,6 +162,7 @@ ASPECT_MODES = {
         "constraint": "Proximity is not the same as agreement. The sky files them separately.",
     },
     "Opposition": {
+        "verb_one": "is negotiating across a long table with",
         "verb": "are negotiating across a long table",
         "omens": [
             "Both parties are correct. This is the inconvenient kind of correct.",
@@ -169,6 +171,7 @@ ASPECT_MODES = {
         "constraint": "A tension held properly is load-bearing. Dropped, it is only noise.",
     },
     "Trine": {
+        "verb_one": "is cooperating, unprompted, with",
         "verb": "are cooperating without being asked",
         "omens": [
             "Something works today that usually requires supervision.",
@@ -177,6 +180,7 @@ ASPECT_MODES = {
         "constraint": "Ease is pleasant and teaches nothing. Enjoy it anyway.",
     },
     "Square": {
+        "verb_one": "is filing complaints about",
         "verb": "are filing complaints about each other",
         "omens": [
             "The friction is structural, not personal. It may still feel personal.",
@@ -185,6 +189,7 @@ ASPECT_MODES = {
         "constraint": "What grinds today is being shaped into something. The sky has not said what.",
     },
     "Sextile": {
+        "verb_one": "is exchanging polite memos with",
         "verb": "are exchanging polite memos",
         "omens": [
             "An opportunity exists. It is small, well-labeled, and easily ignored.",
@@ -205,6 +210,166 @@ def compose_from_aspect(aspect: dict):
         return None
     headline = f"{d1[0].upper()}{d1[1:]} and {d2} {mode['verb']}."
     return headline, list(mode["omens"]), mode["constraint"]
+
+# ---------------------------------------------------------------------------
+# Sign temperament layer — the visitor's natal sun sign as a filter.
+# Per the brief's interpretation hierarchy, temperament outweighs all:
+# it does not change what the sky says, it changes how the visitor
+# should hold it. `address` opens their file; `lens` closes the reading.
+# ---------------------------------------------------------------------------
+
+SIGN_TEMPERAMENT = {
+    "Aries": {
+        "address": "Filed under ARIES. The folder is slightly singed.",
+        "lens": "You will want to act on this immediately. The sky suggests reading to the end first.",
+    },
+    "Taurus": {
+        "address": "Filed under TAURUS. The folder has not moved in some time.",
+        "lens": "You will want this to stay as it is. The sky declines to promise that.",
+    },
+    "Gemini": {
+        "address": "Filed under GEMINI. The folder is cross-referenced with everything.",
+        "lens": "You will want to discuss this with someone. Possibly several someones. Possibly at once.",
+    },
+    "Cancer": {
+        "address": "Filed under CANCER. The folder is kept close to the chest.",
+        "lens": "You will feel this before you understand it. For you, that is the correct order.",
+    },
+    "Leo": {
+        "address": "Filed under LEO. The folder has requested better lighting.",
+        "lens": "You will want to be seen handling this well. Handling it well is the part that matters.",
+    },
+    "Virgo": {
+        "address": "Filed under VIRGO. The folder has been annotated. Twice.",
+        "lens": "You will notice the flaw in this reading. Noted. The flaw is load-bearing.",
+    },
+    "Libra": {
+        "address": "Filed under LIBRA. The folder sits exactly between two shelves.",
+        "lens": "You will want to weigh both sides. At some point, the scale must be read.",
+    },
+    "Scorpio": {
+        "address": "Filed under SCORPIO. The folder is sealed. You sealed it.",
+        "lens": "You will suspect there is more beneath this. There is. There always is.",
+    },
+    "Sagittarius": {
+        "address": "Filed under SAGITTARIUS. The folder was found some distance from its shelf.",
+        "lens": "You will want the larger meaning. Fine. Today's paperwork still applies.",
+    },
+    "Capricorn": {
+        "address": "Filed under CAPRICORN. The folder is structurally sound.",
+        "lens": "You will ask what this is useful for. Not everything is. Some of it is anyway.",
+    },
+    "Aquarius": {
+        "address": "Filed under AQUARIUS. The folder is filed under a system of its own devising.",
+        "lens": "You will want to improve the premise. The premise thanks you, and remains.",
+    },
+    "Pisces": {
+        "address": "Filed under PISCES. The folder's edges are soft from handling.",
+        "lens": "You will absorb more of this than intended. Please return what is not yours.",
+    },
+}
+
+def compose_transit(planet, aspect_type, target="Sun"):
+    """One personal line about a current planet aspecting the visitor's
+    natal Sun or Moon. Same voice, same parts bin as the composed layer."""
+    mode = ASPECT_MODES.get(aspect_type)
+    desk = PLANET_DESK.get(planet)
+    if not mode or not desk:
+        return None
+    line = f"{desk[0].upper()}{desk[1:]} {mode['verb_one']} your natal {target}."
+    return {"line": line, "note": mode["omens"][0]}
+
+
+# Rulerships (modern primary, traditional fallback where they differ).
+# A sign's reading leads with what its ruling planet is doing today —
+# real astrological logic, and it guarantees the twelve signs disperse
+# across the day's sky instead of all hearing the same report.
+SIGN_RULERS = {
+    "Aries":       ["Mars"],
+    "Taurus":      ["Venus"],
+    "Gemini":      ["Mercury"],
+    "Cancer":      ["Moon"],
+    "Leo":         ["Sun"],
+    "Virgo":       ["Mercury"],
+    "Libra":       ["Venus"],
+    "Scorpio":     ["Pluto", "Mars"],
+    "Sagittarius": ["Jupiter"],
+    "Capricorn":   ["Saturn"],
+    "Aquarius":    ["Uranus", "Saturn"],
+    "Pisces":      ["Neptune", "Jupiter"],
+}
+
+# For picking the FRESHEST aspect involving a ruler: prefer the hit whose
+# other planet moves fastest (a Moon contact is news; Pluto-Neptune is
+# geology). Lower rank = faster.
+SPEED_RANK = {
+    "Moon": 0, "Mercury": 1, "Venus": 2, "Sun": 3, "Mars": 4,
+    "Jupiter": 5, "Saturn": 6, "Uranus": 7, "Neptune": 8, "Pluto": 9,
+}
+
+def _tok(planet):
+    return planet.upper()[:3]
+
+
+def build_sign_readings(sky):
+    """One reading per sign, led by the sign's ruling planet.
+
+    Per sign: (1) if a curated token involving the ruler matched today,
+    its writing leads; (2) otherwise compose from the freshest aspect
+    involving the ruler; (3) if the ruler is unaspected today, fall back
+    to the shared day reading and say so. Temperament closes as before.
+    Returns {sign: {address, governor, headline, omens, constraint,
+    lens, aside}}."""
+    stamp, base_headline, base_omens, base_constraint, aside = build_reading(sky)
+    aspects = sky.get("aspects", [])
+    sig = sky.get("signature", [])
+
+    out = {}
+    for sign, t in SIGN_TEMPERAMENT.items():
+        rulers = SIGN_RULERS[sign]
+        desk = PLANET_DESK[rulers[0]]
+        governor = f"Your file is kept by {desk}."
+        headline, omens, constraint = base_headline, list(base_omens), base_constraint
+
+        # 1. curated token involving a ruler
+        lead = None
+        for tok_name in sig:
+            if tok_name in TOKEN_MEANINGS and any(_tok(r) in tok_name for r in rulers):
+                m = TOKEN_MEANINGS[tok_name]
+                lead = (m["headline"], list(m["omens"]), m["constraint"])
+                break
+
+        # 2. composed from the freshest ruler aspect
+        if lead is None:
+            hits = []
+            for a in aspects:
+                p1, p2 = a.get("planet1"), a.get("planet2")
+                for r in rulers:
+                    if r in (p1, p2):
+                        other = p2 if p1 == r else p1
+                        hits.append((SPEED_RANK.get(other, 9), a.get("orb", 99), a))
+                        break
+            if hits:
+                hits.sort(key=lambda h: (h[0], h[1]))
+                lead = compose_from_aspect(hits[0][2])
+
+        if lead:
+            headline = lead[0]
+            omens = uniq(list(lead[1]) + base_omens)[:3]
+            constraint = lead[2]
+        else:
+            governor += f" {rulers[0]} reports nothing unusual today."
+
+        out[sign] = {
+            "address":    t["address"],
+            "governor":   governor,
+            "headline":   headline,
+            "omens":      omens,
+            "constraint": constraint,
+            "lens":       t["lens"],
+            "aside":      aside,
+        }
+    return out
 
 # ---------------------------------------------------------------------------
 # Aside: rotating daily closings

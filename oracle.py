@@ -49,6 +49,10 @@ def write_oracle_json(sky_state: dict):
             "aside":      aside,
         },
 
+        # Per-sign readings for the installation ceremony (tv.html selects
+        # by the visitor's natal sun sign)
+        "readings_by_sign": librarian.build_sign_readings(sky_state),
+
         # Pass full sky data through for Celestial Log, Transits, Moon strip, etc.
         "sky": {
             "planets": sky_state.get("planets", {}),

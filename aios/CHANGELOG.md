@@ -4,6 +4,54 @@ Newest-first.
 
 ---
 
+## 2026-07-17 — Ruler-led sign readings
+
+- build_sign_readings() now leads each sign's reading with what its RULING
+  planet is doing in today's sky (SIGN_RULERS: modern primary, traditional
+  fallback; freshest aspect preferred via other-planet speed rank; curated
+  token wins if it involves the ruler; graceful "reports nothing unusual"
+  when the ruler is unaspected). New "governor" line ("Your file is kept by
+  the engine room.") shown under the headline in tv.html. The shared middle
+  of the reading now differs across signs on any day with multiple aspects.
+
+---
+
+## 2026-07-17 — Natal transits + instrument panels (post first live test)
+
+- Fixed the "identical readings" problem: /natal now also computes TRANSITS from
+  the current sky to the visitor's natal Sun and Moon (tightest two, diverse),
+  so different birthdates get genuinely different readings on the same day.
+  librarian.compose_transit() renders them in the archival voice ("The office
+  of expansion is cooperating, unprompted, with your natal Sun.").
+- READING gains 1–2 "IN YOUR SKY TODAY" screens (personal transits).
+- Instrument graphics restored, large-format, flanking the entity during the
+  reading: CELESTIAL LOG (glyphs, degrees, retrograde R) on the left; YOUR
+  NATAL SKY (personal transit rows, correct-phase moon icon, age/illumination)
+  on the right. Panels fade in after the FILE card; sized for the safe frame.
+
+---
+
+## 2026-07-17 — Installation experience built (Phases B–D, pre-calibration)
+
+- **visual/tv.html** — the ceremony. 4:3 stage (1024×768), all content inside the
+  CONFIG.SAFE frame (0.80 until the tube is measured). State machine:
+  BOOT (calibration ritual) → IDLE (entity + rotating sky line + invitation) →
+  IDENTIFY (DD·MM·YYYY digit slots, validation, 30s timeout) →
+  CONSULT (entity agitation + ephemeris theatre, min 5.2s) →
+  READING (FILE card → headline → observations → constraint → temperament lens →
+  closing, auto-advance or Enter) → IDLE. Optional SIGNOFF state (config-gated).
+  Input is plain digit keystrokes (rotary dial = USB keyboard; Esc abandons,
+  Backspace corrects). Entity engine embedded with state hooks
+  (agitation/dim, element-tinted during readings). All calibration numbers in
+  one CONFIG block.
+- **librarian.py** — SIGN_TEMPERAMENT (12 archival address + lens fragments);
+  build_sign_readings() refracts the day's reading through each temperament.
+- **oracle.py** — oracle.json now carries readings_by_sign (all 12, every cycle).
+- **visual/server.py** — /natal?d&m&y endpoint (swisseph, noon UT): natal sun +
+  approximate moon sign, fully offline; client has a date-table fallback.
+
+---
+
 ## 2026-07-16 — Installation build begins (Phase A)
 
 - Name resolved: ASTRA (DECISIONS.md)
