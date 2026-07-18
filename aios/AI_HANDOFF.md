@@ -1,5 +1,7 @@
 # AI_HANDOFF — Cosmic Oracle / Astra
 
+**AIOS version:** 1.3
+
 **Read this first. Every session.**
 
 Last updated: 2026-06-18

@@ -4,6 +4,13 @@ Newest-first.
 
 ---
 
+## 2026-07-18 — AIOS v1.3 touch-up
+
+- Added root `CLAUDE.md` pointer (read automatically by Claude/Cowork at session start)
+- Added AIOS version marker to `aios/AI_HANDOFF.md`
+- Added `aios/tasks/done/` for completed tasks
+- Structure-only; no content changed. Framework: filippos-swg/project-aios v1.3
+
 ## 2026-07-17 — Duplication fix + vocabulary expansion (post review)
 
 - Fixed same-sentence-twice within a reading: same-type transits now take
