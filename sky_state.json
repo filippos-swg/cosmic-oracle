@@ -1,64 +1,64 @@
 {
-  "utc": "2026-07-17T09:04:47.119088+00:00",
+  "utc": "2026-07-18T06:36:10.253337+00:00",
   "planets": {
     "Sun": {
       "sign": "Cancer",
-      "degree": 24.82,
-      "speed": 0.9544,
+      "degree": 25.68,
+      "speed": 0.9545,
       "retrograde": false
     },
     "Moon": {
       "sign": "Virgo",
-      "degree": 5.24,
-      "speed": 13.9558,
+      "degree": 17.58,
+      "speed": 13.5512,
       "retrograde": false
     },
     "Mercury": {
       "sign": "Cancer",
-      "degree": 18.14,
-      "speed": -0.5095,
+      "degree": 17.71,
+      "speed": -0.458,
       "retrograde": true
     },
     "Venus": {
       "sign": "Virgo",
-      "degree": 8.45,
-      "speed": 1.0932,
+      "degree": 9.43,
+      "speed": 1.0905,
       "retrograde": false
     },
     "Mars": {
       "sign": "Gemini",
-      "degree": 13.06,
-      "speed": 0.6931,
+      "degree": 13.68,
+      "speed": 0.692,
       "retrograde": false
     },
     "Jupiter": {
       "sign": "Leo",
-      "degree": 3.73,
-      "speed": 0.2204,
+      "degree": 3.93,
+      "speed": 0.2205,
       "retrograde": false
     },
     "Saturn": {
       "sign": "Aries",
-      "degree": 14.67,
-      "speed": 0.0161,
+      "degree": 14.69,
+      "speed": 0.0145,
       "retrograde": false
     },
     "Uranus": {
       "sign": "Gemini",
-      "degree": 4.46,
-      "speed": 0.0418,
+      "degree": 4.5,
+      "speed": 0.0413,
       "retrograde": false
     },
     "Neptune": {
       "sign": "Aries",
       "degree": 4.39,
-      "speed": -0.0053,
+      "speed": -0.0058,
       "retrograde": true
     },
     "Pluto": {
       "sign": "Aquarius",
-      "degree": 4.52,
-      "speed": -0.023,
+      "degree": 4.5,
+      "speed": -0.0231,
       "retrograde": true
     }
   },
@@ -67,114 +67,114 @@
       "type": "Trine",
       "planet1": "Uranus",
       "planet2": "Pluto",
-      "angle": 119.95,
-      "orb": 0.05,
-      "applying": true
-    },
-    {
-      "type": "Sextile",
-      "planet1": "Uranus",
-      "planet2": "Neptune",
-      "angle": 60.07,
-      "orb": 0.07,
+      "angle": 120.01,
+      "orb": 0.01,
       "applying": false
     },
     {
       "type": "Sextile",
       "planet1": "Neptune",
       "planet2": "Pluto",
-      "angle": 59.88,
-      "orb": 0.12,
+      "angle": 59.89,
+      "orb": 0.11,
       "applying": true
+    },
+    {
+      "type": "Sextile",
+      "planet1": "Uranus",
+      "planet2": "Neptune",
+      "angle": 60.11,
+      "orb": 0.11,
+      "applying": false
+    },
+    {
+      "type": "Sextile",
+      "planet1": "Moon",
+      "planet2": "Mercury",
+      "angle": 59.87,
+      "orb": 0.13,
+      "applying": false
     },
     {
       "type": "Trine",
       "planet1": "Jupiter",
       "planet2": "Neptune",
-      "angle": 119.34,
-      "orb": 0.66,
+      "angle": 119.54,
+      "orb": 0.46,
+      "applying": true
+    },
+    {
+      "type": "Opposition",
+      "planet1": "Jupiter",
+      "planet2": "Pluto",
+      "angle": 179.43,
+      "orb": 0.57,
       "applying": true
     },
     {
       "type": "Sextile",
       "planet1": "Jupiter",
       "planet2": "Uranus",
-      "angle": 59.26,
-      "orb": 0.74,
-      "applying": true
-    },
-    {
-      "type": "Square",
-      "planet1": "Moon",
-      "planet2": "Uranus",
-      "angle": 90.78,
-      "orb": 0.78,
-      "applying": false
-    },
-    {
-      "type": "Opposition",
-      "planet1": "Jupiter",
-      "planet2": "Pluto",
-      "angle": 179.21,
-      "orb": 0.79,
+      "angle": 59.42,
+      "orb": 0.58,
       "applying": true
     },
     {
       "type": "Sextile",
       "planet1": "Mars",
       "planet2": "Saturn",
-      "angle": 58.39,
-      "orb": 1.61,
-      "applying": true
-    },
-    {
-      "type": "Conjunction",
-      "planet1": "Moon",
-      "planet2": "Venus",
-      "angle": 3.21,
-      "orb": 3.21,
+      "angle": 59.0,
+      "orb": 1.0,
       "applying": true
     },
     {
       "type": "Square",
       "planet1": "Mercury",
       "planet2": "Saturn",
-      "angle": 93.47,
-      "orb": 3.47,
+      "angle": 93.02,
+      "orb": 3.02,
       "applying": true
     },
     {
       "type": "Square",
-      "planet1": "Venus",
-      "planet2": "Uranus",
-      "angle": 93.99,
-      "orb": 3.99,
+      "planet1": "Moon",
+      "planet2": "Mars",
+      "angle": 93.89,
+      "orb": 3.89,
       "applying": false
     },
     {
       "type": "Square",
       "planet1": "Venus",
       "planet2": "Mars",
-      "angle": 85.39,
-      "orb": 4.61,
+      "angle": 85.75,
+      "orb": 4.25,
       "applying": true
+    },
+    {
+      "type": "Square",
+      "planet1": "Venus",
+      "planet2": "Uranus",
+      "angle": 94.93,
+      "orb": 4.93,
+      "applying": false
     },
     {
       "type": "Conjunction",
       "planet1": "Sun",
       "planet2": "Mercury",
-      "angle": 6.68,
-      "orb": 6.68,
+      "angle": 7.97,
+      "orb": 7.97,
       "applying": false
     }
   ],
   "signature": [
-    "MOO_SQR_URA",
-    "MOO_CON_VEN",
+    "MOO_SXT_MER",
+    "MOO_SQR_MAR",
     "MER_SQR_SAT",
     "SUN_CON_MER",
-    "VEN_SQR_URA",
     "VEN_SQR_MAR",
+    "VEN_SQR_URA",
     "MAR_SXT_SAT",
     "JUP_TRI_NEP"
   ]
