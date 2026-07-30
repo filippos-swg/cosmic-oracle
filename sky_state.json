@@ -1,5 +1,5 @@
 {
-  "utc": "2026-07-30T13:20:54.704173+00:00",
+  "utc": "2026-07-30T13:21:54.775118+00:00",
   "planets": {
     "Sun": {
       "sign": "Leo",
@@ -9,14 +9,14 @@
     },
     "Moon": {
       "sign": "Aquarius",
-      "degree": 18.14,
-      "speed": 12.3536,
+      "degree": 18.15,
+      "speed": 12.3537,
       "retrograde": false
     },
     "Mercury": {
       "sign": "Cancer",
       "degree": 18.47,
-      "speed": 0.6577,
+      "speed": 0.6578,
       "retrograde": false
     },
     "Venus": {
@@ -155,8 +155,8 @@
       "type": "Sextile",
       "planet1": "Moon",
       "planet2": "Saturn",
-      "angle": 56.6,
-      "orb": 3.4,
+      "angle": 56.59,
+      "orb": 3.41,
       "applying": false
     },
     {
@@ -171,8 +171,8 @@
       "type": "Trine",
       "planet1": "Moon",
       "planet2": "Mars",
-      "angle": 123.95,
-      "orb": 3.95,
+      "angle": 123.94,
+      "orb": 3.94,
       "applying": true
     },
     {
