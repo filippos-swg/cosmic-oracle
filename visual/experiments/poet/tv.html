@@ -1,0 +1,1171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>ASTRA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+<style>
+/* ==========================================================================
+   ASTRA — installation experience (tv.html)
+   4:3 stage, all critical content inside the SAFE frame (see CONFIG).
+   States: BOOT → IDLE → IDENTIFY → CONSULT → READING → IDLE
+   Input: plain digit keystrokes (rotary dial emulates a USB keyboard;
+   a normal keyboard works identically). Enter = advance, Esc = abandon.
+   ========================================================================== */
+:root {
+  --fg: #e9e7e2;
+  --dim: #8a8884;
+  --faint: #4a4a46;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; height: 100%;
+  background: #000; color: var(--fg);
+  font-family: "Courier Prime", "JetBrains Mono", ui-monospace, monospace;
+  overflow: hidden; cursor: none;
+}
+.stage {
+  position: fixed; width: 1024px; height: 768px;
+  transform-origin: top left;
+  background: radial-gradient(ellipse at center, #060606 0%, #020202 70%, #000 100%);
+}
+#entity-canvas { position: absolute; inset: 0; transition: opacity 1.2s ease; }
+
+/* safe frame: every state screen lives inside this */
+.safe {
+  position: absolute;
+  /* set from CONFIG.SAFE by JS */
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+}
+
+/* state screens */
+.screen {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  opacity: 0; visibility: hidden;
+  transition: opacity .9s ease, visibility .9s;
+}
+.screen.on { opacity: 1; visibility: visible; }
+
+.brand      { font-size: 78px; letter-spacing: .30em; text-indent: .30em; }
+.brand-sub  { font-size: 26px; letter-spacing: .22em; color: var(--dim); margin-top: 18px; }
+.bootlines  { font-size: 26px; letter-spacing: .10em; color: var(--dim);
+              margin-top: 54px; line-height: 1.9; min-height: 150px; }
+.bootlines .done { color: var(--fg); }
+
+.idle-info  { position: absolute; bottom: 20%; width: 100%; text-align: center;
+              font-size: 28px; letter-spacing: .05em; color: var(--fg);
+              line-height: 1.45; padding: 0 10%; }
+.idle-invite{ position: absolute; bottom: 7%; width: 100%; text-align: center;
+              font-size: 24px; letter-spacing: .11em; color: var(--dim);
+              animation: pulse 3.2s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+
+.h-title    { font-size: 34px; letter-spacing: .20em; margin-bottom: 10px; }
+.h-sub      { font-size: 26px; letter-spacing: .10em; color: var(--dim); margin-bottom: 56px; }
+.slots      { display: flex; gap: 18px; align-items: baseline; font-size: 84px; }
+.slots .sep { color: var(--faint); font-size: 60px; }
+.slot {
+  width: 74px; border-bottom: 4px solid var(--faint);
+  padding-bottom: 6px; color: var(--fg); text-align: center;
+  min-height: 100px; line-height: 100px;
+}
+.slot.active { border-color: var(--fg); }
+.slot.active:empty::after { content: "▮"; animation: pulse 1.1s infinite; color: var(--dim); }
+.h-hint     { font-size: 24px; color: var(--faint); letter-spacing: .10em; margin-top: 56px; }
+.h-error    { font-size: 26px; color: var(--fg); letter-spacing: .08em; margin-top: 30px;
+              min-height: 34px; }
+
+.c-lines    { font-size: 32px; letter-spacing: .12em; line-height: 2.1; color: var(--dim); }
+.c-lines .done { color: var(--fg); }
+
+.r-kicker   { font-size: 26px; letter-spacing: .26em; color: var(--dim); margin-bottom: 34px;
+              max-width: 60%; }
+.r-body     { font-size: 46px; line-height: 1.35; letter-spacing: .015em;
+              max-width: 62%; text-transform: uppercase; }
+
+/* instrument side panels — the archive's readouts, large format */
+.r-side     { position: absolute; top: 9%; width: 19%; font-size: 22px;
+              color: var(--dim); letter-spacing: .02em; line-height: 1.85;
+              opacity: 0; transition: opacity 1.4s ease; }
+.r-side div { white-space: nowrap; }
+.r-side.show{ opacity: 1; }
+.r-side.left  { left: 0;  text-align: left; }
+.r-side.right { right: 0; text-align: right; }
+.r-side h4  { font-size: 19px; font-weight: 400; letter-spacing: .22em;
+              color: var(--faint); border-bottom: 2px solid var(--faint);
+              margin: 0 0 14px; padding-bottom: 10px; }
+.r-side .glyph { display: inline-block; min-width: 30px; text-align: center; }
+.r-side .moonrow { margin: 26px 0 6px; }
+.r-side svg { display: inline-block; vertical-align: middle; }
+.r-side .tr-row { white-space: nowrap; }
+.r-body.small { font-size: 36px; text-transform: none; }
+.r-body.poem  { font-size: 31px; text-transform: none; font-style: italic;
+                line-height: 1.8; letter-spacing: .02em; white-space: pre-line;
+                max-width: 80%; }
+.r-note     { font-size: 25px; color: var(--dim); margin-top: 44px; letter-spacing: .08em;
+              font-style: italic; max-width: 58%; }
+.r-dots     { position: absolute; bottom: 4%; width: 100%; text-align: center;
+              font-size: 22px; letter-spacing: .5em; color: var(--faint); }
+.r-dots .cur{ color: var(--fg); }
+
+.fadeable   { transition: opacity .7s ease; }
+.hidden-soft{ opacity: 0; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <canvas id="entity-canvas"></canvas>
+
+  <!-- BOOT -->
+  <div class="screen" id="s-boot">
+    <div class="brand">ASTRA</div>
+    <div class="brand-sub">ORACLE v.3.7 — SIGNAL GHOST · EXPERIMENT: FOUND ITEMS</div>
+    <div class="bootlines" id="bootlines"></div>
+  </div>
+
+  <!-- IDLE -->
+  <div class="screen" id="s-idle">
+    <div class="idle-info fadeable" id="idle-info"></div>
+    <div class="idle-invite" id="idle-invite">DIAL YOUR DATE OF BIRTH TO RECEIVE YOUR READING</div>
+  </div>
+
+  <!-- IDENTIFY -->
+  <div class="screen" id="s-identify">
+    <div class="h-title">IDENTIFY YOURSELF TO THE ARCHIVE</div>
+    <div class="h-sub">dial your date of birth</div>
+    <div class="slots" id="slots"></div>
+    <div class="h-error" id="h-error"></div>
+    <div class="h-hint">DAY · MONTH · YEAR<br><span style="opacity:.65">MISTAKE? DIAL 0 · 0 · 0 TO START OVER</span></div>
+  </div>
+
+  <!-- CONSULT -->
+  <div class="screen" id="s-consult">
+    <div class="c-lines" id="c-lines"></div>
+  </div>
+
+  <!-- READING -->
+  <div class="screen" id="s-reading">
+    <div class="r-side left" id="r-side-left">
+      <h4>CELESTIAL LOG</h4>
+      <div id="r-log"></div>
+    </div>
+    <div class="r-side right" id="r-side-right">
+      <h4>YOUR NATAL SKY</h4>
+      <div id="r-transit-rows"></div>
+      <div class="moonrow" id="r-moonrow"></div>
+      <div id="r-moonmeta"></div>
+    </div>
+    <div class="r-kicker fadeable" id="r-kicker"></div>
+    <div class="r-body fadeable" id="r-body"></div>
+    <div class="r-note fadeable" id="r-note"></div>
+    <div class="r-dots" id="r-dots"></div>
+  </div>
+
+  <!-- experiment badge: visible in every state so the sandbox can never be
+       mistaken for the production page -->
+  <div style="position:absolute; left:14px; bottom:10px; z-index:9;
+              font-size:15px; letter-spacing:.12em; color:#4a4a46;">
+    EXPERIMENT · FOUND ITEMS — PRESS P TO PREVIEW THE ENDING
+  </div>
+
+  <!-- SIGN-OFF -->
+  <div class="screen" id="s-signoff">
+    <div class="brand" style="font-size:54px">TRANSMISSION ENDS</div>
+    <div class="brand-sub">THE SKY CONTINUES.</div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ==========================================================================
+   CONFIG — everything the TV calibration session will touch lives here.
+   After the testcard.html session on the DUX, adjust SAFE (and, if needed,
+   TYPE_SCALE) — nothing else should need to change.
+   ========================================================================== */
+const CONFIG = {
+  SAFE: 0.80,             // fraction of the 1024x768 stage that survives the tube mask
+  TYPE_SCALE: 1.0,        // global multiplier if the tube demands bigger type
+  IDLE_INFO_ROTATE_MS: 12000,
+  IDENTIFY_TIMEOUT_MS: 30000,
+  CONSULT_MIN_MS: 5200,
+  READING_SCREEN_MS: 8000,
+  READING_HOLD_LAST_MS: 18000,   // the found item deserves a long hold
+  FETCH_MS: 63000,
+  SIGNOFF: { enabled: false, startHour: 1, endHour: 7 },
+  ENTITY_COUNT: 60000,    // particle budget (lower for the old MacBook if needed)
+};
+
+/* ── stage scaling + safe frame ── */
+(function(){
+  const stage = document.getElementById('stage');
+  function fit(){
+    const s = Math.min(innerWidth / 1024, innerHeight / 768);
+    stage.style.left = Math.round((innerWidth - 1024 * s) / 2) + 'px';
+    stage.style.top  = Math.round((innerHeight - 768 * s) / 2) + 'px';
+    stage.style.transform = 'scale(' + s + ')';
+  }
+  fit(); addEventListener('resize', fit);
+  const inset = (1 - CONFIG.SAFE) / 2 * 100;
+  document.querySelectorAll('.screen').forEach(el => {
+    el.style.inset = inset + '% ' + inset + '%';
+  });
+  if (CONFIG.TYPE_SCALE !== 1.0) {
+    document.documentElement.style.fontSize = (16 * CONFIG.TYPE_SCALE) + 'px';
+    stage.style.zoom = CONFIG.TYPE_SCALE; // coarse but effective for calibration
+  }
+})();
+
+/* ==========================================================================
+   DATA — oracle.json (daily sky + per-sign readings) and /natal
+   ========================================================================== */
+const SIGN_GLYPH = {Aries:'♈',Taurus:'♉',Gemini:'♊',Cancer:'♋',Leo:'♌',Virgo:'♍',
+  Libra:'♎',Scorpio:'♏',Sagittarius:'♐',Capricorn:'♑',Aquarius:'♒',Pisces:'♓'};
+const P_SYM = {Sun:'☉',Moon:'☽',Mercury:'☿',Venus:'♀',Mars:'♂',Jupiter:'♃',
+  Saturn:'♄',Uranus:'♅',Neptune:'♆',Pluto:'♇'};
+const ASP_SYM = {Conjunction:'☌',Opposition:'☍',Trine:'△',Square:'□',Sextile:'⚹'};
+const P_ORDER = ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
+const Z_OFF = {Aries:0,Taurus:30,Gemini:60,Cancer:90,Leo:120,Virgo:150,Libra:180,
+  Scorpio:210,Sagittarius:240,Capricorn:270,Aquarius:300,Pisces:330};
+
+/* correct-phase moon SVG (illuminated fraction + waxing side) */
+function moonSVG(planets, size){
+  const R = size / 2 - 1, c = size / 2;
+  let cyc = 0.25;
+  if (planets?.Sun && planets?.Moon){
+    const sl = (Z_OFF[planets.Sun.sign] || 0) + planets.Sun.degree;
+    const ml = (Z_OFF[planets.Moon.sign] || 0) + planets.Moon.degree;
+    cyc = (((ml - sl) % 360) + 360) % 360 / 360;
+  }
+  const frac = (1 - Math.cos(cyc * Math.PI * 2)) / 2;
+  const waxing = cyc < 0.5;
+  const svgO = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">';
+  const base = '<circle cx="' + c + '" cy="' + c + '" r="' + R + '" fill="#0a0a0a" stroke="#4a4a46" stroke-width="1.5"/>';
+  if (frac >= 0.995) return svgO + '<circle cx="' + c + '" cy="' + c + '" r="' + R + '" fill="#e9e7e2"/></svg>';
+  if (frac <= 0.005) return svgO + base + '</svg>';
+  const litLeft = !waxing;
+  const cos = 1 - 2 * frac, rx = Math.abs(R * cos), gib = frac > 0.5;
+  const top = c + ',' + (c - R), bot = c + ',' + (c + R);
+  const outer = 'A ' + R + ' ' + R + ' 0 0 ' + (litLeft ? 0 : 1) + ' ' + bot;
+  const term  = 'A ' + rx.toFixed(2) + ' ' + R + ' 0 0 ' + (gib ? (litLeft ? 0 : 1) : (litLeft ? 1 : 0)) + ' ' + top;
+  return svgO + base + '<path d="M ' + top + ' ' + outer + ' ' + term + ' Z" fill="#e9e7e2"/></svg>';
+}
+function moonMeta(planets){
+  if (!planets?.Sun || !planets?.Moon) return '';
+  const sl = (Z_OFF[planets.Sun.sign] || 0) + planets.Sun.degree;
+  const ml = (Z_OFF[planets.Moon.sign] || 0) + planets.Moon.degree;
+  const cyc = (((ml - sl) % 360) + 360) % 360 / 360;
+  const illum = Math.round((1 - Math.cos(cyc * Math.PI * 2)) / 2 * 100);
+  return 'AGE ' + (cyc * 29.53).toFixed(1) + 'D · ' + illum + '%';
+}
+const SIGN_ELEMENT = {Aries:'fire',Leo:'fire',Sagittarius:'fire',
+  Taurus:'earth',Virgo:'earth',Capricorn:'earth',
+  Gemini:'air',Libra:'air',Aquarius:'air',
+  Cancer:'water',Scorpio:'water',Pisces:'water'};
+
+let oracle = null;
+async function fetchOracle(){
+  try {
+    const res = await fetch('/oracle.json?_=' + Date.now(), { cache: 'no-store' });
+    if (res.ok) oracle = await res.json();
+  } catch(_){}
+}
+fetchOracle();
+setInterval(fetchOracle, CONFIG.FETCH_MS);
+
+async function fetchNatal(d, m, y){
+  try {
+    const res = await fetch(`/natal?d=${d}&m=${m}&y=${y}`);
+    if (res.ok) return await res.json();
+  } catch(_){}
+  // offline fallback: tropical date-range table (cusp-approximate)
+  const table = [[1,20,'Aquarius'],[2,19,'Pisces'],[3,21,'Aries'],[4,20,'Taurus'],
+    [5,21,'Gemini'],[6,21,'Cancer'],[7,23,'Leo'],[8,23,'Virgo'],[9,23,'Libra'],
+    [10,23,'Scorpio'],[11,22,'Sagittarius'],[12,22,'Capricorn']];
+  const prev = ['Capricorn','Aquarius','Pisces','Aries','Taurus','Gemini','Cancer',
+    'Leo','Virgo','Libra','Scorpio','Sagittarius'];
+  const sign = d >= table[m-1][1] ? table[m-1][2] : prev[m-1];
+  return { sun_sign: sign, sun_deg: null, moon_sign: null };
+}
+
+/* ==========================================================================
+   FOUND ITEMS (experiment) — the ceremony's final beat. After the archive
+   closes the file, one item remains: a letter (unsigned) or a dream
+   (recorded on the birth night, never interpreted). The librarian did not
+   write these. The librarian merely cannot explain them.
+   Keyed to the visitor's lead transit mode; container and variant seeded.
+   ========================================================================== */
+const FOUND_ITEMS = {
+  letter: {
+    frame: 'A note was left for your coordinates. It is unsigned. The archive has checked. Twice.',
+    stamp: 'Filed unread until today.',
+    pieces: {
+      Conjunction: [
+"Whatever has moved in beside you today —\nlet it stay the night.\nIt knows your house better than you think.\nIt helped build the door.",
+"You will not be alone today, even alone.\nSomething has pulled its chair to your table.\nSet a second cup down.\nYou have been the second cup before.",
+      ],
+      Opposition: [
+"The one who stands across from you\nis holding your half of something.\nWalk the long table when you are ready.\nIt is shorter than it looks from your end.",
+"What faces you is not a wall; it is a window\nwith the light on the other side for once.\nStay at your end as long as you need.\nThe distance is also yours.",
+      ],
+      Trine: [
+"Today the locks remember being doors.\nGo lightly through what opens —\ntake nothing but the going.\nYou were expected.",
+"Ease is a language you were born speaking\nand have spent years translating out of.\nToday, answer in the original.\nNo one is grading you.",
+      ],
+      Square: [
+"The stone in your path was carried there —\nby nothing lighter than a sky.\nPush against it with your whole name.\nIt is how the sky learns your weight.",
+"What resists you today is not refusing you.\nIt is holding still so you can climb.\nBruises are the sky's marginalia.\nYou are being annotated, not corrected.",
+      ],
+      Sextile: [
+"A small door has been left open\nat exactly your height.\nSmallness is how the great things travel.\nGo in before the weather notices.",
+"Today's gift is wrapped as an errand.\nRun it slowly.\nSomewhere between the leaving and the returning\nis the thing you asked the night for.",
+      ],
+      none: [
+"Nothing in the sky is pulling at you today.\nThis is not neglect. It is trust.\nThe instruments are quiet\nso that you can be heard.",
+"No planet asks for you today.\nTake the day back from the sky, then —\nit is rare to be handed a whole one,\nunmarked, still warm.",
+      ],
+    },
+  },
+  dream: {
+    frame: 'On the night you were born, the sky recorded the following. It has never been interpreted.',
+    stamp: 'Interpretation is left to the owner.',
+    pieces: {
+      Conjunction: [
+"Two lamps are carried into the same small room.\nTheir light does not double; it deepens.\nA door closes softly, from the inside.\nSomeone begins to hum in agreement.",
+"A river meets itself at a bend\nand for a moment flows both ways, gladly.\nOn the bank, two coats hang on one hook.\nNeither owner comes back for them.",
+      ],
+      Opposition: [
+"A long bridge with a lantern at each end.\nThe lanterns signal all night, patiently.\nBy morning they have agreed on nothing\nexcept the width of the river, which was the point.",
+"Two towers keep watch over one field.\nEach believes it guards the other.\nBetween them, the wheat grows tall\non the argument alone.",
+      ],
+      Trine: [
+"All the clocks in the house strike at once,\nand instead of noise there is a chord.\nA window opens itself to hear better.\nThe night approves, quietly, in dust.",
+"A ladder lies down and becomes a bridge.\nNo one is surprised, least of all the river.\nThings are agreeing tonight\nthat have never been introduced.",
+      ],
+      Square: [
+"A key grinds in a stubborn lock all night.\nBy dawn, neither has yielded —\nbut the key has become a better key,\nand the lock, at last, admits it is a door.",
+"Two hands press against opposite sides of a wall.\nThe wall warms where they press.\nYears later it will be called an arch,\nand no one will remember it was ever war.",
+      ],
+      Sextile: [
+"A letter slides under a door\ninto a room where someone is almost asleep.\nThe envelope glows faintly, politely,\nwilling to wait until morning. But only just.",
+"In the market of small hours,\none stall stays open, selling keys by weight.\nThe keeper nods at you as if you had ordered.\nThe key you are given weighs nothing at all.",
+      ],
+      none: [
+"The sky closes its ledger and dims its lamp.\nSnow falls upward, unhurried, sorting itself.\nSomewhere a shelf accepts one more jar of night.\nNothing is owed. Nothing is missing.",
+"An empty station, swept and lit.\nThe timetable shows a single word: soon.\nA cat crosses the platform like a signature.\nThe night files itself without assistance.",
+      ],
+    },
+  },
+};
+
+function pickFoundItem(transits, seed){
+  const daySeed = Math.floor(Date.now() / 86400000);
+  const container = ((seed + daySeed) % 2 === 0) ? 'letter' : 'dream';
+  const box = FOUND_ITEMS[container];
+  const mode = transits[0]?.type && box.pieces[transits[0].type] ? transits[0].type : 'none';
+  const pool = box.pieces[mode];
+  const piece = pool[(seed * 7 + daySeed) % pool.length];
+  return { container, frame: box.frame, stamp: box.stamp, piece };
+}
+
+/* ==========================================================================
+   STATE MACHINE
+   ========================================================================== */
+const S = { BOOT:'boot', IDLE:'idle', IDENTIFY:'identify', CONSULT:'consult',
+            READING:'reading', SIGNOFF:'signoff' };
+let state = null;
+let timers = [];
+
+function after(ms, fn){ const t = setTimeout(fn, ms); timers.push(t); return t; }
+function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(el => el.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+
+function setState(next){
+  clearTimers();
+  state = next;
+  switch (next) {
+    case S.BOOT:     return enterBoot();
+    case S.IDLE:     return enterIdle();
+    case S.IDENTIFY: return enterIdentify();
+    case S.CONSULT:  return enterConsult();
+    case S.READING:  return enterReading();
+    case S.SIGNOFF:  return enterSignoff();
+  }
+}
+
+/* ── BOOT ── */
+function enterBoot(){
+  ENTITY.set({ agitation: 0.15, dim: 0.35 });
+  show('s-boot');
+  const lines = [
+    'LOADING EPHEMERIS ................ OK',
+    'CALIBRATING SIGNAL GHOST ......... OK',
+    'SYNCHRONIZING WITH THE SKY ....... 98.7%',
+    'THE ARCHIVE IS OPEN.',
+  ];
+  const el = document.getElementById('bootlines');
+  el.innerHTML = '';
+  lines.forEach((ln, i) => {
+    after(900 + i * 1050, () => {
+      const d = document.createElement('div');
+      d.textContent = ln;
+      if (i === lines.length - 1) d.className = 'done';
+      el.appendChild(d);
+    });
+  });
+  after(900 + lines.length * 1050 + 1400, () => setState(S.IDLE));
+}
+
+/* ── IDLE ── */
+let idleRotor = null;
+function enterIdle(){
+  ENTITY.set({ agitation: 0.0, dim: 1.0 });
+  show('s-idle');
+  const info = document.getElementById('idle-info');
+  const feed = () => {
+    const items = [];
+    if (oracle){
+      const rs = oracle.reading_structured;
+      if (rs?.headline) items.push('“' + rs.headline + '”');
+      const p = oracle.sky?.planets;
+      if (p?.Moon) items.push('MOON IN ' + p.Moon.sign.toUpperCase() +
+        ' — ' + p.Moon.degree.toFixed(1) + '°');
+      if (p?.Sun) items.push('SUN IN ' + p.Sun.sign.toUpperCase() +
+        ' — ' + p.Sun.degree.toFixed(1) + '°');
+    }
+    items.push(new Date().toTimeString().slice(0,5) + ' — THE SKY IS BEING FILED CONTINUOUSLY');
+    return items;
+  };
+  let idx = 0;
+  const rotate = () => {
+    const items = feed();
+    info.classList.add('hidden-soft');
+    after(700, () => {
+      info.textContent = items[idx % items.length];
+      info.classList.remove('hidden-soft');
+      idx++;
+    });
+  };
+  info.textContent = '';
+  rotate();
+  idleRotor = setInterval(rotate, CONFIG.IDLE_INFO_ROTATE_MS);
+  timers.push(idleRotor);
+  // sign-off check
+  if (CONFIG.SIGNOFF.enabled) {
+    const check = setInterval(() => {
+      const h = new Date().getHours();
+      if (h >= CONFIG.SIGNOFF.startHour && h < CONFIG.SIGNOFF.endHour) setState(S.SIGNOFF);
+    }, 60000);
+    timers.push(check);
+  }
+}
+
+/* ── IDENTIFY ── */
+const dob = { digits: [] };  // D D M M Y Y Y Y
+function enterIdentify(firstDigit){
+  ENTITY.set({ agitation: 0.05, dim: 0.30 });
+  show('s-identify');
+  dob.digits = [];
+  if (typeof firstDigit === 'string') dob.digits.push(firstDigit);
+  renderSlots();
+  document.getElementById('h-error').textContent = '';
+  armIdentifyTimeout();
+}
+let identifyTimeout = null;
+function armIdentifyTimeout(){
+  if (identifyTimeout) clearTimeout(identifyTimeout);
+  identifyTimeout = after(CONFIG.IDENTIFY_TIMEOUT_MS, () => setState(S.IDLE));
+}
+function renderSlots(){
+  const wrap = document.getElementById('slots');
+  wrap.innerHTML = '';
+  const groups = [2, 2, 4];
+  let gi = 0, di = 0;
+  groups.forEach((len, g) => {
+    for (let k = 0; k < len; k++){
+      const s = document.createElement('div');
+      s.className = 'slot' + (di === dob.digits.length ? ' active' : '');
+      s.textContent = dob.digits[di] ?? '';
+      wrap.appendChild(s);
+      di++;
+    }
+    if (g < groups.length - 1){
+      const sep = document.createElement('div');
+      sep.className = 'sep';
+      sep.textContent = '·';
+      wrap.appendChild(sep);
+    }
+  });
+}
+function identifyDigit(d){
+  if (dob.digits.length >= 8) return;
+  dob.digits.push(d);
+  // 0·0·0 mid-entry = start over (the rotary dial has no backspace).
+  // A completed 8th digit always validates first, so birthdates ending
+  // in -000 (born in 2000) pass through untouched — and no valid date
+  // contains three consecutive zeros anywhere else.
+  if (dob.digits.length < 8 && dob.digits.slice(-3).join('') === '000'){
+    dob.digits = [];
+    renderSlots();
+    const err = document.getElementById('h-error');
+    err.textContent = 'THE SLATE IS CLEARED. DIAL AGAIN.';
+    after(2200, () => { err.textContent = ''; });
+    armIdentifyTimeout();
+    return;
+  }
+  renderSlots();
+  armIdentifyTimeout();
+  if (dob.digits.length === 8) after(500, validateDob);
+}
+function identifyBackspace(){
+  dob.digits.pop();
+  renderSlots();
+  armIdentifyTimeout();
+}
+function validateDob(){
+  const s = dob.digits.join('');
+  const d = +s.slice(0,2), m = +s.slice(2,4), y = +s.slice(4,8);
+  const now = new Date().getFullYear();
+  const real = m >= 1 && m <= 12 && d >= 1 && y >= 1900 && y <= now &&
+               d <= new Date(y, m, 0).getDate();
+  if (!real){
+    const err = document.getElementById('h-error');
+    err.textContent = 'THE ARCHIVE DOES NOT RECOGNIZE THIS DATE.';
+    after(2200, () => { dob.digits = []; renderSlots(); err.textContent = ''; });
+    return;
+  }
+  dob.d = d; dob.m = m; dob.y = y;
+  setState(S.CONSULT);
+}
+
+/* ── CONSULT ── */
+let natalResult = null;
+function enterConsult(){
+  ENTITY.set({ agitation: 1.0, dim: 0.85 });
+  show('s-consult');
+  natalResult = null;
+  fetchNatal(dob.d, dob.m, dob.y).then(n => natalResult = n);
+  const lines = [
+    'CONSULTING THE EPHEMERIS ...',
+    'RETRIEVING FILE ' + String(dob.d).padStart(2,'0') + '·' +
+      String(dob.m).padStart(2,'0') + '·' + dob.y + ' ...',
+    'CROSS-REFERENCING THE CURRENT SKY ...',
+  ];
+  const el = document.getElementById('c-lines');
+  el.innerHTML = '';
+  lines.forEach((ln, i) => {
+    after(500 + i * 1300, () => {
+      const dv = document.createElement('div');
+      dv.textContent = ln;
+      el.appendChild(dv);
+      if (i > 0) el.children[i-1].className = 'done';
+    });
+  });
+  const t0 = performance.now();
+  const tryProceed = () => {
+    const waited = performance.now() - t0;
+    if (natalResult && waited >= CONFIG.CONSULT_MIN_MS) setState(S.READING);
+    else after(250, tryProceed);
+  };
+  after(CONFIG.CONSULT_MIN_MS, tryProceed);
+}
+
+/* ── READING ── */
+let readingScreens = [], readingIdx = 0;
+function enterReading(){
+  const sign = natalResult?.sun_sign || 'Pisces';
+  const el = SIGN_ELEMENT[sign] || 'water';
+  const agit = { fire: 0.45, air: 0.30, water: 0.15, earth: 0.05 }[el];
+  ENTITY.set({ agitation: agit, dim: 0.5 });
+  show('s-reading');
+
+  const r = oracle?.readings_by_sign?.[sign] || {
+    address: 'Filed under ' + sign.toUpperCase() + '.',
+    headline: 'The sky is quiet in the way a library is quiet.',
+    omens: ['Nothing of note is being announced. This is not the same as nothing happening.'],
+    constraint: 'The universe maintains its records regardless.',
+    lens: '',
+    aside: '',
+  };
+
+  const natalLine = natalResult?.sun_deg != null
+    ? 'NATAL SUN ' + sign.toUpperCase() + ' ' + natalResult.sun_deg.toFixed(1) + '°' +
+      (natalResult.moon_sign ? '  ·  NATAL MOON ' + natalResult.moon_sign.toUpperCase() + ' (APPROX.)' : '')
+    : '';
+
+  const transits = natalResult?.transits || [];
+
+  // The visitor's natal transits are the SPINE of the reading — they are
+  // what genuinely differs between birthdates. The sign's ruler-story
+  // becomes one observation among several. A birthdate-derived seed
+  // rotates the supporting texts so even same-sign visitors diverge.
+  const seed = (dob.d || 0) + (dob.m || 0) * 31 + (dob.y || 0);
+  const lead = transits[0] || null;
+  const rest = transits.slice(1);
+  const omens = r.omens || [];
+  const pick = (arr, k) => arr.length ? arr[(seed + k) % arr.length] : null;
+
+  readingScreens = [
+    { k: 'FILE ' + (SIGN_GLYPH[sign] || '') + ' ' + sign.toUpperCase(), b: r.address, small: true, n: natalLine },
+    lead
+      ? { k: 'TODAY’S READING', b: lead.line,
+          n: lead.approx ? 'Your natal moon is approximate.' : '' }
+      : { k: 'TODAY’S READING', b: r.headline, n: r.governor || '' },
+    ...(lead ? [{ k: 'WHAT THIS MEANS', b: lead.note, small: true, n: '' }] : []),
+    ...(lead ? [{ k: 'MEANWHILE, IN THE ARCHIVE', b: r.headline, small: true, n: r.governor || '' }] : []),
+    ...[pick(omens, 0), pick(omens, 1)].filter(Boolean).map((o, i) =>
+      ({ k: 'OBSERVATION ' + (i+1), b: o, small: true, n: '' })),
+    { k: 'CONSTRAINT', b: r.constraint, small: true, n: '' },
+    ...rest.map(tr => ({
+      k: 'ALSO IN YOUR SKY',
+      b: tr.line,
+      small: true,
+      n: tr.note + (tr.approx ? ' (Your natal moon is approximate.)' : ''),
+    })),
+    ...(r.lens ? [{ k: 'FOR YOU IN PARTICULAR', b: r.lens, small: true, n: '' }] : []),
+    { k: 'THE ARCHIVE CLOSES YOUR FILE', b: 'THE SKY CONTINUES WITHOUT YOU.', n: r.aside },
+  ];
+
+  // The found item — after the file has already closed. The drawer was
+  // shut; and yet.
+  const found = pickFoundItem(transits, seed);
+  readingScreens.push(
+    { k: 'ONE ITEM REMAINS', b: found.frame, small: true, n: '', noPanels: true },
+    { k: found.container === 'letter' ? 'RECOVERED FROM YOUR FILE' : 'AS RECORDED',
+      b: found.piece, poem: true, n: found.stamp, noPanels: true }
+  );
+  // Belt and braces: no sentence appears twice in one reading, whatever
+  // pool it came from. Duplicate bodies drop the screen; duplicate notes
+  // just blank the note.
+  const seen = new Set();
+  readingScreens = readingScreens.filter(sc => {
+    const b = (sc.b || '').trim();
+    if (b && seen.has(b)) return false;
+    if (b) seen.add(b);
+    const nn = (sc.n || '').trim();
+    if (nn && seen.has(nn)) sc.n = '';
+    else if (nn) seen.add(nn);
+    return true;
+  });
+
+  readingIdx = previewFound ? Math.max(0, readingScreens.length - 2) : 0;
+  previewFound = false;
+  renderInstrumentPanels(transits);
+  renderReadingScreen();
+}
+let previewFound = false;
+
+/* the archive's readouts, flanking the entity during the reading */
+function renderInstrumentPanels(transits){
+  const planets = oracle?.sky?.planets || {};
+  const log = document.getElementById('r-log');
+  log.innerHTML = '';
+  P_ORDER.forEach(name => {
+    const p = planets[name];
+    if (!p) return;
+    const row = document.createElement('div');
+    row.innerHTML = '<span class="glyph">' + (P_SYM[name] || '') + '</span> ' +
+      (SIGN_GLYPH[p.sign] || '') + ' ' + Math.round(p.degree) + '°' +
+      (p.retrograde ? ' <span style="opacity:.5">R</span>' : '');
+    log.appendChild(row);
+  });
+
+  const trEl = document.getElementById('r-transit-rows');
+  trEl.innerHTML = '';
+  transits.forEach(tr => {
+    const row = document.createElement('div');
+    row.className = 'tr-row';
+    row.innerHTML = (P_SYM[tr.planet] || '') + ' ' + (ASP_SYM[tr.type] || '·') +
+      ' ' + tr.target.toUpperCase() + ' <span style="opacity:.6">' +
+      Math.floor(tr.orb) + '°' + String(Math.round((tr.orb % 1) * 60)).padStart(2,'0') + '′</span>';
+    trEl.appendChild(row);
+  });
+
+  document.getElementById('r-moonrow').innerHTML = moonSVG(planets, 64);
+  document.getElementById('r-moonmeta').textContent = moonMeta(planets);
+
+  // panels fade in after the FILE card has landed (untracked timer:
+  // a manual advance must not cancel the panels for the whole reading)
+  document.querySelectorAll('.r-side').forEach(el => el.classList.remove('show'));
+  setTimeout(() => {
+    if (state === S.READING && !readingScreens[readingIdx]?.noPanels)
+      document.querySelectorAll('.r-side').forEach(el => el.classList.add('show'));
+  }, 2200);
+}
+function renderReadingScreen(){
+  const sc = readingScreens[readingIdx];
+  if (!sc) return setState(S.IDLE);
+  const k = document.getElementById('r-kicker');
+  const b = document.getElementById('r-body');
+  const n = document.getElementById('r-note');
+  const dots = document.getElementById('r-dots');
+  [k, b, n].forEach(el => el.classList.add('hidden-soft'));
+  after(650, () => {
+    k.textContent = sc.k;
+    b.textContent = sc.b;
+    b.className = 'r-body fadeable' + (sc.small ? ' small' : '') + (sc.poem ? ' poem' : '');
+    // the instruments withdraw once the file is closed — the found item
+    // gets the whole room
+    if (sc.noPanels)
+      document.querySelectorAll('.r-side').forEach(el => el.classList.remove('show'));
+    n.textContent = sc.n || '';
+    [k, b, n].forEach(el => el.classList.remove('hidden-soft'));
+    dots.innerHTML = readingScreens.map((_, i) =>
+      '<span class="' + (i === readingIdx ? 'cur' : '') + '">·</span>').join('');
+  });
+  const last = readingIdx === readingScreens.length - 1;
+  after(last ? CONFIG.READING_HOLD_LAST_MS : CONFIG.READING_SCREEN_MS, advanceReading);
+}
+function advanceReading(){
+  clearTimers();
+  readingIdx++;
+  if (readingIdx >= readingScreens.length) setState(S.IDLE);
+  else renderReadingScreen();
+}
+
+/* ── SIGN-OFF ── */
+function enterSignoff(){
+  ENTITY.set({ agitation: 0.0, dim: 0.2 });
+  show('s-signoff');
+  const check = setInterval(() => {
+    const h = new Date().getHours();
+    if (!(h >= CONFIG.SIGNOFF.startHour && h < CONFIG.SIGNOFF.endHour)) setState(S.BOOT);
+  }, 60000);
+  timers.push(check);
+}
+
+/* ── INPUT ── */
+addEventListener('keydown', e => {
+  const digit = /^[0-9]$/.test(e.key) ? e.key : null;
+  // sandbox shortcut: P previews the found-item ending directly
+  if (e.key === 'p' && state !== S.CONSULT){
+    clearTimers();
+    if (!dob.d){ dob.d = 21; dob.m = 3; dob.y = 1985; }
+    previewFound = true;
+    fetchNatal(dob.d, dob.m, dob.y).then(n => { natalResult = n; setState(S.READING); });
+    return;
+  }
+  switch (state) {
+    case S.IDLE:
+      if (digit) { clearTimers(); state = S.IDENTIFY; enterIdentify(digit); }
+      break;
+    case S.IDENTIFY:
+      if (digit) identifyDigit(digit);
+      else if (e.key === 'Backspace' || e.key === 'c') identifyBackspace();
+      else if (e.key === 'Escape') setState(S.IDLE);
+      break;
+    case S.READING:
+      if (e.key === 'Enter' || e.key === ' ') advanceReading();
+      else if (e.key === 'Escape') setState(S.IDLE);
+      break;
+    case S.CONSULT:
+      break; // no interrupts — the theatre plays out
+    case S.BOOT:
+      if (e.key === 'Enter') setState(S.IDLE); // impatient developer shortcut
+      break;
+  }
+});
+
+/* ==========================================================================
+   ENTITY — particle engine (adapted from index.html; figure centered,
+   state hooks: window.ENTITY.set({agitation, dim}))
+   ========================================================================== */
+const ENTITY = (function(){
+  const canvas = document.getElementById('entity-canvas');
+  const ctx = canvas.getContext('2d');
+  const W_CSS = 1024, H_CSS = 768;
+  let W = 0, H = 0, DPR = 1;
+
+  const target = { agitation: 0, dim: 1 };
+  const cur    = { agitation: 0, dim: 1 };
+
+  const PROFILE = [
+    [0.000, 0.000],
+    [0.008, 0.050],
+    [0.020, 0.078],
+    [0.050, 0.115],
+    [0.090, 0.140],
+    [0.130, 0.147],
+    [0.210, 0.143],
+    [0.260, 0.132],
+    [0.330, 0.170],
+    [0.420, 0.330],
+    [0.520, 0.440],
+    [0.620, 0.500],
+    [0.800, 0.485],
+    [1.000, 0.465],
+  ];
+  function halfWidthN(yn) {
+    yn = Math.max(0, Math.min(1, yn));
+    for (let k = 1; k < PROFILE.length; k++) {
+      if (yn <= PROFILE[k][0]) {
+        const y0 = PROFILE[k-1][0], w0 = PROFILE[k-1][1];
+        const y1 = PROFILE[k][0],   w1 = PROFILE[k][1];
+        const t = (yn - y0) / (y1 - y0);
+        const s = t * t * (3 - 2 * t);
+        return w0 + (w1 - w0) * s;
+      }
+    }
+    return PROFILE[PROFILE.length - 1][1];
+  }
+
+  function rand(a, b) { return a + Math.random() * (b - a); }
+  function gauss() {
+    let u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+
+  const NPTS = 240;
+  let outlineRight = null, totalArc = 0;
+  function buildOutline() {
+    outlineRight = [];
+    let prev = null, arc = 0;
+    for (let i = 0; i <= NPTS; i++) {
+      const yn = i / NPTS;
+      const pt = { x: halfWidthN(yn), y: yn, arc: 0 };
+      if (prev) arc += Math.hypot(pt.x - prev.x, pt.y - prev.y);
+      pt.arc = arc;
+      outlineRight.push(pt);
+      prev = pt;
+    }
+    totalArc = arc;
+    for (let i = 0; i < outlineRight.length; i++) {
+      const p0 = outlineRight[Math.max(0, i - 1)];
+      const p1 = outlineRight[Math.min(outlineRight.length - 1, i + 1)];
+      const nx = p1.y - p0.y, ny = -(p1.x - p0.x);
+      const len = Math.hypot(nx, ny) || 1;
+      outlineRight[i].nx = nx / len;
+      outlineRight[i].ny = ny / len;
+    }
+  }
+  function samplePolygon(t) {
+    const targetArc = t * totalArc;
+    let lo = 0, hi = outlineRight.length - 1;
+    while (lo < hi - 1) {
+      const mid = (lo + hi) >> 1;
+      if (outlineRight[mid].arc < targetArc) lo = mid; else hi = mid;
+    }
+    const a = outlineRight[lo], b = outlineRight[hi];
+    const span = b.arc - a.arc;
+    const u = span > 0 ? (targetArc - a.arc) / span : 0;
+    return {
+      x:  a.x  + (b.x  - a.x ) * u,
+      y:  a.y  + (b.y  - a.y ) * u,
+      nx: a.nx + (b.nx - a.nx) * u,
+      ny: a.ny + (b.ny - a.ny) * u,
+    };
+  }
+
+  const COUNT = CONFIG.ENTITY_COUNT;
+  const STRIDE = 9;
+  let particles = new Float32Array(COUNT * STRIDE);
+  let fig = { cx: 0, top: 0, figW: 0, figH: 0 };
+
+  function vFade(yn) {
+    if (yn < 0.48) return 1;
+    return Math.max(0.10, 1 - (yn - 0.48) * 1.6);
+  }
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+    W = Math.floor(W_CSS * DPR);
+    H = Math.floor(H_CSS * DPR);
+    canvas.width = W; canvas.height = H;
+    canvas.style.width = W_CSS + 'px';
+    canvas.style.height = H_CSS + 'px';
+    buildParticles();
+  }
+
+  function buildParticles() {
+    if (!outlineRight) buildOutline();
+    const aspect = 0.75;
+    let figH = H * 0.82;
+    let figW = figH * aspect;
+    const cx = W * 0.5;
+    const top = Math.max(0, (H - figH) * 0.35);
+    fig = { cx, top, figW, figH };
+
+    const edgeCount      = Math.floor(COUNT * 0.22);
+    const haloCount      = Math.floor(COUNT * 0.10);
+    const bodyInnerCount = Math.floor(COUNT * 0.42);
+    const hoodInnerCount = Math.floor(COUNT * 0.02);
+    const baseDustCount  = Math.floor(COUNT * 0.05);
+    const orbitCount     = Math.floor(COUNT * 0.04);
+    const driftCount     = Math.floor(COUNT * 0.04);
+    const sparkCount     = COUNT - edgeCount - haloCount - bodyInnerCount
+                         - hoodInnerCount - baseDustCount - orbitCount - driftCount;
+    let i = 0;
+
+    // rim
+    for (let n = 0; n < edgeCount; n++) {
+      const t = Math.random(), side = Math.random() < 0.5 ? -1 : 1;
+      const p = samplePolygon(t);
+      if (p.y > 0.55 && Math.random() < (p.y - 0.55) / 0.40) continue;
+      let dEdge;
+      const r = Math.random();
+      if (r < 0.40)       dEdge = gauss() * 0.016;
+      else if (r < 0.75)  dEdge = (Math.random() * 2 - 1) * 0.035;
+      else if (r < 0.90)  dEdge = Math.pow(Math.random(), 1.4) * 0.090;
+      else                dEdge = -Math.pow(Math.random(), 1.4) * 0.050;
+      const px = cx + side * (p.x * figW + dEdge * figW * p.nx);
+      const py = top + p.y * figH + dEdge * figW * p.ny;
+      const topBoost = p.y < 0.25 ? 1.30 : 1.0;
+      writeParticle(i++, px, py, 0, 0, 0, 0, vFade(p.y) * topBoost);
+    }
+    // halo
+    for (let n = 0; n < haloCount; n++) {
+      const t = Math.random(), side = Math.random() < 0.5 ? -1 : 1;
+      const p = samplePolygon(t);
+      if (p.y > 0.55 && Math.random() < (p.y - 0.55) / 0.40) continue;
+      const dist = Math.abs(gauss()) * 0.070;
+      const px = cx + side * (p.x * figW + dist * figW * p.nx) + gauss() * 4 * DPR;
+      const py = top + p.y * figH + dist * figW * p.ny + gauss() * 4 * DPR;
+      writeParticle(i++, px, py, 2, 0, Math.exp(-dist * 9), 0, vFade(p.y));
+    }
+    // interior
+    let placed = 0, safety = bodyInnerCount * 18;
+    const HW_MAX = 0.50;
+    while (placed < bodyInnerCount && safety-- > 0) {
+      const yn = 0.02 + Math.random() * 0.98;
+      const hw = halfWidthN(yn);
+      if (hw < 0.005) continue;
+      if (Math.random() > (hw / HW_MAX)) continue;
+      if (yn > 0.68) {
+        const fadeT = Math.min(1, (yn - 0.68) / 0.32);
+        if (Math.random() < fadeT * 0.60) continue;
+      }
+      const xn = (Math.random() * 2 - 1) * hw;
+      const zn = (Math.random() * 2 - 1) * hw * 0.5;
+      const rim = Math.abs(xn) / hw;
+      if (yn < 0.30 && Math.random() > 0.48 + 0.52 * Math.pow(rim, 1.5)) continue;
+      writeParticle(i++, cx + xn * figW, top + yn * figH, 1, zn * figW, rim, 0, vFade(yn) * 0.95);
+      placed++;
+    }
+    // hood glow
+    placed = 0; safety = hoodInnerCount * 6;
+    while (placed < hoodInnerCount && safety-- > 0) {
+      const yn = 0.03 + Math.random() * 0.31;
+      const hw = halfWidthN(yn);
+      if (hw < 0.002) continue;
+      const xn = (Math.random() - 0.5) * 2 * hw;
+      writeParticle(i++, cx + xn * figW, top + yn * figH, 1, 0,
+        0.45 + 0.55 * (Math.abs(xn) / hw), 0, 1);
+      placed++;
+    }
+    // base dust
+    let bd = 0, bs = baseDustCount * 6;
+    while (bd < baseDustCount && bs-- > 0) {
+      const yn = 0.66 + Math.random() * 0.38;
+      const hwRef = halfWidthN(Math.min(0.99, yn));
+      const xn = (Math.random() - 0.5) * 2.0 * (hwRef + 0.04);
+      let accept;
+      if (yn < 0.86) accept = Math.min(1, Math.abs(xn) / (hwRef + 0.04));
+      else {
+        const below = (yn - 0.86) / 0.20;
+        accept = Math.exp(-below * 3.2) * (1 - Math.min(1, Math.abs(xn) / (hwRef + 0.04)) * 0.4);
+      }
+      if (Math.random() > accept) continue;
+      const bri = rand(0.35, 0.90) * (yn < 0.86 ? 1.0 : Math.exp(-(yn - 0.86) * 8));
+      writeParticle(i++, cx + xn * figW + gauss() * 2 * DPR,
+        top + yn * figH + gauss() * 2 * DPR, 6, 0, bri, 0, 1);
+      bd++;
+    }
+    // orbiters
+    for (let n = 0; n < orbitCount; n++) {
+      const yn = 0.10 + Math.random() * 0.70;
+      const hw = halfWidthN(yn);
+      const o = i * STRIDE;
+      particles[o+0] = cx;
+      particles[o+1] = top + yn * figH;
+      particles[o+2] = Math.random() * Math.PI * 2;
+      particles[o+3] = (Math.random() < 0.5 ? -1 : 1) * rand(0.08, 0.25);
+      particles[o+4] = hw * (0.55 + Math.random() * 0.75) * figW;
+      particles[o+5] = rand(0.35, 0.85);
+      particles[o+6] = Math.random() < 0.10 ? 2 : 1;
+      particles[o+7] = 5;
+      particles[o+8] = 0;
+      i++;
+    }
+    // drift wisps
+    for (let n = 0; n < driftCount; n++) {
+      const t = Math.random(), side = Math.random() < 0.5 ? -1 : 1;
+      const p = samplePolygon(t);
+      const dist = Math.pow(Math.random(), 1.6) * 0.18;
+      writeParticle(i++,
+        cx + side * (p.x * figW + dist * figW * p.nx) + gauss() * 8 * DPR,
+        top + p.y * figH + dist * figW * p.ny + gauss() * 12 * DPR, 3, 0, 0, 0, 1);
+    }
+    // starfield
+    for (let n = 0; n < sparkCount; n++) {
+      writeParticle(i++, Math.random() * W, Math.random() * H, 4, 0, 0, 0, 1);
+    }
+  }
+
+  const LIGHT_X = -0.6, LIGHT_Z = 0.8;
+  function writeParticle(i, x, y, kind, z, rim, lightDot, fade) {
+    const o = i * STRIDE;
+    particles[o+0] = x;
+    particles[o+1] = y;
+    particles[o+2] = Math.random() * Math.PI * 2;
+    particles[o+3] = rand(0.20, 1.05);
+    let amp, bright, size;
+    if (kind === 0) {
+      amp = rand(0.5, 1.8) * DPR;
+      bright = rand(0.70, 1.15);
+      const sr = Math.random();
+      if (sr < 0.45) size = 3; else if (sr < 0.60) size = 2; else size = 1;
+    } else if (kind === 1) {
+      amp = rand(0.4, 1.3) * DPR;
+      const base = Math.pow(Math.random(), 1.6) * 1.05 + 0.05;
+      bright = base * (0.75 + 0.25 * (rim || 0)) * 0.85;
+      const sr = Math.random();
+      if (sr < 0.32) size = 3; else if (sr < 0.36) size = 2; else size = 1;
+    } else if (kind === 2) {
+      amp = rand(0.6, 2.0) * DPR;
+      bright = rand(0.30, 0.70) * (rim != null ? rim : 1.0);
+      size = Math.random() < 0.02 ? 2 : 1;
+    } else if (kind === 3) {
+      amp = rand(1.5, 4.5) * DPR;
+      bright = rand(0.20, 0.55);
+      size = Math.random() < 0.06 ? 2 : 1;
+    } else if (kind === 6) {
+      amp = rand(0.2, 0.9) * DPR;
+      bright = rand(0.55, 1.00) * (rim || 0);
+      size = Math.random() < 0.06 ? 2 : 1;
+    } else {
+      amp = rand(0.3, 0.9) * DPR;
+      bright = rand(0.08, 0.30);
+      size = 1;
+    }
+    particles[o+4] = amp;
+    particles[o+5] = bright * (fade == null ? 1 : fade);
+    particles[o+6] = size;
+    particles[o+7] = kind;
+    particles[o+8] = z || 0;
+  }
+
+  let imgData, buf32;
+  function ensureImageData() {
+    if (!imgData || imgData.width !== W || imgData.height !== H) {
+      imgData = ctx.createImageData(W, H);
+      buf32 = new Uint32Array(imgData.data.buffer);
+    }
+  }
+  function plot(x, y, b) {
+    if (x < 0 || x >= W || y < 0 || y >= H) return;
+    const i = (y * W + x) | 0;
+    const c = buf32[i] >>> 24;
+    let nc = c + ((b * 255) | 0);
+    if (nc > 255) nc = 255;
+    buf32[i] = (nc << 24) | 0x00E2E7E9;
+  }
+  function plot2(x, y, b) {
+    plot(x, y, b); plot(x+1, y, b*0.55); plot(x, y+1, b*0.55); plot(x+1, y+1, b*0.30);
+  }
+  function plotStreak(x, y, b, dx, dy, halfLen) {
+    for (let k = -halfLen; k <= halfLen; k++) {
+      const t = Math.abs(k) / (halfLen + 0.5);
+      plot((x + dx*k) | 0, (y + dy*k) | 0, b * (1 - t*0.55));
+    }
+  }
+
+  let t = 0, last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+
+    // ease toward target state
+    cur.agitation += (target.agitation - cur.agitation) * 0.03;
+    cur.dim       += (target.dim       - cur.dim)       * 0.03;
+
+    t += dt * (1 + cur.agitation * 1.4);
+    const agitAmp = 1 + cur.agitation * 1.8;
+
+    ensureImageData();
+    buf32.fill(0);
+
+    const breath = Math.sin(t * 0.55) * 0.7 * DPR;
+    const sway   = Math.sin(t * 0.30) * 0.5 * DPR;
+    const yaw    = Math.sin(t * 0.22) * 0.10 + Math.sin(t * 0.07) * 0.05;
+    const sinYaw = Math.sin(yaw);
+    const cx = fig.cx, centerY = fig.top + fig.figH * 0.50;
+    const globalDim = 0.64 * cur.dim;
+
+    for (let i = 0; i < COUNT; i++) {
+      const o = i * STRIDE;
+      const x0 = particles[o+0], y0 = particles[o+1];
+      const ph = particles[o+2], sp = particles[o+3];
+      const am = particles[o+4] * agitAmp;
+      let   br = particles[o+5];
+      const sz = particles[o+6], kd = particles[o+7], z0 = particles[o+8];
+      const sa = Math.sin(t * sp + ph), ca = Math.cos(t * sp * 0.72 + ph * 0.83);
+      let x, y;
+
+      if (kd === 5) {
+        const angle = ph + t * sp + yaw;
+        const ox = Math.sin(angle) * am, oz = Math.cos(angle) * am;
+        x = x0 + ox + sway;
+        y = y0 + breath + Math.sin(t * 0.4 + ph * 1.3) * 0.5 * DPR;
+        const dnorm = oz / am;
+        br = br * (0.30 + 0.70 * Math.max(0, dnorm))
+                * (0.65 + 0.35 * ((ox / am) * LIGHT_X + dnorm * LIGHT_Z));
+      } else if (kd === 1) {
+        x = x0 + sinYaw * z0 + sa * am + sway;
+        y = y0 + ca * am * 0.85 + breath;
+      } else if (kd === 3) {
+        const life = ((t * 0.16) + ph * 0.5) % 1;
+        const dirX = x0 - cx, dirY = y0 - centerY;
+        const len = Math.hypot(dirX, dirY) || 1;
+        const push = life * 110 * DPR * (1 + cur.agitation);
+        x = x0 + sa * am + sway + (dirX / len) * push;
+        y = y0 + ca * am * 0.85 + breath + (dirY / len) * push * 0.9;
+        br = br * Math.sin(life * Math.PI);
+      } else if (kd === 4) {
+        x = x0 + sa * am;
+        y = y0 + ca * am * 0.85;
+        br = br * (0.45 + 0.55 * Math.sin(t * (1.4 + sp) + ph * 2));
+      } else {
+        x = x0 + sa * am + sway;
+        y = y0 + ca * am * 0.85 + breath;
+      }
+
+      br *= globalDim;
+
+      const ix = x | 0, iy = y | 0;
+      if (sz === 3) plotStreak(ix, iy, br, Math.cos(ph), Math.sin(ph), 2 + (i & 1));
+      else if (sz === 2) plot2(ix, iy, br);
+      else plot(ix, iy, br);
+    }
+
+    ctx.putImageData(imgData, 0, 0);
+    requestAnimationFrame(frame);
+  }
+
+  addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(n => { last = n; frame(n); });
+
+  return { set(opts){
+    if (opts.agitation != null) target.agitation = opts.agitation;
+    if (opts.dim != null) target.dim = opts.dim;
+  }};
+})();
+
+/* ── go ── */
+setState(S.BOOT);
+</script>
+</body>
+</html>

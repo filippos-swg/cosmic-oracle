@@ -4,12 +4,48 @@ Newest-first.
 
 ---
 
-## 2026-07-18 — AIOS v1.3 touch-up
+## 2026-07-29 — EXPERIMENT: ambient sound (visual/experiments/sound/)
 
-- Added root `CLAUDE.md` pointer (read automatically by Claude/Cowork at session start)
-- Added AIOS version marker to `aios/AI_HANDOFF.md`
-- Added `aios/tasks/done/` for completed tasks
-- Structure-only; no content changed. Framework: filippos-swg/project-aios v1.3
+- WebAudio layer, fully synthesized/offline: carrier hum + shortwave drift
+  scaled per ceremony state, dial clunks (double on 0·0·0 reset), text
+  ticks, numbers-station murmur under CONSULT, and total silence for the
+  found item. M mutes; TV volume knob is the intended gallery control.
+- Also this session, in experiments/type/: ceremonial typography settled on
+  LETTERSPACED MONO (the idle screen's voice promoted to the whole reading,
+  narrow tall center column ~46-50%); serif and script passes tried and
+  reverted. Speech/TTS considered and rejected for v1.
+
+---
+
+## 2026-07-18 — EXPERIMENT: ceremonial typography (visual/experiments/type/)
+
+- Sandbox (includes found-items): central voice re-set per the "Constant
+  Mistakes" reference — Cormorant engraved letterspaced caps for the
+  librarian's pronouncements, Great Vibes copperplate script for the
+  intimate register (notes, stamps, found letters/dreams). Machine layer
+  stays Courier Prime.
+- Fonts now SELF-HOSTED in visual/fonts/ (@fontsource woff2, OFL) —
+  discovered that production still loads fonts from Google's CDN, which
+  will fail on the offline gallery MacBook. Migrate production before
+  install day (see experiment README).
+- Experiment pages carry a corner badge + P-preview shortcut.
+
+---
+
+## 2026-07-18 — EXPERIMENT: the found item (visual/experiments/poet/)
+
+- Sandbox only — production tv.html untouched. After the archive closes the
+  file, one item remains: an unsigned LETTER or a DREAM recorded on the birth
+  night, never interpreted. The librarian did not write these; the ceremony
+  stays dry and earns one unguarded beat at the very end (Rumi's craft —
+  direct address, the turn — in the archive's own imagery; no outside tone).
+- 24 authored pieces (2 per aspect mode per container + unaspected pairs),
+  keyed to the visitor's lead transit, container seeded by birthdate + day.
+  Instruments withdraw for the final screens; 18s hold.
+- Try: http://localhost:8000/experiments/poet/tv.html — merge notes in the
+  folder README. The v2.0 thermal printer will print found.piece + stamp.
+
+---
 
 ## 2026-07-17 — Duplication fix + vocabulary expansion (post review)
 
