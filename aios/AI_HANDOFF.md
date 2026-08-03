@@ -1,117 +1,146 @@
-# AI_HANDOFF — Cosmic Oracle / Astra
+# AI_HANDOFF — ASTRA (Cosmic Oracle)
 
-**AIOS version:** 1.3
+**AIOS version:** 2.0
 
-**Read this first. Every session.**
+**Read this first. Every session.** Then: ASTRA_MIND_v0.1.md (the character),
+PROJECT_CANON.md (the identity), DECISIONS.md, CHANGELOG.md (newest-first).
 
-Last updated: 2026-06-18
-Project status: Prototype functional, preserved. Web MVP not started.
-
----
-
-## What This Project Is
-
-A symbolic atmospheric interpretation machine.
-
-> A strange machine that interprets incomprehensible symbolic weather into human language.
-
-Not a horoscope app. Not a chatbot. Not generative art. A cold symbolic system with a warm, dry translation layer.
+Last updated: 2026-08-04
+Project status: Full installation experience working locally. Awaiting
+TV-calibration session and rotary-dial hardware. Content deepening ongoing.
 
 ---
 
-## System Architecture
+## What This Is Now
 
-Five files. One pipeline.
+ASTRA is a physical art installation: a 1950s DUX television (B&W CRT) driven
+by a dedicated old MacBook Pro, with a rotary telephone dial as the only input.
+A visitor dials their date of birth and receives a personal, astronomically
+real horoscope reading from "the librarian of the celestial archive" — a
+Character Actor (see designing-intelligence project) whose voice runs on six
+Douglas Adams operations, defined in ASTRA_MIND_v0.1.md.
 
-```
-sky.py
-  ↓ astronomical computation (Swiss Ephemeris)
-  ↓ writes: sky_state.json, sky_signature.txt
+Fully local, fully offline. No cloud. The web MVP (stars.kidbutton.com,
+Cloudflare) is a LATER track that will reuse everything.
 
-oracle.py
-  ↓ orchestration loop (runs every 60s)
-  ↓ calls sky.py → calls librarian.py → writes visual/oracle.json
+---
 
-librarian.py
-  ↓ token-to-language engine
-  ↓ applies voice identity: dry, wry, self-aware cosmic librarian
+## To Run
 
-visual/sketch.js
-  ↓ p5.js, fetches oracle.json every 1s, renders atmospheric display
-
-visual/server.py
-  ↓ local HTTP server, serves visual/ at localhost:8000
-```
-
-**To run locally:**
 ```bash
-# Terminal 1
-python Astrologer_UPLOAD/oracle.py
-
-# Terminal 2
-python Astrologer_UPLOAD/visual/server.py
-# open http://localhost:8000
+bash run.sh          # starts oracle loop + server, opens the experience
+# main page:        http://localhost:8000/tv.html   ← THE experience
+# desktop dashboard: /index.html (design-parity reference, not the ceremony)
+# CRT calibration:   /testcard.html
+# stop:  pkill -f oracle.py; pkill -f server.py
 ```
 
-**Dependency:** `pyswisseph` — install via `pip install -r requirements.txt`
+Dev keys on tv.html: digits = dial · 000 mid-entry = reset date ·
+Enter/Space = advance · Esc = abandon · M = mute · P = preview the ending ·
+Enter during boot = skip boot.
 
 ---
 
-## Two Layers — The Core Distinction
+## The Ceremony (tv.html — the product)
 
-**Machine Layer:** sky.py → signatures. Cold, compressed, symbolic. Observatory-style.
-Example signatures: `SUN_TRI_JUP`, `VEN_CON_SAT`, `STACK_CANCER_3`
+BOOT (calibration ritual) → IDLE (entity + rotating sky line + invitation) →
+IDENTIFY (dial DD·MM·YYYY, validation, 000-reset, 30s timeout) →
+CONSULT (theatre; /natal fetch happens behind it) →
+FILE card → **CLARIFY** ("DIAL 1 — WORK / 2 — LOVE / 3 — THE OTHER THING";
+25s timeout = archive chooses) → domain-shaped reading:
+lead transit + LANDING sentence → ruler-story → observation → constraint →
+second transit → temperament lens → **THE VERDICT** (plain register, real
+moon deadline) → FOR THE RECORD (shelf/form/color) → file closes →
+**ONE ITEM REMAINS** → a found LETTER or DREAM, in total silence.
 
-**Human Translation Layer:** librarian.py → prose. Calm, intelligent, slightly wry. Grounded.
-Voice: self-aware cosmic librarian. Reference: Douglas Adams as restraint, not imitation.
+Everything is in ONE file, visual/tv.html, organized in labeled blocks:
+CONFIG (safe area, timings — TV calibration edits only this) · FOUND_ITEMS
+corpus · DOMAINS/LANDINGS/VERDICTS/RECORD_* corpus · AUDIO module (WebAudio,
+synthesized, silence-drop on found item) · state machine · ENTITY particle
+engine (rim-defined figure, PROFILE lookup measured from reference images).
+
+Typography: JetBrains Mono (self-hosted in visual/fonts/, Menlo fallback),
+letterspaced, small scale, narrow tall center column. Machine layer and
+librarian voice share the mono; found items are italic. NOTE: Courier Prime
+was rejected (slab serifs); do not reintroduce serif or script faces —
+tried and reverted (see CHANGELOG 2026-07-29).
+
+Screens hold longer for longer copy (+35ms/char past 80, capped +5s).
+Server sends Cache-Control: no-store — never let browsers cache the kiosk.
 
 ---
 
-## Folder Structure
+## Pipeline (unchanged spine, deepened organs)
 
 ```
-cosmic-oracle/
-├── Astrologer_UPLOAD/          source code (name is legacy, not meaningful)
-│   ├── sky.py                  astronomical truth engine
-│   ├── oracle.py               orchestration loop
-│   ├── librarian.py            voice/interpretation engine
-│   ├── sky_state.json          last computed sky state (generated artifact)
-│   ├── sky_signature.txt       last signature string (generated artifact)
-│   └── visual/
-│       ├── index.html          p5.js canvas page
-│       ├── sketch.js           generative visual engine
-│       ├── server.py           local HTTP server
-│       └── oracle.json         last generated reading (generated artifact)
-├── cosmic_oracle_master_project_brief_v2.md   older brief (historical)
-├── Astrologer_UPLOAD/astra_master_project_brief_v3.md   current brief
-├── aios/                       AIOS v1 context system
-└── requirements.txt
+sky.py        planets + speeds + retrograde + aspects with real
+              applying/separating; speed-weighted signature
+oracle.py     60s loop → visual/oracle.json (incl. readings_by_sign, all 12)
+librarian.py  the voice: TOKEN_MEANINGS (curated), ASPECT_MODES (6 verbs /
+              8 omens / 5 constraints per mode), MARGINALIA (25),
+              TRANSIT_NOTES, SIGN_TEMPERAMENT + SIGN_RULERS (ruler-led
+              per-sign readings), compose_* functions, seeded selection
+visual/server.py  static server + /natal?d&m&y endpoint: natal sun/moon
+              (noon UT) + up to 6 transits vs current sky, no-store headers
+```
+
+Generated artifacts (gitignore candidates): sky_state.json,
+sky_signature.txt, visual/oracle.json.
+
+---
+
+## Folder Map
+
+```
+visual/tv.html            THE experience (single file)
+visual/index.html         desktop dashboard (reference)
+visual/testcard.html      CRT calibration card
+visual/fonts/             self-hosted woff2 (offline requirement)
+visual/experiments/       history of the sandbox chain (poet → type →
+                          sound → clarify); clarify was promoted to
+                          production 2026-07-30. Keep as archaeology.
+snapshots/v1-.../         frozen v1 desktop dashboard (runnable)
+aios/                     this context system; STATUS_REPORT.md has the
+                          full roadmap and MacBook appliance checklist
 ```
 
 ---
 
-## Open Decisions (do not resolve without Filippos)
+## Decisions Locked (see DECISIONS.md)
 
-- **Project name:** "Cosmic Oracle" (folder, v2 brief) vs "Astra" (v3 brief). OPEN.
-- **`Astrologer_UPLOAD/` folder name:** Legacy staging name. Purpose unclear. OPEN — rename or restructure at next active work session.
-- **Deployment:** Web MVP not started. Domain: stars.kidbutton.com. Cloudflare Worker + KV planned.
-- **Physical object:** Retro TV/cabinet kiosk. Deferred until web MVP validated.
+Name: ASTRA · input: rotary dial (USB keyboard emulation, digits only) ·
+fully local architecture · found items (letter/dream) close every ceremony ·
+balance rule for concreteness: body stays enigmatic, ONE landing sentence
+per unit names the visitor's domain, only THE VERDICT speaks plainly
+(~70% visitor-directed).
 
----
-
-## Locked (do not change without approval)
-
-- The two-layer architecture (machine layer / human translation layer)
-- The signature system — `TOKEN_MEANINGS` in librarian.py is the intellectual core
-- Visual aesthetic: black and white, spectral, oscilloscope-like, no gloss
-- Voice: self-aware cosmic librarian. Never mystical, never parody.
-- Pipeline sequence: sky.py → oracle.py → oracle.json → p5 visual
+Canon guardrails still absolute: no mysticism, no coaching tone outside the
+verdict, no fridge-magnet lines, no outside voices (Rumi CRAFT allowed in
+found items — direct address, the turn — never the costume).
 
 ---
 
-## Current Phase
+## Pending / Next Work
 
-Prototype functional and preserved.
-Next work: stabilize pipeline → clean sketch.js → build typography layer → web MVP.
-See PROJECT_BRIEF.md for priority order.
-See tasks/ for next task when assigned.
+1. CONTENT DEEPENING (recurring): batch-expand LANDINGS/VERDICTS pools,
+   rewrite older abstract omens toward the 70%-you ratio, day-level
+   no-repeat allocation across signs. Feedback said: still slightly
+   abstract, repetition within a same-day group. Write per ASTRA_MIND.
+2. TV SESSION (blocked on hardware): testcard.html on the DUX →
+   edit CONFIG.SAFE / TYPE_SCALE only.
+3. ROTARY DIAL (hardware): ESP32/Arduino → USB keyboard digits.
+4. KIOSK HARDENING: launchd, Chrome kiosk flags (incl.
+   --autoplay-policy=no-user-gesture-required for the hum), see
+   STATUS_REPORT.md §6.
+5. v2.0: thermal receipt printer prints the found item (found.piece +
+   stamp); optional per-sign memory conceits; web MVP (ASTRA_MIND becomes
+   the LLM system prompt, per the Aio build-brief pattern).
+
+## Workflow Note
+
+Small design/CSS/copy tweaks: Claude Code locally on the Mac (direct disk,
+instant reload). Larger structured sessions (content batches, features,
+research): Cowork/cloud. Both must read this file first and log to
+CHANGELOG.md. Git: commit after every session; watch for stale .git/*.lock
+files if a cloud session committed via the device bridge (move them to
+_to_delete/, never leave them).
