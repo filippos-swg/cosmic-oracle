@@ -49,7 +49,7 @@ def natal(day: int, month: int, year: int) -> dict:
     return result
 
 
-def find_transits(natal_sun_lon: float, natal_moon_lon: float, max_hits: int = 3, seed: int = 0):
+def find_transits(natal_sun_lon: float, natal_moon_lon: float, max_hits: int = 6, seed: int = 0):
     """Aspects from the CURRENT sky (sky_state.json, written by oracle.py)
     to the visitor's natal Sun and Moon — this is what makes two birthdates
     genuinely different readings on the same day. Tightest orbs first."""
@@ -123,6 +123,13 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(body)
+
+    def end_headers(self):
+        # never let the browser cache anything — a kiosk must always show
+        # the current files, and stale cache has burned us before
+        self.send_header("Cache-Control", "no-store, must-revalidate")
+        self.send_header("Expires", "0")
+        super().end_headers()
 
     def log_message(self, fmt, *args):
         pass  # quiet kiosk logs

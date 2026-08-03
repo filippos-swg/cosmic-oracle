@@ -4,6 +4,40 @@ Newest-first.
 
 ---
 
+## 2026-07-30 — Experiments promoted to production
+
+- visual/tv.html is now the full experiment tip: ceremonial mono type (50%
+  scale, narrow tall columns), self-hosted fonts, ambient sound layer,
+  found items (letters/dreams as the final beat), clarification dial
+  (work/love/the other thing), landing sentences, THE VERDICT with real
+  moon deadline, FOR THE RECORD, signal-lost diagnostics. The experiment
+  badge was removed; M (mute) and P (preview ending) shortcuts remain.
+- Root cause of the "reverted/missing features" confusion: run.sh opens
+  /tv.html, which was still the pre-experiment ceremony. Now the main page
+  IS the current experience. experiments/ folders kept as history.
+- Previous production tv.html preserved in git history.
+
+---
+
+## 2026-07-30 — EXPERIMENT: the clarification dial (visual/experiments/clarify/)
+
+Response to visitor feedback (too abstract, repetitive, "not an actual
+horoscope"). New ceremony beat + content structure:
+- CLARIFY state after the FILE card: dial 1 (work) / 2 (love) / 3 (the
+  other thing). Choice re-ranks transits by domain-governing planets and
+  shapes the rest of the reading. 25s timeout: "THE ARCHIVE HAS CHOSEN FOR
+  YOU. IT USUALLY DOES."
+- LANDING sentences (domain × aspect-mode × 2): each metaphor translated
+  into the visitor's life exactly once, apologetically.
+- THE VERDICT: one plain takeable sentence (domain × mode × 2), time-bound
+  by real astronomy — moonDeadline() computes when the Moon leaves its
+  sign from live position + speed.
+- FOR THE RECORD: auspicious shelf / unfavorable form / color of the day.
+- /natal returns up to 6 transits (domain filtering needs material).
+- Balance rule kept: body enigmatic, one landing per unit, plain close.
+
+---
+
 ## 2026-07-29 — EXPERIMENT: ambient sound (visual/experiments/sound/)
 
 - WebAudio layer, fully synthesized/offline: carrier hum + shortwave drift
