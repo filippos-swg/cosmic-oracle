@@ -20,10 +20,13 @@ who files the sky.
 
 Behind the glass, a machine computes the true positions of the Sun, the
 Moon, and the planets at this minute, using the Swiss Ephemeris — the same
-astronomical dataset used by planetariums and working astrologers. Nothing
-on the screen is an animation of the sky; it is the sky, filed. The moon
-you see waxing here is waxing above this building. When a planet is marked
-retrograde, it is retrograde now.
+astronomical dataset used by planetariums and working astrologers. It does
+not receive the sky from anywhere; it carries the mathematics of the sky
+inside it, and recalculates the heavens every sixty seconds, the way an
+observatory would. It is live without being online. Nothing on the screen
+is an animation of the sky; it is the sky, filed. The moon you see waxing
+here is waxing above this building. When a planet is marked retrograde, it
+is retrograde now.
 
 When you dial a date of birth, the archive computes the actual heavens of
 that day — a natal chart — and compares them with the heavens above you at
@@ -31,13 +34,14 @@ this moment. Where the two skies touch, there is business to report. This
 is transit astrology, performed with astronomical rigor and interpreted by
 the archive with, it must be said, opinions.
 
-Every sentence the librarian speaks was written in advance, by hand. But
-no reading exists until you arrive: the machine composes each file live,
-selecting among many thousands of possible readings according to today's
-sky, your birth sky, and the matter you name. Nothing is written by
-artificial intelligence at runtime; nothing is random. Two visitors will
-not leave with the same file. The same visitor, on another day, will not
-either.
+Every sentence the librarian speaks was written in advance — composed by
+the artist in collaboration with an artificial intelligence during the
+making of the work, then edited and curated by hand. But no reading exists
+until you arrive: at the moment of consultation nothing generates and
+nothing is random; the machine selects and assembles from that written
+archive according to today's sky, your birth sky, and the matter you name.
+Two visitors will not leave with the same file. The same visitor, on
+another day, will not either.
 
 Your date is used for one computation and then forgotten. The archive
 keeps files on the sky, not on you.
@@ -77,7 +81,8 @@ Undecided visitors will be decided for. The archive is like that.
   archive is like that.") are the librarian's voice surfacing in an
   otherwise neutral register — keep them; they teach visitors the tone
   before the first screen does.
-- Credits/colophon (small print, optional): planetary computation, Swiss
-  Ephemeris; software, sound, and particle rendering in real time;
-  corpus authored for the archive's librarian, [year range]. Developed
-  with Claude (Anthropic) as build collaborator, if credit is wanted.
+- Credits/colophon (small print): planetary computation, Swiss Ephemeris;
+  software, sound, and particle rendering in real time; the librarian's
+  corpus written by [artist] in collaboration with Claude (Anthropic),
+  edited and curated by the artist, [year range]. No generation occurs at
+  runtime. This credit is part of the work's honesty — keep it.
