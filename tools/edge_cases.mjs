@@ -2,7 +2,7 @@
    walkthrough does not touch. A rotary dial is the only input this
    installation has and nobody is standing next to it, so every one of these
    has to end with the machine back at IDLE, ready for the next visitor. */
-import { chromium } from 'playwright';
+import { launchChromium } from './browser.mjs';
 
 const URL = 'http://localhost:8000/tv.html';
 let fail = 0, ran = 0;
@@ -35,7 +35,7 @@ async function dial(page, digits, gap = 80) {
   for (const c of String(digits)) { await page.keyboard.press(c); await wait(page, gap); }
 }
 
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+const browser = await launchChromium();
 
 /* 1 — an impossible date must be refused and recoverable */
 {

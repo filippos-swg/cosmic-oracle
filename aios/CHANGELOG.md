@@ -4,6 +4,78 @@ Newest-first.
 
 ---
 
+## 2026-08-17 — Harness portability (second machine, second lesson)
+
+`npm run check` on the installation machine: both content harnesses passed,
+all four Playwright harnesses died on
+
+    Failed to launch chromium because executable doesn't exist at
+    /opt/pw-browsers/chromium
+
+That path is the cloud container's. It was hardcoded in four files — the same
+class of mistake as the absolute `/tmp` default fixed earlier the same day, and
+it survived because the container is the only place these had ever run.
+
+- New `tools/browser.mjs`, one shared launcher for all four. Resolution order:
+  `$ASTRA_CHROMIUM`, then the container path *if it exists*, then Playwright's
+  own bundled browser — which is the normal case on a Mac.
+- On failure it prints the one command that fixes it
+  (`npx playwright install chromium`) instead of a stack trace.
+- `npm run browsers` added for the one-time install, and `npm run sweep`
+  (dump + orphan sweep) since the sweep needs its corpus dump refreshed first.
+
+Verified both ways: through the container path here (edge 14/14, walkthrough,
+sweep, typography all clean) and with the path forced invalid, which produces
+the instruction rather than the trace.
+
+Standing lesson, now twice: anything absolute in `tools/` is a bug waiting for
+the second machine. There is no third machine to catch the next one.
+
+---
+
+## 2026-08-17 — Curated-lead allocation (found by running the harness on the real machine)
+
+`npm run check` passed here and failed on the installation machine: **366/366
+days sharing lines across signs, worst 5 signs on one line.** Not flakiness —
+a real defect that this container could not see.
+
+**Why the harness lied.** The cross-sign sweep reads `sky_state.json`, which is
+*generated*. This machine's sky happened to contain no curated token at all
+(all MER_/VEN_ aspects), so the entire curated-lead path went untested here
+while running constantly there. A green harness on one machine proved nothing
+about the other.
+
+Three defects behind it, in order of severity:
+
+1. **A curated lead had almost no pool.** Its omens were the token's own three
+   lines, and `base_omens` were those same three lines uniq'd away — so two
+   signs led by one token (Cancer and Capricorn both land on MOO_OPP_SAT) drew
+   from a three-line pool, exhausted it, and repeated. Curated leads are now
+   widened with the composed omens and phrasings for the same aspect plus a
+   quiet-line tail: ~13 candidates instead of 3, and the curated writing still
+   leads.
+2. **One sign could get the same line twice in its own reading.** The
+   allocator's exhaustion fallback skipped lines already taken in that *call*
+   but not lines the sign had been handed a moment earlier. Worse than two
+   signs sharing one. `take()` now accepts `avoid=` and degrades in order:
+   unclaimed first, then a line another sign holds, and only last one of this
+   sign's own.
+3. **Composed leads starved the signs served last.** `compose_from_aspect`
+   returned six of fourteen mode omens. Enough for the signs served early,
+   not for Aquarius at the end of the rotation on a day when several signs led
+   with the same aspect. It now returns the full pool in seeded order, and
+   every lead carries a quiet-line tail.
+
+**Harness fixed too, which matters more than the code.** New check [4b]: force
+each of the 20 curated tokens into the signature in turn and sweep 60 days
+each. 1,200 token-days, plus the 366 real-sky days, plus 90 degenerate-sky
+days. That is the check that would have caught this here on Friday.
+
+All green: corpus, librarian (10 checks), edge 14/14, walkthrough, typography
+165 screens, orphan sweep 3,818 strings.
+
+---
+
 ## 2026-08-17 — Curation pass; v1.0 ready
 
 filippos curated. Seven changes applied out of 452 new lines.

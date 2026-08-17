@@ -750,17 +750,31 @@ class _DayAllocator:
         self.used = set()
         self.exhausted = []
 
-    def take(self, pool, seed, count=1, label=""):
+    def take(self, pool, seed, count=1, label="", avoid=()):
+        """Take `count` lines nobody has claimed today.
+
+        `avoid` is the caller's own current selection. Without it the
+        exhaustion fallback could hand a sign a line it had already been given
+        moments earlier in the same reading — one sign, the same sentence
+        twice, which is worse than two signs sharing one."""
         if not pool:
             return []
+        avoid = set(avoid)
         out = []
         for line in _order(pool, seed):
-            if line not in self.used:
+            if line not in self.used and line not in avoid:
                 out.append(line)
                 self.used.add(line)
                 if len(out) == count:
                     return out
+        # pool exhausted for today. Degrade in order: reuse a line another sign
+        # has, before ever repeating one of this sign's own.
         self.exhausted.append(label or "unlabelled")
+        for line in _order(pool, seed):
+            if line not in out and line not in avoid:
+                out.append(line)
+                if len(out) == count:
+                    return out
         for line in _order(pool, seed):
             if line not in out:
                 out.append(line)
@@ -791,7 +805,10 @@ def compose_from_aspect(aspect: dict, seed: int = 0):
     # Return an ordered CANDIDATE list, not a fixed two. build_reading still
     # takes the first three; build_sign_readings needs the depth so its day
     # allocator can skip lines another sign already claimed today.
-    omens = _order(mode["omens"], seed)[:6]
+    # the FULL mode pool in seeded order, not a slice of it. Six candidates was
+    # enough for the signs served early in the day and starved the ones served
+    # last — Aquarius, on a day when several signs led with the same aspect.
+    omens = _order(mode["omens"], seed)
     constraint = _pick(mode["constraints"], seed, 4)
     return headline, omens, constraint, variants
 
@@ -1050,6 +1067,44 @@ for _s, _rl in SIGN_RULERS.items():
     _seen_rulers[_p] = _seen_rulers.get(_p, 0) + 1
 
 
+# Reverse maps for curated tokens: MOO_OPP_SAT -> (Moon, Saturn, "Opposition").
+# Needed because a curated token's own writing is only three omens and one
+# headline — not enough depth for the day allocator when two signs are led by
+# the same token (Cancer and Capricorn both land on MOO_OPP_SAT). Without a
+# wider pool the allocator exhausts and repeats, which is the exact thing
+# TASK item 12 exists to prevent.
+_TOK_TO_PLANET = {p.upper()[:3]: p for p in PLANET_DESK}
+_CODE_TO_MODE = {"CON": "Conjunction", "OPP": "Opposition", "TRI": "Trine",
+                 "SQR": "Square", "SXT": "Sextile"}
+
+
+def _token_parts(tok):
+    """(planet1, planet2, mode) for a curated token, or (None, None, None)."""
+    parts = tok.split("_")
+    if len(parts) != 3:
+        return None, None, None
+    return (_TOK_TO_PLANET.get(parts[0]), _TOK_TO_PLANET.get(parts[2]),
+            _CODE_TO_MODE.get(parts[1]))
+
+
+def _curated_depth(tok, m, seed):
+    """A curated lead, widened: its own writing first, then the composed
+    phrasings and omens for the same aspect so the allocator has somewhere to
+    go. Returns (omens, headline_variants)."""
+    p1, p2, mode_name = _token_parts(tok)
+    mode = ASPECT_MODES.get(mode_name)
+    omens = list(m["omens"])
+    variants = [m["headline"]]
+    if mode and p1 and p2:
+        d1, d2 = PLANET_DESK.get(p1), PLANET_DESK.get(p2)
+        omens += _order(mode["omens"], seed)[:6]
+        if d1 and d2:
+            variants += [f"{d1[0].upper()}{d1[1:]} and {d2} {v}."
+                         for v in _order(mode["verbs"], seed)]
+    omens += _order(QUIET_OMENS, seed)[:4]   # last-resort tail, never empty
+    return uniq(omens), variants
+
+
 def _leads_for_rulers(rulers, sig, aspects, seed=0):
     """Ordered candidate leads for a sign's ruler(s): curated tokens first
     (best writing), then composed aspects freshest-first. Only falls through
@@ -1060,8 +1115,9 @@ def _leads_for_rulers(rulers, sig, aspects, seed=0):
         for tok_name in sig:
             if tok_name in TOKEN_MEANINGS and _tok(r) in tok_name:
                 m = TOKEN_MEANINGS[tok_name]
-                cands.append(((m["headline"], list(m["omens"]), m["constraint"],
-                               [m["headline"]]), r))
+                c_omens, c_variants = _curated_depth(tok_name, m, seed)
+                cands.append(((m["headline"], c_omens, m["constraint"],
+                               c_variants), r))
                 parts = tok_name.split("_")
                 if len(parts) == 3:
                     curated_pairs.add(frozenset((parts[0], parts[2])))
@@ -1134,7 +1190,9 @@ def build_sign_readings(sky):
             # allocate the phrasing, not just the omens: the headline is a line
             # like any other and two signs must not share it on one date
             headline = alloc.take(lead[3], s_seed, 1, f"headline:{sign}")[0]
-            pool = uniq(list(lead[1]) + base_omens)
+            # quiet lines as a tail on every lead, not just curated ones: they
+            # are the depth that keeps the last sign served from repeating
+            pool = uniq(list(lead[1]) + base_omens + _order(QUIET_OMENS, s_seed)[:6])
             omens = alloc.take(pool, s_seed, 2, f"omens:{sign}")
             constraint = lead[2]
         else:
@@ -1146,15 +1204,17 @@ def build_sign_readings(sky):
             omens = alloc.take(uniq(QUIET_OMENS + base_omens), s_seed, 2,
                                f"quiet:{sign}")
 
-        # the librarian's marginal note — most readings carry one
+        # the librarian's marginal note — most readings carry one.
+        # avoid= is what this sign already holds: the third line must not
+        # repeat either of the first two.
         if s_seed % 3 != 0:
             omens = omens + alloc.take(MARGINALIA, s_seed + 9, 1,
-                                       f"marginalia:{sign}")
+                                       f"marginalia:{sign}", avoid=omens)
         else:
             omens = omens + alloc.take(
                 uniq(list(lead[1]) + base_omens) if lead
                 else uniq(QUIET_OMENS + base_omens),
-                s_seed + 5, 1, f"omens:{sign}")
+                s_seed + 5, 1, f"omens:{sign}", avoid=omens)
 
         # second address/lens variant, rotating by day and by sign
         v = (day_seed + sign_idx) % 2

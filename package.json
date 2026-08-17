@@ -1,7 +1,7 @@
 {
   "name": "astra-tools",
   "private": true,
-  "description": "Verification harnesses for the ASTRA installation. Not shipped to the machine: the piece itself has no JS dependencies and runs fully offline. edge/walkthrough need the local server (bash run.sh); typography needs a built preview (npm run preview).",
+  "description": "Verification harnesses for the ASTRA installation. Not shipped to the machine: the piece itself has no JS dependencies and runs fully offline. First run: npm install && npm run browsers. edge/walkthrough need the local server (bash run.sh); typography and sweep need a built preview (npm run preview).",
   "type": "module",
   "scripts": {
     "corpus": "node tools/verify_corpus.mjs",
@@ -11,7 +11,9 @@
     "walkthrough": "node tools/walkthrough.mjs",
     "preview": "python3 tools/build_preview.py",
     "typography": "node tools/typography_audit.mjs",
-    "check": "npm run verify && npm run edge && npm run walkthrough && npm run typography"
+    "check": "npm run verify && npm run edge && npm run walkthrough && npm run typography",
+    "browsers": "playwright install chromium",
+    "sweep": "python3 tools/dump_corpus.py && node tools/orphan_sweep.mjs"
   },
   "devDependencies": {
     "playwright": "^1.47.0"

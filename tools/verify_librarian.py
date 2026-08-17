@@ -144,6 +144,24 @@ print(f"  distinct headlines across the 12 signs:   {avg_heads:.1f}/12 average")
 if shared:
     bad(f"{shared} days still share lines across signs (worst: {worst} signs on one line)")
 
+print("\n[4b] CURATED LEADS — every token forced into the signature")
+# The sweep above reads the LOCAL sky_state.json, which is generated: on a day
+# with no curated token in the signature the entire curated-lead path goes
+# untested. That is exactly how a 366/366 failure shipped green from one
+# machine and red from another. Force each token in turn.
+worst_tok, bad_toks = 0, []
+for tok in L.TOKEN_MEANINGS:
+    forced = json.loads(json.dumps(sky))
+    forced["signature"] = [tok] + [t for t in forced.get("signature", []) if t != tok]
+    shared_t, worst_t, _ = sweep(forced, f"forced {tok}", days=60)
+    if shared_t:
+        bad_toks.append((tok, shared_t, worst_t))
+        worst_tok = max(worst_tok, worst_t)
+print(f"  {len(L.TOKEN_MEANINGS)} tokens x 60 days: "
+      f"{'no shared lines' if not bad_toks else str(len(bad_toks)) + ' tokens repeat'}")
+for tok, n, w in bad_toks[:5]:
+    bad(f"{tok}: {n}/12 days share a line across signs (worst {w} signs)")
+
 print("\n[5] SAME-DAY CROSS-SIGN REPEATS — degenerate sky, no aspects at all")
 quiet = json.loads(json.dumps(sky))
 quiet["aspects"] = []

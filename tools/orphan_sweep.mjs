@@ -8,12 +8,12 @@
 
    Run tools/dump_corpus.py first to refresh corpus_dump.json. */
 import { readFileSync } from 'node:fs';
-import { chromium } from 'playwright';
+import { launchChromium } from './browser.mjs';
 
 const PAGE = new URL('../visual/preview.html', import.meta.url).href;
 const corpus = JSON.parse(readFileSync(new URL('./corpus_dump.json', import.meta.url), 'utf8'));
 
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+const browser = await launchChromium();
 const page = await browser.newPage({ viewport: { width: 1300, height: 731 } });
 await page.goto(PAGE);
 await page.waitForTimeout(1200);

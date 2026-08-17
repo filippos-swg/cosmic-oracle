@@ -2,7 +2,7 @@
    Dials a birthdate, chooses a domain, steps every reading screen and reads
    kicker/body/note off the DOM. Then runs a cohort of friends on the same
    day to confirm they no longer receive matching landings and verdicts. */
-import { chromium } from 'playwright';
+import { launchChromium } from './browser.mjs';
 
 const URL = 'http://localhost:8000/tv.html';
 const wait = (p, ms) => p.waitForTimeout(ms);
@@ -42,7 +42,7 @@ async function ceremony(page, [d, m, y], domainDigit) {
   return screens;
 }
 
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+const browser = await launchChromium();
 const page = await browser.newPage({ viewport: { width: 1024, height: 768 } });
 const errors = [];
 page.on('pageerror', e => errors.push('pageerror: ' + e.message));

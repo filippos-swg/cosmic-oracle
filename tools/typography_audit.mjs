@@ -9,7 +9,7 @@
 
    Runs the ceremony across several birthdates and all three domains, so it
    sees the real spread of corpus lengths rather than one lucky reading. */
-import { chromium } from 'playwright';
+import { launchChromium } from './browser.mjs';
 
 // resolve the preview next to the repo, not an absolute path from whichever
 // machine built this. ASTRA_URL overrides (e.g. http://localhost:8000/tv.html
@@ -60,7 +60,7 @@ const MEASURE_LINE = `
   return blocks;
 }`;
 
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+const browser = await launchChromium();
 const page = await browser.newPage({ viewport: { width: 1300, height: 731 } });
 const orphans = [], overlong = [], errs = [];
 page.on('pageerror', e => errs.push(e.message));
