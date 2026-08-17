@@ -6,3 +6,10 @@ sky_state.json
 sky_signature.txt
 visual/oracle.json
 _to_delete/
+
+# verification harness deps (tools/ only — the installation ships no JS deps)
+node_modules/
+package-lock.json
+
+# generated review build; rebuild with: python3 tools/build_preview.py
+visual/preview.html

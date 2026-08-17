@@ -44,7 +44,10 @@ def natal(day: int, month: int, year: int) -> dict:
         "moon_sign": SIGNS[int(moon // 30)],
         "moon_deg":  round(moon % 30, 2),
         "moon_confidence": "approximate (noon UT assumed)",
-        "transits":  find_transits(sun, moon, seed=day + month * 31 + year),
+        # date ordinal, not a sum — day + month*31 + year collapsed distinct
+        # birthdates onto one number and handed two unrelated visitors the
+        # same transit notes (see CHANGELOG 2026-08-14, batch 1)
+        "transits":  find_transits(sun, moon, seed=year * 372 + month * 31 + day),
     }
     return result
 

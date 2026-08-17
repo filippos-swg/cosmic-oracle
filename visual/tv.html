@@ -148,29 +148,71 @@ html, body {
 /* The idle screen's own typography, promoted to the whole ceremony:
    letterspaced Courier, modest size, airy — the machine's voice given
    ceremony. (Chosen over the serif and script passes, 2026-07-29.) */
+/* TYPE SCALE — one ratio, not eleven arbitrary sizes. 16 / 18 / 21 / 24 / 27,
+   each step ~1.15x. The label is the smallest thing on screen and the verdict
+   the largest, because that is the order of importance to a visitor.
+
+   text-wrap: pretty is doing real work here: it forbids a last line holding a
+   single word. A four-line stanza that wrapped into eight lines with 'bend'
+   and 'owner.' alone was the reported problem. Measures below are sized so the
+   authored line fits FIRST — pretty only cleans up what is left. */
 .r-kicker   { font-family: "JetBrains Mono", "Menlo", monospace; font-weight: 400;
               font-size: 16px; letter-spacing: .35em; text-indent: .35em;
-              color: var(--dim); }
+              /* stays --dim, not --faint: on a B&W CRT #4a4a46 on black is
+                 below the tube's usable floor and the label disappears.
+                 Hierarchy here comes from size and tracking, not contrast. */
+              color: var(--dim); margin-bottom: 30px; text-wrap: balance;
+              max-width: 56%; }
+/* balance, not pretty: `pretty` only protects the LAST line, so a long word
+   mid-block still landed alone — "COUNTERSIGNED" on its own at 20 characters
+   per line. Widened to ~26 characters and balanced, which spreads the words
+   evenly across every line instead. The side panels sit at 19% per edge, so
+   the centre column is safe up to about 62%. */
 .r-body     { font-family: "JetBrains Mono", "Menlo", monospace; font-weight: 400;
               font-size: 24px; letter-spacing: .09em; line-height: 1.65;
-              text-transform: uppercase; max-width: 38%; }
+              text-transform: uppercase; max-width: 60%; text-wrap: balance; }
+/* balance, not pretty, for the short blocks: at two or three lines Chrome's
+   `pretty` still left "6-M." alone on the last line, while `balance` evens the
+   lines and the orphan cannot occur. `pretty` stays on the long blocks, where
+   balance is ignored past its line cap. */
 .r-body.small { font-family: "JetBrains Mono", "Menlo", monospace; font-weight: 400;
-              font-size: 21px; letter-spacing: .06em; line-height: 1.8;
-              text-transform: uppercase; max-width: 40%; }
+              font-size: 21px; letter-spacing: .06em; line-height: 1.75;
+              text-transform: uppercase; max-width: 58%; text-wrap: balance; }
+/* The found item: authored line breaks carry the verse, so the measure is
+   sized to the longest line in the corpus (49 characters) rather than the
+   other way round — 19px at .02em tracking needs ~74% of the SAFE-AREA width,
+   not of the stage. Measured in the browser, not estimated: CONFIG.SAFE
+   shrinks every screen to 80%, which is why 60% was still wrapping. The side
+   panels are hidden on this screen (noPanels), so the wide measure is free. */
 .r-body.poem  { font-family: "JetBrains Mono", "Menlo", monospace; font-weight: 400;
-              font-size: 20px; text-transform: none; font-style: italic;
-              letter-spacing: .04em; line-height: 2.0; max-width: 42%; }
-/* THE VERDICT — the plain register: what visitors take home */
+              font-size: 19px; text-transform: none; font-style: italic;
+              letter-spacing: .02em; line-height: 1.85; max-width: 74%;
+              text-wrap: pretty; }
+/* THE VERDICT — the plain register: what visitors take home. Largest body on
+   any screen; nothing else competes with it. */
 .r-body.verdict { font-family: "JetBrains Mono", "Menlo", monospace; font-weight: 400;
-              font-size: 26px; text-transform: none; letter-spacing: .03em;
-              line-height: 1.75; max-width: 40%; }
+              font-size: 27px; text-transform: none; letter-spacing: .03em;
+              line-height: 1.7; max-width: 56%; text-wrap: balance; }
+/* FOR THE RECORD — labels recede, values carry. Same layout, real hierarchy. */
+.rec        { display: block; }
+.rec-label  { display: block; font-size: 15px; letter-spacing: .30em;
+              text-indent: .30em; color: var(--dim); text-transform: uppercase;
+              margin-top: 22px; }
+.rec-label:first-child { margin-top: 0; }
+.rec-val    { display: block; font-size: 24px; letter-spacing: .06em;
+              color: var(--fg); margin-top: 6px; }
 /* the clarification dial */
 .c-opts     { margin-top: 40px; }
 .c-opts div { font-size: 22px; letter-spacing: .10em; line-height: 2.4; }
 .c-clar-note{ margin-top: 46px; font-size: 16px; color: var(--dim);
               letter-spacing: .14em; min-height: 24px; }
-.r-note     { font-family: "JetBrains Mono", "Menlo", monospace; font-size: 17px;
-              font-style: italic; letter-spacing: .06em; max-width: 40%; }
+/* the note is subordinate to the body: smaller, dimmer, and set on a WIDER
+   measure so it never wraps to a lone word. Its gap above is deliberately
+   larger than the kicker's gap below, so each screen groups as
+   label + body, then note — not three evenly spaced strangers. */
+.r-note     { font-family: "JetBrains Mono", "Menlo", monospace; font-size: 18px;
+              font-style: italic; letter-spacing: .05em; line-height: 1.6;
+              max-width: 60%; margin-top: 52px; text-wrap: balance; }
 .h-title    { font-family: "JetBrains Mono", "Menlo", monospace; font-weight: 400;
               font-size: 24px; letter-spacing: .28em; text-indent: .28em; }
 .h-sub      { font-family: "JetBrains Mono", "Menlo", monospace; font-size: 18px;
@@ -253,11 +295,21 @@ html, body {
    TYPE_SCALE) — nothing else should need to change.
    ========================================================================== */
 const CONFIG = {
+  // CALIBRATION — measured, not guessed. SAFE 0.80 is the FLOOR: it sets the
+  // column width every text measure was tuned against, and tightening it
+  // reintroduces orphaned lines. Swept against the whole corpus:
+  //   SAFE 0.80 -> 0 orphans   0.78 -> 4   0.76 -> 7   0.72 -> 12+
+  // If the DUX's mask eats more than 20%, do NOT lower SAFE. Lower TYPE_SCALE
+  // instead: it zooms the whole stage uniformly, so line breaks are preserved
+  // (verified clean at 0.88). Re-run `node tools/orphan_sweep.mjs` after any
+  // change to either.
   SAFE: 0.80,             // fraction of the 1024x768 stage that survives the tube mask
   TYPE_SCALE: 1.0,        // global multiplier if the tube demands bigger type
   IDLE_INFO_ROTATE_MS: 12000,
   IDENTIFY_TIMEOUT_MS: 30000,
   CONSULT_MIN_MS: 5200,
+  CONSULT_MAX_MS: 12000,  // hard ceiling: never stall in CONSULT, which takes no input
+  NATAL_TIMEOUT_MS: 6000, // abort a /natal that is accepted but never answered
   READING_SCREEN_MS: 8000,
   READING_HOLD_LAST_MS: 18000,   // the found item deserves a long hold
   FETCH_MS: 63000,
@@ -368,19 +420,46 @@ setInterval(fetchOracle, CONFIG.FETCH_MS);
 // fast retry while the sky is unreachable
 setInterval(() => { if (!oracle) fetchOracle(); }, 8000);
 
-async function fetchNatal(d, m, y){
-  try {
-    const res = await fetch(`/natal?d=${d}&m=${m}&y=${y}`);
-    if (res.ok) return await res.json();
-  } catch(_){}
-  // offline fallback: tropical date-range table (cusp-approximate)
+// Kiosk watchdog (STATUS_REPORT §6). Chrome left running for weeks will
+// eventually wedge a page in a way no in-page retry recovers from. If the sky
+// has been unreachable for STALE_RELOAD_MS, reload — but ONLY from an empty
+// screen. Reloading under a visitor mid-ceremony would be a worse failure
+// than the one being repaired.
+let lastGoodSky = Date.now();
+const STALE_RELOAD_MS = 10 * 60 * 1000;
+setInterval(() => {
+  if (oracle) { lastGoodSky = Date.now(); return; }
+  const idle = state === S.IDLE || state === S.BOOT || state === null;
+  if (idle && Date.now() - lastGoodSky > STALE_RELOAD_MS) location.reload();
+}, 30000);
+
+// offline fallback: tropical date-range table (cusp-approximate). Split out of
+// fetchNatal so the CONSULT watchdog can reach it without another request.
+function offlineNatal(d, m, y){
   const table = [[1,20,'Aquarius'],[2,19,'Pisces'],[3,21,'Aries'],[4,20,'Taurus'],
     [5,21,'Gemini'],[6,21,'Cancer'],[7,23,'Leo'],[8,23,'Virgo'],[9,23,'Libra'],
     [10,23,'Scorpio'],[11,22,'Sagittarius'],[12,22,'Capricorn']];
   const prev = ['Capricorn','Aquarius','Pisces','Aries','Taurus','Gemini','Cancer',
     'Leo','Virgo','Libra','Scorpio','Sagittarius'];
   const sign = d >= table[m-1][1] ? table[m-1][2] : prev[m-1];
-  return { sun_sign: sign, sun_deg: null, moon_sign: null };
+  return { sun_sign: sign, sun_deg: null, moon_sign: null, transits: [] };
+}
+
+async function fetchNatal(d, m, y){
+  // A hung request is worse than a failed one. Connection-refused rejects
+  // immediately and lands in the fallback, but a server that ACCEPTS the
+  // socket and never answers leaves this promise pending forever — and the
+  // consult loop polls on it while refusing all input. Abort explicitly.
+  const ctl = new AbortController();
+  const bail = setTimeout(() => ctl.abort(), CONFIG.NATAL_TIMEOUT_MS);
+  try {
+    const res = await fetch(`/natal?d=${d}&m=${m}&y=${y}`, { signal: ctl.signal });
+    if (res.ok) return await res.json();
+  } catch(_){
+  } finally {
+    clearTimeout(bail);
+  }
+  return offlineNatal(d, m, y);
 }
 
 /* ==========================================================================
@@ -390,64 +469,93 @@ async function fetchNatal(d, m, y){
    write these. The librarian merely cannot explain them.
    Keyed to the visitor's lead transit mode; container and variant seeded.
    ========================================================================== */
+// One frame and one stamp for every found item, whichever container it comes
+// from (filippos, 2026-08-14). The letter's own frame and stamp are gone: two
+// framings for the same beat meant the ending never landed the same way twice,
+// and this is the sentence visitors carry out of the room. A letter read under
+// this frame stops being an unsigned note and becomes a prophecy recorded at
+// the visitor's birth — which is the stronger reading of the same lines.
+const FOUND_FRAME = 'On the night you were born, the sky recorded the following. It has never been interpreted.';
+const FOUND_STAMP = 'Interpretation is left to the owner.';
+
 const FOUND_ITEMS = {
   letter: {
-    frame: 'A note was left for your coordinates. It is unsigned. The archive has checked. Twice.',
-    stamp: 'Filed unread until today.',
     pieces: {
       Conjunction: [
 "Whatever has moved in beside you today —\nlet it stay the night.\nIt knows your house better than you think.\nIt helped build the door.",
 "You will not be alone today, even alone.\nSomething has pulled its chair to your table.\nSet a second cup down.\nYou have been the second cup before.",
+"Something arrived with you this morning\nand has not introduced itself.\nDo not ask it to.\nNames are how we keep things at a distance.",
+"There is no space today between you and the hour.\nYou will call this intimacy, or crowding.\nBoth words are accurate.\nOnly one of them lets you sleep.",
       ],
       Opposition: [
 "The one who stands across from you\nis holding your half of something.\nWalk the long table when you are ready.\nIt is shorter than it looks from your end.",
 "What faces you is not a wall; it is a window\nwith the light on the other side for once.\nStay at your end as long as you need.\nThe distance is also yours.",
+"You have been carrying both ends of this.\nThat is why it is heavy, and why it holds.\nSet one end down.\nSomeone will pick it up. Someone always has.",
+"The argument you are winning\nis with a version of them from years ago.\nThey have moved since.\nGo and see who is standing there now.",
       ],
       Trine: [
 "Today the locks remember being doors.\nGo lightly through what opens —\ntake nothing but the going.\nYou were expected.",
 "Ease is a language you were born speaking\nand have spent years translating out of.\nToday, answer in the original.\nNo one is grading you.",
+"Nothing is in your way today.\nYou will find this suspicious. Fairly so.\nGo anyway.\nThe road is not obliged to explain itself.",
+"What you are good at will feel like nothing.\nThat is what good feels like from the inside.\nAsk anyone who was watching.\nThey have been trying to tell you.",
       ],
       Square: [
 "The stone in your path was carried there —\nby nothing lighter than a sky.\nPush against it with your whole name.\nIt is how the sky learns your weight.",
 "What resists you today is not refusing you.\nIt is holding still so you can climb.\nBruises are the sky's marginalia.\nYou are being annotated, not corrected.",
+"You will not get past it today.\nYou will get lower. The door is at that height.\nDoors usually are.\nThey were built by people your size.",
+"The weight is not a mistake.\nSomeone measured you and chose this exactly.\nBe insulted if you like.\nBeing measured is not the same as being judged.",
       ],
       Sextile: [
 "A small door has been left open\nat exactly your height.\nSmallness is how the great things travel.\nGo in before the weather notices.",
 "Today's gift is wrapped as an errand.\nRun it slowly.\nSomewhere between the leaving and the returning\nis the thing you asked the night for.",
+"It will be small.\nIt will not announce itself, and you are busy.\nLook up at the wrong moment on purpose.\nThat is the whole instruction.",
+"Someone leaves a gap for you today —\nquietly, at some cost, without saying so.\nStep through it.\nThank them later, when noticing is safe.",
       ],
       none: [
 "Nothing in the sky is pulling at you today.\nThis is not neglect. It is trust.\nThe instruments are quiet\nso that you can be heard.",
 "No planet asks for you today.\nTake the day back from the sky, then —\nit is rare to be handed a whole one,\nunmarked, still warm.",
+"No one wants anything from you today.\nThis will feel like being forgotten.\nIt is not.\nIt is the sky letting you have your own weather.",
+"The sky has nothing to say to you today\nand is saying it at length.\nTake the silence as it is offered.\nSilence this clean is not sold anywhere.",
       ],
     },
   },
   dream: {
-    frame: 'On the night you were born, the sky recorded the following. It has never been interpreted.',
-    stamp: 'Interpretation is left to the owner.',
     pieces: {
       Conjunction: [
 "Two lamps are carried into the same small room.\nTheir light does not double; it deepens.\nA door closes softly, from the inside.\nSomeone begins to hum in agreement.",
 "A river meets itself at a bend\nand for a moment flows both ways, gladly.\nOn the bank, two coats hang on one hook.\nNeither owner comes back for them.",
+"Two rivers arrive at the same field\nand cannot agree which of them is the field.\nBy morning the wheat has settled it.\nThe wheat does not say how.",
+"A house takes in a stranger for the night.\nBy dawn there is one set of footprints,\ngoing out, deeper than they came in.\nThe house sleeps better than it has in years.",
       ],
       Opposition: [
-"A long bridge with a lantern at each end.\nThe lanterns signal all night, patiently.\nBy morning they have agreed on nothing\nexcept the width of the river, which was the point.",
+"A long bridge with a lantern at each end.\nThe lanterns signal all night, patiently.\nBy morning they have agreed on nothing\nexcept the river's width, which was the point.",
 "Two towers keep watch over one field.\nEach believes it guards the other.\nBetween them, the wheat grows tall\non the argument alone.",
+"Two mirrors are hung facing each other\nin a room nobody uses.\nAll night they pass one candle back and forth.\nNeither has ever seen the flame.",
+"On opposite hills, two fires are lit\nby people who have never met.\nThe valley between them is warm all night.\nThe valley is the only one who knows.",
       ],
       Trine: [
 "All the clocks in the house strike at once,\nand instead of noise there is a chord.\nA window opens itself to hear better.\nThe night approves, quietly, in dust.",
 "A ladder lies down and becomes a bridge.\nNo one is surprised, least of all the river.\nThings are agreeing tonight\nthat have never been introduced.",
+"A gate has been left open so long\nthe hinge has forgotten the other position.\nSheep pass through without looking up.\nThe field on both sides is the same field.",
+"Rain arrives exactly when the ground asks.\nNobody has arranged this.\nA gardener sits down, briefly unemployed,\nand is happier than the work ever made him.",
       ],
       Square: [
 "A key grinds in a stubborn lock all night.\nBy dawn, neither has yielded —\nbut the key has become a better key,\nand the lock, at last, admits it is a door.",
 "Two hands press against opposite sides of a wall.\nThe wall warms where they press.\nYears later it will be called an arch,\nand no one will remember it was ever war.",
+"A river meets a stone and decides to stay.\nFor a hundred years it argues in one place.\nThe result is called a canyon,\nand people travel far to admire the argument.",
+"A tree grows into a fence and does not stop.\nThe wire goes in; the trunk closes over it.\nYears later the fence is gone\nand the tree is still holding its share.",
       ],
       Sextile: [
 "A letter slides under a door\ninto a room where someone is almost asleep.\nThe envelope glows faintly, politely,\nwilling to wait until morning. But only just.",
-"In the market of small hours,\none stall stays open, selling keys by weight.\nThe keeper nods at you as if you had ordered.\nThe key you are given weighs nothing at all.",
+"In the market of small hours\none stall stays open, selling keys by weight.\nThe keeper nods to someone who ordered nothing.\nThe key that changes hands weighs nothing at all.",
+"A window is left open by one inch\nin a house that has been shut for a season.\nBy morning the whole room smells of outside.\nOne inch was the entire negotiation.",
+"Someone leaves a lamp on in an empty hall\nfor a guest who has not written ahead.\nThe guest arrives at four in the morning.\nThe lamp is not surprised.",
       ],
       none: [
 "The sky closes its ledger and dims its lamp.\nSnow falls upward, unhurried, sorting itself.\nSomewhere a shelf accepts one more jar of night.\nNothing is owed. Nothing is missing.",
 "An empty station, swept and lit.\nThe timetable shows a single word: soon.\nA cat crosses the platform like a signature.\nThe night files itself without assistance.",
+"The night takes an inventory of itself\nand finds everything present.\nNothing is entered in the ledger.\nAn unremarkable night is its rarest holding.",
+"A bell tower stands through a windless night.\nNothing rings; nothing is expected to.\nThe rope hangs still in the dark,\nkeeping an hour it was never asked for.",
       ],
     },
   },
@@ -455,12 +563,12 @@ const FOUND_ITEMS = {
 
 function pickFoundItem(transits, seed){
   const daySeed = Math.floor(Date.now() / 86400000);
-  const container = ((seed + daySeed) % 2 === 0) ? 'letter' : 'dream';
+  const container = pickIdx(seed, daySeed, SALT.container, 2) === 0 ? 'letter' : 'dream';
   const box = FOUND_ITEMS[container];
   const mode = transits[0]?.type && box.pieces[transits[0].type] ? transits[0].type : 'none';
   const pool = box.pieces[mode];
-  const piece = pool[(seed * 7 + daySeed) % pool.length];
-  return { container, frame: box.frame, stamp: box.stamp, piece };
+  const piece = pool[pickIdx(seed, daySeed, SALT.piece, pool.length)];
+  return { container, frame: FOUND_FRAME, stamp: FOUND_STAMP, piece };
 }
 
 /* ==========================================================================
@@ -632,6 +740,10 @@ const LANDING_FRAMES = [
   'Translated for daily use: ',
   'Filed under consequences: ',
   'If you must apply this — and you must — ',
+  'Rendered into the actual week: ',
+  'The archive lowers its voice: ',
+  'Plainly, and against front-desk advice: ',
+  'For domestic use: ',
 ];
 
 const LANDINGS = {
@@ -639,66 +751,126 @@ const LANDINGS = {
     Conjunction: [
       'the project and the person become difficult to tell apart today. Bill accordingly.',
       'whatever lands on your desk arrives already attached to you. Sign it, or it signs itself.',
+      'the work follows you out of the building today. It has your coat.',
+      'you will be asked for an opinion and give a confession. Today the two are shelved together.',
+      'one task will absorb the others by lunch. Let it. Resistance costs more than the task.',
+      'your name and the job’s name are being used interchangeably. Decide which one you answer to.',
     ],
     Opposition: [
       'someone across the table wants the same chair. The chair is not the point. Find the point.',
       'a standoff at work resolves the moment someone names it. Consider being someone.',
+      'the person blocking you is protecting something they have not named. Ask what it is.',
+      'two schedules want the same afternoon. One of them is lying about how long it needs.',
+      'you will be handed both sides of a decision and asked to be neutral. You are not. That is the useful part.',
+      'the disagreement at work is older than you are. You have inherited it, not started it.',
     ],
     Trine: [
       'what you attempt at work today goes through on the first try. Attempt the big one.',
       'the meeting that usually blocks you will wave you past. Do not stop to celebrate in the doorway.',
+      'the approval you expected to chase arrives unchased. Do not check whether it was a mistake.',
+      'someone senior is in an agreeable mood, and it will not survive the week. Ask now.',
+      'the difficult conversation at work goes easily today. It will not be this easy again.',
+      'work you did months ago pays out, from a direction you had stopped watching.',
     ],
     Square: [
       'the obstacle at work is load-bearing. Push where it creaks, not where it shines.',
       'expect friction with whoever controls the calendar. The calendar is negotiable. The friction is not.',
+      'the deadline will not move, and neither will the person who set it. Build inside the box.',
+      'something you approved earlier comes back with corrections. The corrections are right.',
+      'you will be blocked by a process, not a person. Do not argue with the person.',
+      'the work is grinding because it is being cut to size. Grinding is what that sounds like.',
     ],
     Sextile: [
       'a small professional door opens — an email, an aside, a corridor question. Answer it the same day.',
       'someone offers you a modest piece of work. Inside it is the larger one. Take the modest piece.',
+      'a name comes up in passing that you should write down. You will not. Write it down.',
+      'an introduction is available if you ask within the day. After that it becomes a favour.',
+      'the meeting nobody prepared for is the one that matters. Prepare for it.',
+      'somebody junior has the answer and is waiting to be asked. Ask before the meeting, not during.',
     ],
   },
   love: {
     Conjunction: [
       'someone moves closer today, or you do. The distinction stops mattering by evening.',
       'affection arrives with its own furniture. Make room, or say so.',
+      'the distance you have been keeping stops being a strategy today and starts being a message.',
+      'you will be seen more clearly than you arranged for. Do not tidy.',
+      'a small domestic decision turns out to be the large one. Notice which one it was.',
+      'the person nearest you is easier to reach today than the one you have been thinking about.',
     ],
     Opposition: [
       'the argument is not about what it is about. Ask the other question.',
       'you and another are holding opposite ends of the same feeling. Pull gently.',
+      'you will be right, at length, and it will cost you the evening. Choose.',
+      'someone is waiting for you to go first. They have been waiting longer than you think.',
+      'the fight is already scheduled. Move it to a room with a door and food in it.',
+      'what you want from them and what you want from yourself have been filed together. Separate them tonight.',
     ],
     Trine: [
       'warmth moves without effort today. Say the thing you rehearsed. It will not need the rehearsal.',
       'what usually requires courage requires only opportunity today.',
+      'an old friendship reopens at exactly the point it closed. No explanation is required from either side.',
+      'the thing you have been waiting for the right moment to say — this is the moment. It is not marked.',
+      'affection is unusually legible today. Yours and theirs. Read both.',
+      'someone forgives you today without ceremony, and possibly without mentioning it.',
     ],
     Square: [
       'the friction at home is structural: something wants renovating, not winning. Renovate.',
       'an old grievance asks to be reread. Read it once, aloud, then file it.',
+      'the same argument arrives in new clothes. You will recognize it by the tiredness.',
+      'you will want the apology in the wording you drafted. It arrives in different wording. Accept it.',
+      'proximity is the problem today, not distance. Take separate rooms for an hour, not a week.',
+      'something at home needs money or time. It has been asking politely and is about to stop.',
     ],
     Sextile: [
       'a small gesture — a message, a door held, a name remembered — carries further than it should. Spend one.',
       'an invitation hides inside an errand. Run the errand together.',
+      'a message you left unanswered for three days can still be answered today. Barely.',
+      'someone will make a small opening in the conversation. It is the whole conversation.',
+      'ask the second question, not the first. The first is only the door.',
+      'a name you have been meaning to say aloud fits into today easily. Say it to the right person.',
     ],
   },
   other: {
     Conjunction: [
       'the thing you have not named moves in beside you today. Naming it costs one word. Pay it.',
       'you and your old question share a room today. One of you should finally speak.',
+      'the habit and the reason for the habit have become one object. Prising them apart is today’s work.',
+      'you will catch yourself doing the thing you decided to stop. The catching is the event. Nothing further is required.',
+      'what you are calling a mood today is a decision waiting to be made.',
+      'the thought you keep having is not weather. It is an item. File it somewhere you will look.',
     ],
     Opposition: [
       'what you avoid and what you want are across the table from each other. They ordered the same thing.',
       'the far side of your hesitation has your handwriting on it.',
+      'you have been arguing with someone who is not in the room and has never been told.',
+      'the case for and the case against are both complete. Completeness is not an answer.',
+      'you are the obstacle in exactly one of today’s problems. It will be obvious which.',
+      'two versions of your life are being compared today. Neither of them is happening yet.',
     ],
     Trine: [
       'the door you assumed locked is not. You have known this for some time. Today, the knowing is enough.',
       'something private resolves quietly today, provided you do not supervise it.',
+      'a decision you have not made announces itself as already made. It was. Some months ago.',
+      'the thing you thought you had lost the taste for returns for an afternoon. Use the afternoon.',
+      'something you have been carrying gets lighter today for no visible reason. Do not investigate.',
+      'you will understand a piece of your own history in one sentence today. Write the sentence down.',
     ],
     Square: [
       'the worry is precisely fitted. It is measuring you for something. Stand straight.',
       'what resists you tonight is old, and yours. Push with your whole name.',
+      'the thing you are avoiding takes about forty minutes. It has cost you nine months.',
+      'the thing you keep postponing is not waiting for a better week. It has checked.',
+      'a limit you have treated as a personality trait comes up for review today.',
+      'the obstruction is old enough to have paperwork. Ask for the file, not the exit.',
     ],
     Sextile: [
       'a small opening appears toward the thing you postpone. Ten minutes. Take ten minutes.',
       'the postponed letter, call, or sentence has a gap in its fence today. Roughly shoulder-width.',
+      'the thing you have been putting off got smaller while you were not looking. Check its actual size.',
+      'the smallest version of the change is available today. The large version is not, and never was.',
+      'you will pass the opening once today without recognizing it. It will be dressed as an errand.',
+      'one drawer, one folder, one message. Today permits exactly one. Choose it now.',
     ],
   },
 };
@@ -706,47 +878,157 @@ const LANDINGS = {
 const VERDICTS = {
   work: {
     Conjunction: ['Take the work that sits closest. Finish only that.',
-                  'Do the nearest task well. Ignore the rest until tomorrow.'],
+                  'Do the nearest task well. Ignore the rest until tomorrow.',
+                  'Clear one thing completely. Leave the rest untouched.',
+                  'Work on the task you cannot stop thinking about. It is the right one today.',
+                  'Say no to the second request. You have room for the first.',
+                  'Put your name on the thing you made. Today, not next week.'],
     Opposition:  ['Do not force the decision at work. Let the other side speak first.',
-                  'Say no to the ultimatum. Offer the third option.'],
+                  'Say no to the ultimatum. Offer the third option.',
+                  'Ask the person blocking you what they need. Then stop talking.',
+                  'Postpone the decision one day. It will look different tomorrow.',
+                  'Put the disagreement in writing. Short, and without adjectives.',
+                  'Give them the win on the small point. Keep the large one.'],
     Trine:       ['Ask for the thing you want at work. Today, they say yes.',
-                  'Send the proposal today. Doors are unlocked until evening.'],
+                  'Send the proposal today. Doors are unlocked until evening.',
+                  'Make the request you have been rehearsing. Today it is easy.',
+                  'Book the meeting you have been avoiding. It goes well.',
+                  'Start the thing you keep deferring. Ten minutes makes it real.',
+                  'Take the offer that arrives today. Read it twice, then take it.'],
     Square:      ['Expect the delay. Build with it, not against it.',
-                  'The blocked route stays blocked. Take the corridor, not the wall.'],
+                  'The blocked route stays blocked. Take the corridor, not the wall.',
+                  'Do not push the blocked thing today. Work the next one down the list.',
+                  'Fix the small broken process. It is what is actually stopping you.',
+                  'Ask for more time before you need it. Today they say yes.',
+                  'Redo the part you know is weak. You will be asked about it.'],
     Sextile:     ['Answer the small request quickly. It is the audition.',
-                  'Reply to the overlooked message. It matters more than it looks.'],
+                  'Reply to the overlooked message. It matters more than it looks.',
+                  'Write down the name that comes up today. Follow it up tomorrow.',
+                  'Ask for the introduction. Ask today, while it is still free.',
+                  'Send the short version now. The long version never gets sent.',
+                  'Say yes to the small piece of work. Do it properly.'],
   },
   love: {
     Conjunction: ['Stay close to who is close. Distance can wait.',
-                  'Cancel something, and stay in with them. Tonight is for near things.'],
+                  'Cancel something, and stay in with them. Tonight is for near things.',
+                  'Be in the same room as them for an hour. No screens.',
+                  'Tell one person what you are actually thinking. Pick the nearest one.',
+                  'Make the ordinary meal. Eat it together, slowly.',
+                  'Do not explain yourself today. Just stay.'],
     Opposition:  ['Hear the other side out before you answer. Especially at home.',
-                  'Let them finish the sentence. All of it.'],
+                  'Let them finish the sentence. All of it.',
+                  'Ask one question and do not answer it yourself.',
+                  'Delay the difficult conversation until after you have eaten.',
+                  'Say the thing you are annoyed about once, calmly, then drop it.',
+                  'Go first. They are waiting, and they will not say so.'],
     Trine:       ['Say the warm thing today. It will land.',
-                  'Plan the small trip. Book it before midnight.'],
+                  'Plan the small trip. Book it before midnight.',
+                  'Call the person you keep meaning to call. Today they answer.',
+                  'Say what you appreciate, specifically. Vague praise does nothing.',
+                  'Reach out to the friendship that lapsed. No apology needed.',
+                  'Ask them for something. Today the asking is welcome.'],
     Square:      ['Do not win the argument. Repair the thing instead.',
-                  'Apologize for the ten percent that was yours. Watch the rest dissolve.'],
+                  'Apologize for the ten percent that was yours. Watch the rest dissolve.',
+                  'Take an hour apart before you speak. Then speak.',
+                  'Name the real complaint, not the convenient one.',
+                  'Do the practical chore that has been resented. Without mentioning it.',
+                  'Let it end unresolved tonight. Return to it when the week is quieter.'],
     Sextile:     ['Make the small gesture. It counts double today.',
-                  'Send the message you drafted. Unedited.'],
+                  'Send the message you drafted. Unedited.',
+                  'Reply to the message you left sitting. Two sentences will do.',
+                  'Ask the second question tonight. The first is only politeness.',
+                  'Bring something small home. It does not need a reason.',
+                  'Accept the invitation, even the minor one.'],
   },
   other: {
     Conjunction: ['Name the thing to yourself, once. That is enough for now.',
-                  'Sit with it for five quiet minutes. No fixing.'],
+                  'Sit with it for five quiet minutes. No fixing.',
+                  'Write one sentence about it. Do not reread it today.',
+                  'Tell one person. Choose someone who will not advise you.',
+                  'Do the thing at its smallest size. Once.',
+                  'Stop researching it. You have enough.'],
     Opposition:  ['You already know both sides. Choose the quieter one.',
-                  'Stop weighing. Flip the coin, and notice what you hope for.'],
+                  'Stop weighing. Flip the coin, and notice what you hope for.',
+                  'Write both options down. The shorter list is the honest one.',
+                  'Decide nothing today. Sleep on it once more, then decide.',
+                  'Ask someone who is not invested. Then ignore half of it.',
+                  'Pick the option you would defend to a stranger.'],
     Trine:       ['The way is open. Take the first step only.',
-                  'Begin the postponed thing badly. Badly is how it begins.'],
+                  'Begin the postponed thing badly. Badly is how it begins.',
+                  'Do fifteen minutes of it. Stop while it is still going well.',
+                  'Say yes to one thing you would normally decline.',
+                  'Return to the thing you abandoned. It has kept.',
+                  'Make the appointment you have been postponing.'],
     Square:      ['The difficulty is measuring you. Stand still and let it.',
-                  'Do not solve it tonight. Sleep, and look again at breakfast.'],
+                  'Do not solve it tonight. Sleep, and look again at breakfast.',
+                  'Do the forty-minute version of the thing you are avoiding. Today.',
+                  'Stop pushing at the closed part. Work on the part that opens.',
+                  'Ask for help with the specific piece. Not the whole thing.',
+                  'Leave it where it is tonight. It keeps until morning.'],
     Sextile:     ['Ten minutes on the postponed thing. Tonight.',
-                  'Open the drawer you avoid. Take out one thing only.'],
+                  'Open the drawer you avoid. Take out one thing only.',
+                  'Send one message about it. That is the whole task.',
+                  'Take the small opening today. It closes by tomorrow.',
+                  'Do the easiest part first. That is not cheating.',
+                  'Say it out loud once, to yourself, in a normal voice.'],
   },
 };
 
-const RECORD_FORMS  = ['30-B', '7-C', '12-A', '4-J', '30-B (REVISED)', '9-F'];
+// Every line on this screen has to mean something to a stranger. A bare form
+// number and a shelf number are the archive talking to itself — the visitor
+// has no key to either, so they read as filler. The forms keep their numbers
+// and gain the name that makes the joke legible; the shelf is replaced by an
+// hour, which is the one determination on this card a visitor can act on.
+// The card is a narrow column — roughly 22 characters before it wraps — so the
+// values stay short and the form's MEANING moves to the note line underneath,
+// where wrapping is normal and the joke has room. A bare form number told the
+// visitor nothing; the number plus one line of explanation is the whole fix.
+// RECORD_FORMS and RECORD_FORM_NOTES are index-parallel: same pick, both arrays.
+const RECORD_FORMS  = ['30-B', '7-C', '12-A', '4-J', '9-F', '21-K',
+                       '3-C', '88-A', '6-M', 'H-2', '30-B REV.'];
+const RECORD_FORM_NOTES = [
+  'Form 30-B is the Request for Clarity. None has ever been approved.',
+  'Form 7-C appeals against the weather. The weather does not attend.',
+  'Form 12-A records a good intention. It is the most-filed document here.',
+  'Form 4-J claims time lost. Time has never once been returned.',
+  'Form 9-F asks to be told sooner. It is always processed later.',
+  'Form 21-K applies for an exception. Exceptions are granted, never twice.',
+  'Form 3-C withdraws a remark. The remark stays in the margin regardless.',
+  'Form 88-A declares readiness. The archive has learned to file these unread.',
+  'Form 6-M is a duplicate request. See Form 6-M.',
+  'Form H-2 petitions for a second opinion. That department closed in 1969.',
+  'Form 30-B (Revised) requests clarity again. The revision was to the number.',
+];
+const RECORD_HOURS  = ['06:00', '08:00', '09:00', '11:00', '12:00', '13:00',
+                       '15:00', '16:00', '18:00', '20:00', '22:00'];
 const RECORD_COLORS = ['PENCIL-GREY', 'LEDGER-BLUE', 'LAMP-GLOW AMBER',
-                       'CARBON-PAPER BLACK', 'INDEX-CARD CREAM', 'STAMP-PAD RED'];
+                       'CARBON-PAPER BLACK', 'INDEX-CARD CREAM', 'STAMP-PAD RED',
+                       'BLOTTING-PAPER PINK', 'SEALING-WAX MAROON', 'MOTH-WING BROWN',
+                       'DIRECTORY YELLOW', 'SHUTTER-GREEN'];
 
 function dayNum(){ return Math.floor(Date.now() / 86400000); }
+
+/* Deterministic pool selection: visitor seed (their dialled date) + the day +
+   a per-pool salt, mixed through an integer hash.
+
+   Why not (seed * k + day) % len, which is what this used to be: two pools of
+   the same length cannot be decorrelated that way. Every multiplier coprime to
+   6 is congruent to +1 or -1 mod 6, so a landing collision between two
+   visitors implied a verdict collision, exactly — measured at 16.4% for both,
+   the same 16.4%. Two friends who matched matched on everything. The hash
+   makes the pools independent: matching on one is now 1-in-6, matching on both
+   1-in-36. Same input always gives the same reading; no clock, no randomness. */
+function pickIdx(seed, day, salt, len){
+  if (!len) return 0;
+  let h = Math.imul(seed + 0x9e37, 0x85ebca6b) ^
+          Math.imul(day + 1, 0xc2b2ae35) ^
+          Math.imul(salt + 1, 0x27d4eb2f);
+  h = Math.imul(h ^ (h >>> 15), 0x2545f491);
+  h ^= h >>> 13;
+  return (h >>> 0) % len;
+}
+const SALT = { landing: 1, frame: 2, verdict: 3, form: 4, color: 5,
+               shelf: 6, container: 7, piece: 8 };
 
 // Real astronomy as a deadline: when does the Moon leave its sign?
 function moonDeadline(){
@@ -899,6 +1181,10 @@ function renderSlots(){
 }
 function identifyDigit(d){
   if (dob.digits.length >= 8) return;
+  // a fresh dial clears any standing message, so the visitor is not typing
+  // underneath "THE ARCHIVE DOES NOT RECOGNIZE THIS DATE"
+  const errEl = document.getElementById('h-error');
+  if (!dob.digits.length && errEl.textContent) errEl.textContent = '';
   AUDIO.clunk();
   dob.digits.push(d);
   // 0·0·0 mid-entry = start over (the rotary dial has no backspace).
@@ -933,7 +1219,14 @@ function validateDob(){
   if (!real){
     const err = document.getElementById('h-error');
     err.textContent = 'THE ARCHIVE DOES NOT RECOGNIZE THIS DATE.';
-    after(2200, () => { dob.digits = []; renderSlots(); err.textContent = ''; });
+    // Clear the slots NOW, not on a 2.2s timer. A rotary dial takes over a
+    // second per digit, so a deferred wipe lands in the middle of the
+    // visitor's redial and eats the digits they have already entered — they
+    // watch their own input disappear and have no idea why.
+    dob.digits = [];
+    renderSlots();
+    armIdentifyTimeout();
+    after(2600, () => { if (!dob.digits.length) err.textContent = ''; });
     return;
   }
   dob.d = d; dob.m = m; dob.y = y;
@@ -966,8 +1259,16 @@ function enterConsult(){
   const t0 = performance.now();
   const tryProceed = () => {
     const waited = performance.now() - t0;
-    if (natalResult && waited >= CONFIG.CONSULT_MIN_MS) setState(S.READING);
-    else after(250, tryProceed);
+    // CONSULT accepts no input by design — the theatre plays out. That makes
+    // an unresolved fetch here fatal rather than annoying: the machine sits
+    // on this screen until someone power-cycles it, in front of a visitor,
+    // with a rotary dial that cannot do anything about it. Always leave.
+    if (waited >= CONFIG.CONSULT_MAX_MS){
+      if (!natalResult) natalResult = offlineNatal(dob.d, dob.m, dob.y);
+      return setState(S.READING);
+    }
+    if (natalResult && waited >= CONFIG.CONSULT_MIN_MS) return setState(S.READING);
+    after(250, tryProceed);
   };
   after(CONFIG.CONSULT_MIN_MS, tryProceed);
 }
@@ -996,7 +1297,13 @@ function enterReading(){
     : '';
 
   const transits = natalResult?.transits || [];
-  const seed = (dob.d || 0) + (dob.m || 0) * 31 + (dob.y || 0);
+  // A date ordinal, not a sum. The previous seed — d + m*31 + y — collapsed
+  // distinct birthdates onto the same number: 5 Jan 1980 and 6 Jan 1979 both
+  // gave 2016, and every pool downstream then produced a byte-identical
+  // reading for two unrelated visitors. It admitted only ~450 distinct values
+  // in total, which capped the whole corpus regardless of how large the pools
+  // grew. 372 = 12 x 31 keeps this injective across every real date.
+  const seed = (dob.y || 0) * 372 + (dob.m || 0) * 31 + (dob.d || 0);
 
   // stash everything the CLARIFY step and the main reading will need
   readingCtx = { sign, r, natalLine, transits, seed };
@@ -1064,23 +1371,31 @@ function buildMainScreens(domain){
   const second = ordered[1] || null;
 
   const dk = domain.key;
+
+  // Visitor-seeded WITH a day rotation, each pool independently salted (see
+  // pickIdx). Before this, the pools carried no day term at all: the same
+  // visitor received an identical landing and verdict on every future visit,
+  // permanently.
+  const dnum = dayNum();
   const landingFor = t => {
     const pool = (LANDINGS[dk] || {})[t.type] || [];
     if (!pool.length) return '';
-    const frame = LANDING_FRAMES[(seed + 1) % LANDING_FRAMES.length];
-    return frame + pool[seed % pool.length];
+    const frame = LANDING_FRAMES[pickIdx(seed, dnum, SALT.frame, LANDING_FRAMES.length)];
+    return frame + pool[pickIdx(seed, dnum, SALT.landing, pool.length)];
   };
   const verdictPool = lead ? ((VERDICTS[dk] || {})[lead.type] || []) : [];
   const verdict = verdictPool.length
-    ? verdictPool[seed % verdictPool.length]
+    ? verdictPool[pickIdx(seed, dnum, SALT.verdict, verdictPool.length)]
     : 'Proceed as planned. The sky declines to elaborate.';
 
   const omens = r.omens || [];
   const pick = (arr, k) => arr.length ? arr[(seed + k) % arr.length] : null;
 
-  const shelf = 1 + ((seed * 7 + dayNum()) % 12);
-  const form  = RECORD_FORMS[(seed + dayNum()) % RECORD_FORMS.length];
-  const color = RECORD_COLORS[(seed * 3 + dayNum()) % RECORD_COLORS.length];
+  const hour  = RECORD_HOURS[pickIdx(seed, dnum, SALT.shelf, RECORD_HOURS.length)];
+  const fIdx  = pickIdx(seed, dnum, SALT.form, RECORD_FORMS.length);
+  const form  = RECORD_FORMS[fIdx];
+  const formNote = RECORD_FORM_NOTES[fIdx];
+  const color = RECORD_COLORS[pickIdx(seed, dnum, SALT.color, RECORD_COLORS.length)];
 
   readingScreens = [
     lead
@@ -1096,8 +1411,20 @@ function buildMainScreens(domain){
     ...(r.lens ? [{ k: 'FOR YOU IN PARTICULAR', b: r.lens, small: true, n: '' }] : []),
     { k: 'THE VERDICT', b: verdict, verdict: true, n: moonDeadline() },
     { k: 'FOR THE RECORD',
-      b: 'AUSPICIOUS SHELF: ' + shelf + '\nUNFAVORABLE FORM: ' + form + '\nCOLOR OF THE DAY: ' + color,
-      small: true, pre: true, n: '' },
+      // Label above value, never on the same line: at this column width a
+      // 'LABEL: VALUE' pair wraps mid-value and broke 08:00-09:00 across two
+      // lines. Stacked and styled, the labels recede and the three values
+      // carry the card — same layout, actual hierarchy.
+      b: 'AUSPICIOUS HOUR ' + hour + ' UNFAVORABLE FORM ' + form +
+         ' COLOR OF THE DAY ' + color,
+      html: '<span class="rec">' +
+            '<span class="rec-label">Auspicious hour</span>' +
+            '<span class="rec-val">' + hour + '</span>' +
+            '<span class="rec-label">Unfavorable form</span>' +
+            '<span class="rec-val">' + form + '</span>' +
+            '<span class="rec-label">Color of the day</span>' +
+            '<span class="rec-val">' + color + '</span></span>',
+      small: true, n: formNote },
     { k: 'THE ARCHIVE CLOSES YOUR FILE', b: 'THE SKY CONTINUES WITHOUT YOU.', n: r.aside },
   ];
 
@@ -1106,7 +1433,11 @@ function buildMainScreens(domain){
   const found = pickFoundItem(lead ? [lead] : [], seed);
   readingScreens.push(
     { k: 'ONE ITEM REMAINS', b: found.frame, small: true, n: '', noPanels: true, silent: true },
-    { k: found.container === 'letter' ? 'RECOVERED FROM YOUR FILE' : 'AS RECORDED',
+    // kicker unified with the frame: 'RECOVERED FROM YOUR FILE' contradicts a
+    // frame that says the sky recorded this on the night you were born.
+    // Revert by restoring the container test if the two-container split
+    // should still be visible to the visitor.
+    { k: 'AS RECORDED',
       b: found.piece, poem: true, n: found.stamp, noPanels: true, silent: true }
   );
 
@@ -1174,7 +1505,9 @@ function renderReadingScreen(){
   after(650, () => {
     AUDIO.tick();
     k.textContent = sc.k;
-    b.textContent = sc.b;
+    // sc.html is opt-in and only ever built from the corpus constants in this
+    // file — never from anything fetched. Everything else stays textContent.
+    if (sc.html) b.innerHTML = sc.html; else b.textContent = sc.b;
     b.className = 'r-body fadeable' + (sc.small ? ' small' : '') + (sc.poem ? ' poem' : '')
                 + (sc.verdict ? ' verdict' : '');
     b.style.whiteSpace = sc.pre ? 'pre-line' : '';

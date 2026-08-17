@@ -5,9 +5,10 @@
 **Read this first. Every session.** Then: ASTRA_MIND_v0.1.md (the character),
 PROJECT_CANON.md (the identity), DECISIONS.md, CHANGELOG.md (newest-first).
 
-Last updated: 2026-08-04
-Project status: Full installation experience working locally. Awaiting
-TV-calibration session and rotary-dial hardware. Content deepening ongoing.
+Last updated: 2026-08-17
+Project status: Content complete and curated; kiosk hardened. Awaiting
+TV-calibration session and rotary-dial hardware — those are the only things
+left before the piece can stand in a room. Ready to tag v1.0.
 
 ---
 
@@ -76,10 +77,16 @@ Server sends Cache-Control: no-store — never let browsers cache the kiosk.
 sky.py        planets + speeds + retrograde + aspects with real
               applying/separating; speed-weighted signature
 oracle.py     60s loop → visual/oracle.json (incl. readings_by_sign, all 12)
-librarian.py  the voice: TOKEN_MEANINGS (curated), ASPECT_MODES (6 verbs /
-              8 omens / 5 constraints per mode), MARGINALIA (25),
-              TRANSIT_NOTES, SIGN_TEMPERAMENT + SIGN_RULERS (ruler-led
-              per-sign readings), compose_* functions, seeded selection
+librarian.py  the voice: TOKEN_MEANINGS (20 curated), ASPECT_MODES (10
+              verbs_one / 10 verbs / 14 omens / 8 constraints per mode),
+              MARGINALIA (50), TRANSIT_NOTES (10/mode), ASIDE_CLOSINGS (20),
+              QUIET_OMENS + QUIET_HEADLINES (unaspected rulers),
+              SIGN_TEMPERAMENT (2 address + 2 lens per sign — LISTS, index
+              them) + SIGN_RULERS, compose_* functions.
+              Selection: _idx() salted hash, and _DayAllocator, which hands
+              out lines without replacement so no two signs share a line on
+              one date. Do not replace either with arithmetic — see CHANGELOG
+              2026-08-14; a modulo pick cannot decorrelate two pools.
 visual/server.py  static server + /natal?d&m&y endpoint: natal sun/moon
               (noon UT) + up to 6 transits vs current sky, no-store headers
 ```
@@ -99,7 +106,20 @@ visual/fonts/             self-hosted woff2 (offline requirement)
 visual/experiments/       history of the sandbox chain (poet → type →
                           sound → clarify); clarify was promoted to
                           production 2026-07-30. Keep as archaeology.
+visual/preview.html       GENERATED review build: whole ceremony in one
+                          file, no server. python3 tools/build_preview.py.
+                          Gitignored. Never install this on the machine.
 snapshots/v1-.../         frozen v1 desktop dashboard (runnable)
+tools/                    verification harnesses — npm run check runs all.
+                          verify_corpus.mjs (tv.html pools + selection),
+                          verify_librarian.py (corpus, cross-sign no-repeat,
+                          curated tokens vs real ephemeris), edge_cases.mjs
+                          (14 kiosk input paths), walkthrough.mjs (ceremony),
+                          orphan_sweep.mjs (every printable string rendered
+                          at the real column width), typography_audit.mjs
+kiosk/                    launchd agents + Chrome kiosk launcher.
+                          bash kiosk/install.sh — prints the nine settings
+                          launchd cannot do. install.sh uninstall to remove.
 aios/                     this context system; STATUS_REPORT.md has the
                           full roadmap and MacBook appliance checklist
 ```
@@ -122,10 +142,13 @@ found items — direct address, the turn — never the costume).
 
 ## Pending / Next Work
 
-1. CONTENT DEEPENING (recurring): batch-expand LANDINGS/VERDICTS pools,
-   rewrite older abstract omens toward the 70%-you ratio, day-level
-   no-repeat allocation across signs. Feedback said: still slightly
-   abstract, repetition within a same-day group. Write per ASTRA_MIND.
+1. ~~CONTENT DEEPENING~~ DONE 2026-08-14/17. Corpus roughly tripled, the
+   repetition fixed at its mechanical root (the pools carried no day term and
+   the seed collapsed distinct birthdates), OBSERVATION/CONSTRAINT rewritten
+   toward the visitor, day-level no-repeat allocation across signs, curated
+   coverage 43% → 76% of days. Curated by filippos 2026-08-17.
+   BEFORE ADDING CORPUS: run npm run check. Two of the defects fixed here
+   were introduced by an earlier "improvement" that looked correct.
 2. TV SESSION (blocked on hardware): testcard.html on the DUX →
    edit CONFIG.SAFE / TYPE_SCALE only.
 3. ROTARY DIAL (hardware): ESP32/Arduino → USB keyboard digits.

@@ -4,6 +4,419 @@ Newest-first.
 
 ---
 
+## 2026-08-17 — Curation pass; v1.0 ready
+
+filippos curated. Seven changes applied out of 452 new lines.
+
+**Cut (1).** LANDINGS other/Square: "you will be tired in a way sleep does not
+fix. That is the signal, not the fault." The closest thing to a diagnosis in
+the corpus, and the second sentence is reassurance, which the librarian does
+not do. It also carried a failure mode nothing else does: dialled by someone
+actually struggling, an unattended machine tells them their exhaustion is
+meaningful. Replaced with "the thing you keep postponing is not waiting for a
+better week. It has checked."
+
+**Tightened (6).**
+- "Add no verdict" collided with THE VERDICT, a named screen two beats later →
+  "Nothing further is required."
+- "not a symptom" raised the clinical frame in order to deny it → "not weather".
+- "Today is the day it does" had *today* twice → "It will not be this easy again."
+- Three verdicts were productivity-blog rather than archive: "the rest follows
+  more easily than you expect" → "That is not cheating."; "the thing that
+  scares you slightly" → "Say yes to one thing you would normally decline.";
+  "Rest properly tonight" → "Leave it where it is tonight."
+
+**Kept against my own objection**, recorded so the argument is not relitigated:
+"a limit you have treated as a personality trait comes up for review today" and
+"what you are calling a mood today is a decision waiting to be made". Both are
+therapy-shaped. Both survive because they *note* rather than instruct, which is
+where PROJECT_CANON draws the line.
+
+**Full suite after:** corpus pass, librarian pass (9 checks), edge cases 14/14,
+walkthrough clean, typography audit 165 screens, orphan sweep 3,818 strings
+zero orphans, oracle.json regenerated, preview rebuilt.
+
+AI_HANDOFF.md updated to the current state; TASK_language_expansion.md filed to
+aios/tasks/done/. The task list in the handoff no longer has a content item —
+what remains is hardware.
+
+**v1.0 is ready to tag.** Nothing in software blocks the piece now.
+
+---
+
+## 2026-08-14 — Review of the day's work (three defects found, all fixed)
+
+Adversarial pass over everything shipped today, looking specifically at what
+the harnesses could NOT see.
+
+**1. The transit line and its note moved in lockstep.** `compose_transit` drew
+the verb with `_pick(verbs_one, variant, 3)` and the note with
+`notes[variant % len(notes)]`. With both pools at 10, `(seed * 31 + 21) % 10`
+reduces to `(seed + 1) % 10` — so the verb index was always exactly one ahead
+of the note index. Measured: **10 distinct (line, note) pairs out of a possible
+100**, and any two visitors whose dates differed by a multiple of ten received
+an identical transit line AND note. This is the same defect fixed in tv.html in
+batch 1, still live in librarian.py, on the two most visible screens in the
+reading. `_pick` now runs a salted integer hash. After: 99/100 pairings occur.
+
+**2. Fixing that broke sign distinctness — caught by the existing sweep.**
+The old arithmetic accidentally guaranteed that adjacent signs drew different
+verbs, so two signs whose rulers share a single aspect (Taurus and Gemini on
+one Mercury-Venus sextile) never collided. The hash removed the accident and
+cross-sign repeats jumped to **101 of 366 days**. Fixed properly rather than
+reverted: `compose_from_aspect` now returns every phrasing the aspect can take,
+and `build_sign_readings` allocates the headline through the same day allocator
+as the omens. Back to 0/366 — and now guaranteed by construction rather than by
+a modulo coincidence.
+
+**3. `install.sh` rewrote a tracked file.** It sed-substituted the repo root
+into `kiosk/astra-kiosk.sh` in place, so installing left the working tree
+permanently dirty and a second install templated an already-templated path. The
+root now arrives as argv from the launchd agent; installing touches nothing in
+the repo.
+
+Also: `tools/typography_audit.mjs` had an absolute `/tmp` path from the build
+machine baked in as its default — now resolved relative to the repo, with
+`ASTRA_URL` to override. Added `package.json` (harness scripts, `npm run
+check` runs all four) and gitignored `node_modules`, `package-lock.json` and
+the generated `visual/preview.html`.
+
+**4. The preview had gone stale against the fix.** `build_preview.py` mirrored
+the OLD `_pick` arithmetic in JS, so after the hash change the preview would
+have shown different transit lines from the machine it previews. Its `pIdx` now
+mirrors `librarian._idx` bit for bit — asserted against Python across a seed
+range. Residual and inherent: the ~0.3deg moon approximation reorders some
+transits, and since the variant is seed+index a reordered transit draws a
+different verb and note. Measured 10 of 14 sentences identical to the live
+server across three dates, the rest differing by position, not selection. Now
+documented in the file rather than left to be discovered.
+
+**5. Sampling was never going to be enough.** After the hash change a different
+verb got drawn and a NEW orphan appeared — "COUNTERSIGNED" alone on a line —
+which the 165-screen ceremony audit had never seen because that verb had never
+come up. Sampling proves the lines that happened to be selected, nothing more.
+
+New: `tools/dump_corpus.py` + `tools/orphan_sweep.mjs`. The first enumerates
+every string the reading screens can print — every transit sentence the composer
+can build from every desk x verb x target, every headline variant, every omen,
+constraint, landing, verdict and verse: **3,818 distinct strings**. The second
+renders each one in the class it will actually be printed in, at the real
+column width, and reports any that would leave a line holding a single word.
+
+First run: 12 orphans, all long words at a narrow measure — "correspondence,",
+"investigations", "countersigned", "indistinguishable". Measures widened to
+60% / 58% / 56% (the side panels sit at 19% per edge, so 62% is the ceiling),
+and the single remaining offender fixed in the corpus instead: "are conducting
+parallel investigations into one another" became "are investigating each other,
+in parallel" — shorter, and better. **Now zero of 3,818.**
+
+`text-wrap: balance` replaced `pretty` on the body too: `pretty` only protects
+the last line, and every one of these was a long word landing mid-block.
+
+New regression check, verify_librarian [9]: transit line and note must not move
+together — fails if fewer than 80% of possible pairings occur.
+
+**Full suite green:** corpus pass, librarian pass (9 checks), edge cases 14/14,
+walkthrough clean, typography 165 screens / zero orphans, all four pages serve
+200, natal endpoint returns transits, oracle.json regenerates.
+
+---
+
+## 2026-08-14 — Typography pass (Refactoring UI, no layout change)
+
+Reported: lines left holding a single word — "bend", "owner.", "6-M.".
+
+**Root cause was the measure, not the writing.** `CONFIG.SAFE` shrinks every
+screen to 80% of the stage, so a `max-width: 42%` poem column was really ~37
+characters wide while the authored verse ran to 45+. Every authored line
+wrapped, and each wrap left an orphan. Measured the real rendered column in the
+browser (780px, 12.44px per character at 20px) rather than estimating, then
+sized the poem measure to the longest line in the corpus — 74%, at 19px. Seven
+authored lines that ran past 49 characters were shortened; the turn in each is
+untouched.
+
+- `text-wrap: balance` on the short blocks and notes, `pretty` on the long
+  ones. `pretty` alone still left "6-M." stranded at two lines; `balance` evens
+  them and the orphan cannot occur. Both are progressive — older browsers get
+  today's behaviour, nothing breaks.
+- **Type scale** regularised to 15 / 16 / 18 / 19 / 21 / 24 / 27 instead of
+  eleven arbitrary sizes. The kicker is the smallest thing on screen and THE
+  VERDICT the largest, which is the order of importance to a visitor.
+- **Ambiguous spacing fixed:** the gap above a note (52px) is now clearly
+  larger than the gap below a kicker (30px), so each screen groups as
+  label + body, then note — rather than three evenly spaced strangers.
+- **FOR THE RECORD** gained real hierarchy: labels recede (15px, wide tracking,
+  --dim), values carry (24px, --fg). Same stacked layout, via a new opt-in
+  `sc.html` field on a reading screen — built only from the corpus constants in
+  the file, never from anything fetched.
+- Kicker and record labels stay `--dim`, NOT `--faint`: on a B&W CRT #4a4a46 on
+  black is below the tube's usable floor and the label disappears. Hierarchy
+  here comes from size and tracking, not contrast. Reverted after trying it.
+
+**New: tools/typography_audit.mjs.** A corpus check cannot catch this — the
+corpus is fine and the layout is what breaks it. So this measures actual
+rendered line boxes: walks every text node, groups characters by vertical
+position, reconstructs each visual line, and flags any line holding one word.
+For `pre-line` blocks it compares rendered against authored line counts, so a
+wrapped verse line is caught even when it leaves two words.
+5 birthdates x 3 domains, **165 screens: zero orphans**, every block within 78
+characters, no JS errors.
+
+Note the detector's first run reported six false orphans on FOR THE RECORD — it
+was reading the filing card's deliberate one-value lines as wraps. Fixed the
+detector, not the card: it now measures per block.
+
+---
+
+## 2026-08-14 — Review pass 1 (filippos, on the preview build)
+
+Four notes from dialling the preview. All four applied.
+
+**1. Too abstract, hard to connect.** Measured rather than guessed: counted
+second-person density per screen slot across the corpus. The two screens that
+run back to back in the middle of the reading were the two lowest —
+OBSERVATION (aspect omens) at **3%** and CONSTRAINT at **5%**, against ALSO IN
+YOUR SKY at 86% and FOR YOU IN PARTICULAR at 100%. Not a sentence-quality
+problem: a contiguous stretch where nothing was about the visitor.
+44 lines revised in place across those two pools — omens now **41%**
+second person, constraints **48%**. The strongest impersonal lines were kept
+deliberately (the four-thousand-objections log, the unlocked door); the
+abstractions went. Note this softens the locked balance rule — the body is no
+longer uniformly enigmatic. The landing still does the domain-naming alone,
+and only THE VERDICT still speaks plainly, so the rule holds where it matters.
+
+**2. FOR THE RECORD was meaningless.** "AUSPICIOUS SHELF: 12" and
+"UNFAVORABLE FORM: 4-J" are the archive talking to itself — a visitor has no
+key to either.
+- Shelf → **AUSPICIOUS HOUR**, a real clock time. The one determination on the
+  card a visitor can act on.
+- The forms keep their numbers and gain a note line that makes the joke
+  legible: "Form 6-M is a duplicate request. See Form 6-M." RECORD_FORMS and
+  RECORD_FORM_NOTES are index-parallel; the harness fails if they drift.
+- **Typography:** the first attempt put the name inline and it wrapped across
+  three lines, which was worse than the problem. Label above value now, both
+  short — nothing can wrap at any column width, and it reads as a filing card.
+  Harness asserts every value fits the column.
+
+**3 & 4. One frame, one stamp, for every found item.** FOUND_FRAME and
+FOUND_STAMP are single constants; the letter container's own frame and stamp
+are gone. Two framings for the same beat meant the ending never landed the
+same way twice, and this is the sentence visitors carry out of the room.
+A letter read under this frame stops being an unsigned note and becomes a
+prophecy recorded at the visitor's birth — the stronger reading of the same
+lines. **Judgement call beyond the note:** the second-screen kicker is now
+always "AS RECORDED"; "RECOVERED FROM YOUR FILE" contradicted a frame that
+says the sky recorded this on the night you were born. Revert by restoring the
+container test in buildMainScreens — it is one line, marked in place. The
+letter/dream split still governs the register of the pieces themselves.
+
+Harnesses updated for all of it. Full regression: corpus pass, librarian pass,
+edge cases 14/14, walkthrough clean, oracle.json regenerated, preview rebuilt.
+
+---
+
+## 2026-08-14 — Preview build + server transit seed
+
+- **visual/preview.html** (generated, do not hand-edit): the whole ceremony in
+  one file, runnable from a file:// URL with nothing installed. Built by
+  `python3 tools/build_preview.py`, which bakes the current oracle.json and
+  sky_state.json into the page and shims fetch() so /oracle.json and /natal
+  resolve locally. Natal positions come from truncated Meeus series in-page
+  (sun ~0.01deg, moon ~0.3deg) instead of Swiss Ephemeris. Verified against the
+  live server on five dates: sun degree identical to 0.01, moon sign identical
+  on all five, transit counts identical on four — 04/11/1979 gives 5 against
+  the server's 4, one borderline orb inside the moon approximation.
+  Review only. run.sh serves the real thing; do not install this on the machine.
+- The `verbs_one` / TRANSIT_NOTES / PLANET_DESK the preview needs are baked
+  from librarian.py at build time, not retyped, so the preview cannot drift
+  from the corpus.
+- **server.py fix:** `find_transits` was seeded with `day + month*31 + year` —
+  the same collapsing sum fixed in tv.html in batch 1, still live server-side.
+  Two visitors whose dates summed alike received identical transit notes. Now
+  the date ordinal.
+
+---
+
+## 2026-08-14 — Kiosk hardening (input paths + appliance boot)
+
+STATUS_REPORT §6, and the input edge cases the happy-path walkthrough never
+touched. Nothing here is blocked on hardware.
+
+**Two defects, both fatal in front of a visitor.**
+
+1. **CONSULT could hang forever.** `enterConsult` polls every 250ms for
+   `natalResult` and CONSULT accepts no input at all by design — the theatre
+   plays out. If `/natal` was *accepted but never answered* (a wedged handler
+   thread, not a refused connection) the fetch promise never settled, the poll
+   never exited, and the machine sat on the consult screen until someone
+   power-cycled it. A rotary dial can do nothing about that. Fixed with an
+   AbortController on `fetchNatal` (`NATAL_TIMEOUT_MS`, 6s) and a hard ceiling
+   in the consult loop (`CONSULT_MAX_MS`, 12s) that proceeds on the offline
+   sign table rather than stalling. The offline table is now `offlineNatal()`,
+   split out so the watchdog can reach it without another request.
+   Reproduced by stalling the route in Playwright: previously stuck for the
+   full 30s test timeout, now reaches the reading.
+2. **An invalid date ate the visitor's redial.** The error path cleared the
+   slots on a 2.2s timer. A rotary dial takes over a second per digit, so the
+   wipe landed mid-redial and the visitor watched their own input vanish with
+   no explanation. Slots now clear immediately on refusal and the message
+   clears on the next dialled digit.
+
+**New: tools/edge_cases.mjs** — 14 assertions over the paths a visitor can
+actually take: invalid date and recovery, redial during the error window,
+`000` mid-entry reset, a birthdate ending in 000 passing through untouched,
+abandoned entry timing out to IDLE, Escape, non-digit keys, hung `/natal`,
+`/natal` 500, unreachable `oracle.json` (SIGNAL LOST banner plus a ceremony
+that still completes), and input past 8 digits. 14/14.
+
+**New: kiosk/** — the appliance install.
+- `install.sh` / `install.sh uninstall`: templates absolute paths into three
+  launchd agents, lints them, bootstraps them into the login GUI domain, then
+  verifies server, natal transits and oracle.json. Kills any manual `run.sh`
+  processes first — both bind port 8000, and a squatter makes launchd's server
+  flap on ThrottleInterval indefinitely.
+- Three agents with `KeepAlive`: oracle loop, local server, Chrome kiosk. A
+  crash or a power cut comes back unattended.
+- `astra-kiosk.sh`: Chrome with `--kiosk`, `--autoplay-policy=no-user-gesture-
+  required` for the hum, and a **dedicated `--user-data-dir`** — on a normal
+  profile any power cut raises "Chrome didn't shut down correctly", and a
+  restore bar over a 1950s television ends the illusion. Waits for the server
+  (launchd starts all three at once) and holds `caffeinate -dimsu` for the
+  session.
+- Stale-sky watchdog in tv.html: if `oracle.json` has been unreachable for ten
+  minutes the page reloads — but only from IDLE or BOOT. Reloading under a
+  visitor mid-ceremony would be a worse failure than the one being repaired.
+- `install.sh` prints the nine things launchd cannot do (auto-login, energy,
+  Do Not Disturb, automatic updates off, Spotlight exclusion, resolution and
+  overscan, ENTITY_COUNT for the old MacBook, weekly `pmset` reboot, and the
+  Wi-Fi-off rehearsal). The piece is not exhibition-ready until those are done
+  on the machine.
+
+Full regression after: edge cases 14/14, happy-path walkthrough clean, corpus
+harness pass, librarian harness pass, tv.html JS syntax clean.
+
+---
+
+## 2026-08-14 — Language expansion, batch 2 (librarian.py corpus + item 12)
+
+TASK_language_expansion.md items 1-6 and 12. With batch 1 below, the task is
+complete. Corpus uncurated — filippos curates before v1.0.
+
+Written (librarian.py), all additive, nothing replaced:
+- TOKEN_MEANINGS 6 → 20. New keys cover Sun/Moon/Mercury/Venus/Mars pairs
+  across all five modes, plus Moon-Saturn, Venus-Jupiter and Mars-Saturn.
+- ASPECT_MODES per mode: verbs_one 6 → 10, verbs 6 → 10, omens 8 → 14,
+  constraints 5 → 8.
+- MARGINALIA 25 → 50. ASIDE_CLOSINGS 12 → 20. TRANSIT_NOTES 6 → 10 per mode.
+- SIGN_TEMPERAMENT: second address and lens per sign, rotating by day and
+  sign. NOTE: `address` and `lens` are now LISTS. Anything reading them must
+  index — `t["address"][i]`, not `t["address"]`.
+- QUIET_OMENS (28) and QUIET_HEADLINES (14), new pools — see below.
+
+Curated coverage measured against real ephemeris, 730 days: a curated token
+now leads the reading on **76% of days, up from 43%**. All 20 tokens fire; the
+rarest (MAR_SQR_SAT) 18 times in two years. None are dead corpus.
+
+Item 12 — day-level no-repeat allocation:
+- `_DayAllocator` hands out lines without replacement for one date. Each sign
+  asks in its own seeded order and receives the first lines no other sign has
+  claimed. `_order()` produces a full permutation with a stride forced coprime
+  to the pool length, so the walk cannot starve part of a pool.
+- Signs are served in a day-rotated order. Serving Aries first every day would
+  have made the readings reliably better at the start of the zodiac.
+- `compose_from_aspect` now returns an ordered candidate list rather than a
+  fixed two omens, so the allocator has depth to skip claimed lines.
+
+Result: **0 shared lines across the 12 signs, on all 366 days swept.** Distinct
+headlines 12/12 (was 10/12). Before this batch, one base omen appeared in 8 of
+12 signs on the same date.
+
+Two defects found while building it:
+
+1. **Signs with an unaspected ruler all shared the day's base headline.** Not
+   an omen problem — the same defect one field over. Measured: Cancer and Leo
+   carried an identical headline on 366 days of 366, because neither Sun nor
+   Moon was aspected in the test sky. QUIET_HEADLINES fixes it; the redundant
+   "reports nothing unusual" suffix came off the governor line, since the
+   headline now says it in words no other sign is using that day.
+2. **The fallback pool was too small to allocate from.** With a 12-line
+   QUIET_OMENS, a sky where every ruler is unaspected exhausted the pool and
+   repeated silently. Sized to 28 — enough for all twelve signs on the worst
+   possible day. The allocator now records exhaustion in `.exhausted` so the
+   harness reports it rather than it passing unnoticed.
+
+Verification (tools/verify_librarian.py, new): pool sizes; **that every
+TOKEN_MEANINGS key can actually fire** — a key written in the wrong planet
+order never matches sky.py's signature and dies silently, so the harness parses
+sky.py's PLANETS order and checks each one; duplicate lines across all pools
+(540 lines, none repeated); the 366-day cross-sign sweep; the degenerate
+no-aspect sky; allocator headroom; variant rotation; two years of real
+ephemeris. All pass.
+
+Full re-test of both batches: corpus harness pass, librarian harness pass,
+oracle.json regenerated (12/12 distinct headlines, 0 shared lines), Playwright
+ceremony renders end to end with no JS errors.
+
+---
+
+## 2026-08-14 — Language expansion, batch 1 (tv.html corpus + selection)
+
+TASK_language_expansion.md items 7-11 and 13. Items 1-6 and 12 (librarian.py)
+are batch 2 (above). Corpus is uncurated — filippos curates before v1.0.
+
+Written (all in visual/tv.html):
+- LANDINGS 2 → 6 per domain × mode (30 → 90 lines).
+- VERDICTS 2 → 6 per domain × mode (30 → 90 lines). Plain register, doable
+  the same day, no metaphor.
+- FOUND_ITEMS 2 → 4 pieces per mode per container (24 → 48). Letters address,
+  dreams witness, turn in the last line.
+- LANDING_FRAMES 4 → 8. RECORD_FORMS and RECORD_COLORS 6 → 11 each.
+
+Three defects found and fixed while verifying — the repetition visitors
+reported was mechanical, not only a shortage of lines:
+
+1. **The pools had no day term.** Landing, verdict and frame were keyed on the
+   dialled date alone, so a returning visitor received a byte-identical
+   landing and verdict on every future visit, permanently. Only the found item
+   mixed in the day. TASK item 13 as written ("shift weight to the visitor
+   seed") had this backwards; approved as amended.
+2. **The seed collapsed distinct birthdates.** `seed = d + m*31 + y` gave 2016
+   for both 5 Jan 1980 and 6 Jan 1979 — two unrelated visitors, one identical
+   reading, whatever the pool size. It admitted ~450 distinct values in total,
+   capping the corpus regardless of how much was written. Now a proper date
+   ordinal (`y*372 + m*31 + d`), injective over all 31,992 real dates tested.
+3. **Multipliers cannot decorrelate equal-length pools.** `(seed*k + day) % 6`
+   with any k coprime to 6 is ±1 mod 6, so a landing collision implied a
+   verdict collision exactly — both measured 16.4%, the same 16.4%. Replaced
+   with `pickIdx(seed, day, salt, len)`, an integer hash salted per pool.
+   Deterministic, offline, no clock, no randomness.
+
+Measured across 60k synthetic visitor pairs, same day, same domain, same lead
+transit — matching landing AND verdict: **25% → 2.7%** (2.8% is the
+independent floor). Same found item: 25% → 12.3%. Every entry reachable, spread
+within ±8% of even across 28,896 real birthdates.
+
+Verification (new, in tools/):
+- `verify_corpus.mjs` — parses the corpus straight out of tv.html, asserts pool
+  sizes, cross-pool duplicates, register (landings lowercase, verdicts plain
+  and terminated, found items four lines, dreams never say "you"), seed
+  injectivity, collision rates, day rotation, reachability. All pass.
+- `walkthrough.mjs` — Playwright: dials a date, chooses a domain, steps every
+  screen, then runs a five-visitor cohort. Full ceremony renders; 5/5 distinct
+  landings, 4/5 verdicts, 5/5 found items; no JS errors.
+
+Also fixed: one pre-existing dream piece (Sextile) addressed the visitor
+directly — "The keeper nods at you as if you had ordered" — which breaks the
+letters-address/dreams-witness rule. Rewritten to witness. The harness now
+enforces this.
+
+Known and deliberately not addressed in this batch: `oracle.json` still shows
+base STACK omens leaking across signs (one line appears in 8 of 12 signs, two
+more in 7) and 10/12 distinct headlines. That is TASK item 12 and lives in
+librarian.py — batch 2.
+
+---
+
 ## 2026-07-30 — Experiments promoted to production
 
 - visual/tv.html is now the full experiment tip: ceremonial mono type (50%
