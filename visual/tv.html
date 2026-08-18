@@ -616,29 +616,76 @@ const AUDIO = (function(){
   }
 
   function buildBed(){
+    // Redesigned after gallery feedback ("sounds like noise from the
+    // hardware"): a bare mains-range hum through a TV speaker reads as a
+    // FAULT. Three changes make it read as composed instead:
+    //   1. the drone carries a real interval (root + fifth + shimmering
+    //      octave pair), and its root sits away from 50/60 Hz;
+    //   2. the whole bed BREATHES on the entity's ~11 s cycle;
+    //   3. the noise band moved up into airy shortwave "ether", and rare
+    //      falling whistlers punctuate it — unmistakably on purpose.
     bed = { gain: ctx.createGain() };
     bed.gain.gain.value = 0;
     bed.gain.connect(master);
-    // mains hum — the set is on
-    const osc1 = ctx.createOscillator(); osc1.frequency.value = 55;
-    const osc2 = ctx.createOscillator(); osc2.frequency.value = 110;
-    const og1 = ctx.createGain(); og1.gain.value = 0.05;
-    const og2 = ctx.createGain(); og2.gain.value = 0.02;
-    osc1.connect(og1); og1.connect(bed.gain);
-    osc2.connect(og2); og2.connect(bed.gain);
-    osc1.start(); osc2.start();
-    // shortwave drift — brown noise through a slowly wandering bandpass
+
+    // drone with an interval in it — intent, not leakage
+    const drone = ctx.createGain(); drone.gain.value = 1.0;
+    drone.connect(bed.gain);
+    const mk = (freq, level, type) => {
+      const o = ctx.createOscillator(); o.type = type || 'sine';
+      o.frequency.value = freq;
+      const g = ctx.createGain(); g.gain.value = level;
+      o.connect(g); g.connect(drone); o.start();
+    };
+    mk(72, 0.045, 'triangle');   // root, clear of mains frequencies
+    mk(108, 0.022);              // the fifth — the interval that says "composed"
+    mk(144, 0.012);              // octave...
+    mk(144.4, 0.012);            // ...beating against it at 0.4 Hz, a slow shimmer
+
+    // the bed breathes with the entity (~11 s period)
+    const breath = ctx.createOscillator(); breath.frequency.value = 0.088;
+    const bDepth = ctx.createGain(); bDepth.gain.value = 0.35;
+    breath.connect(bDepth); bDepth.connect(drone.gain);
+    breath.start();
+
+    // ether — airy shortwave band, well above the drone, slowly wandering
     const noise = ctx.createBufferSource();
     noise.buffer = noiseBuffer(4); noise.loop = true;
     bed.bp = ctx.createBiquadFilter();
-    bed.bp.type = 'bandpass'; bed.bp.frequency.value = 800; bed.bp.Q.value = 1.2;
-    const ng = ctx.createGain(); ng.gain.value = 0.12;
+    bed.bp.type = 'bandpass'; bed.bp.frequency.value = 2200; bed.bp.Q.value = 2.0;
+    const ng = ctx.createGain(); ng.gain.value = 0.07;
     noise.connect(bed.bp); bed.bp.connect(ng); ng.connect(bed.gain);
     noise.start();
-    const lfo = ctx.createOscillator(); lfo.frequency.value = 0.05;
-    const lg = ctx.createGain(); lg.gain.value = 420;
+    const lfo = ctx.createOscillator(); lfo.frequency.value = 0.03;
+    const lg = ctx.createGain(); lg.gain.value = 600;
     lfo.connect(lg); lg.connect(bed.bp.frequency);
     lfo.start();
+
+    scheduleWhistler();
+  }
+
+  // Ionosphere whistlers — rare falling tones out of the ether, only in the
+  // calm scenes. The clearest signal that the sound is composed rather than
+  // leaking from a transformer.
+  let whistlerTimer = null;
+  function scheduleWhistler(){
+    if (whistlerTimer) clearTimeout(whistlerTimer);
+    whistlerTimer = setTimeout(() => {
+      if (ctx && !muted && (currentScene === 'idle' || currentScene === 'reading')){
+        const t = ctx.currentTime;
+        const o = ctx.createOscillator(); o.type = 'sine';
+        o.frequency.setValueAtTime(1200 + Math.random() * 600, t);
+        o.frequency.exponentialRampToValueAtTime(
+          220 + Math.random() * 120, t + 1.6 + Math.random());
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(0.035, t + 0.35);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 2.6);
+        o.connect(g); g.connect(master);
+        o.start(t); o.stop(t + 2.8);
+      }
+      scheduleWhistler();
+    }, 25000 + Math.random() * 40000);
   }
 
   // per-scene bed intensity; 'found' is the held breath
@@ -1028,7 +1075,37 @@ function pickIdx(seed, day, salt, len){
   return (h >>> 0) % len;
 }
 const SALT = { landing: 1, frame: 2, verdict: 3, form: 4, color: 5,
-               shelf: 6, container: 7, piece: 8 };
+               shelf: 6, container: 7, piece: 8, addressed: 9, stamp: 10 };
+
+/* Addressed to the visitor — annotations for the reading's most impersonal
+   screens (OBSERVATION and CONSTRAINT carried empty notes). The sky-facing
+   body stays as written; these margins turn toward the person reading it.
+   Canon rules apply: no coaching, no flattery, nothing poster-shaped. */
+const ADDRESSED = [
+  "This entry was filed before you arrived. It has been waiting without complaint, which is more than can be said for most entries.",
+  "The above concerns you even where it appears not to. Especially there.",
+  "Your file warmed slightly when this was retrieved. Standard. Noted anyway.",
+  "You are reading at approximately the correct speed. The archive mentions this because it is rare.",
+  "This line was underlined once, by someone with your exact coordinates. The archive says no more.",
+  "Do not take this personally. It was, however, addressed to you.",
+  "The sky produced this arrangement whether or not you came. You came. The archive finds that worth a margin note.",
+  "You may disagree with the above. Your disagreement will be filed with it. They will get along.",
+  "Somewhere in this sentence is the word you needed today. The archive declines to point.",
+  "This observation fits you more closely than it fits the day. The day will not mind.",
+  "Others born under your sky received other sentences. This one waited for you specifically.",
+  "If this reads as familiar, that is not repetition. That is filing.",
+  "You brought the date; the sky brought the rest. The proportions are roughly fair.",
+  "Read the above once more, slower. Not because you missed it. Because it noticed you hurrying.",
+];
+
+// Stamps that carry the visitor's own coordinates — the reading signs
+// their name, not the sky's. {file} = sign glyph + natal degree.
+const FILE_STAMPS = [
+  "Entered in file {file}. The ink is dry.",
+  "Countersigned for {file} by the night clerk.",
+  "Copied to file {file}. The copy is the warmer of the two.",
+  "Witnessed against file {file}. No further witnesses were required.",
+];
 
 // Real astronomy as a deadline: when does the Moon leave its sign?
 function moonDeadline(){
@@ -1397,6 +1474,13 @@ function buildMainScreens(domain){
   const formNote = RECORD_FORM_NOTES[fIdx];
   const color = RECORD_COLORS[pickIdx(seed, dnum, SALT.color, RECORD_COLORS.length)];
 
+  // the personal margins — the impersonal middle turns toward the visitor
+  const addressed = ADDRESSED[pickIdx(seed, dnum, SALT.addressed, ADDRESSED.length)];
+  const fileId = ((SIGN_GLYPH[readingCtx.sign] || '') + ' ' +
+    (natalResult?.sun_deg != null ? Math.round(natalResult.sun_deg) + '\u00b0' : '')).trim();
+  const stamp = FILE_STAMPS[pickIdx(seed, dnum, SALT.stamp, FILE_STAMPS.length)]
+    .replace('{file}', fileId || readingCtx.sign);
+
   readingScreens = [
     lead
       ? { k: 'TODAY’S READING · ' + domain.label, b: lead.line,
@@ -1404,8 +1488,8 @@ function buildMainScreens(domain){
       : { k: 'TODAY’S READING · ' + domain.label, b: r.headline, n: r.governor || '' },
     ...(lead ? [{ k: 'MEANWHILE, IN THE ARCHIVE', b: r.headline, small: true, n: r.governor || '' }] : []),
     ...[pick(omens, 0)].filter(Boolean).map(o =>
-      ({ k: 'OBSERVATION', b: o, small: true, n: '' })),
-    { k: 'CONSTRAINT', b: r.constraint, small: true, n: '' },
+      ({ k: 'OBSERVATION', b: o, small: true, n: addressed })),
+    { k: 'CONSTRAINT', b: r.constraint, small: true, n: stamp },
     ...(second ? [{ k: 'ALSO IN YOUR SKY', b: second.line, small: true,
                     n: second.note + (second.approx ? ' (Your natal moon is approximate.)' : '') }] : []),
     ...(r.lens ? [{ k: 'FOR YOU IN PARTICULAR', b: r.lens, small: true, n: '' }] : []),

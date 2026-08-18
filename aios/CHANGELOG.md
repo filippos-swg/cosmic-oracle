@@ -4,6 +4,29 @@ Newest-first.
 
 ---
 
+## 2026-08-17 — Launch revision: personal margins + sound redesign
+
+Response to final gallery feedback ("readings could feel more about ME";
+"the sound reads as hardware noise").
+
+- PERSONAL MARGINS: the reading's two most impersonal screens now turn
+  toward the visitor. OBSERVATION carries a line from the new ADDRESSED
+  pool (14 you-facing annotations — "The above concerns you even where it
+  appears not to. Especially there."); CONSTRAINT is countersigned with
+  the visitor's own coordinates via FILE_STAMPS ("Countersigned for ♏ 10°
+  by the night clerk."). Seeded with pickIdx (new SALT.addressed/stamp).
+- SOUND REDESIGN: the bed no longer resembles a fault. The drone carries
+  a real interval (72 Hz root + fifth + 0.4 Hz-beating octave pair, clear
+  of mains frequencies), the whole bed breathes on the entity's ~11 s
+  cycle, the noise band moved up into airy shortwave ether (2.2 kHz), and
+  rare falling ionosphere whistlers punctuate idle/reading — unmistakably
+  composed. Clunks, ticks, consult murmur, and the found-item silence
+  are untouched.
+- Verified: full walkthrough clean, no JS errors, personalized notes
+  render correctly in layout.
+
+---
+
 ## 2026-08-17 — Harness portability (second machine, second lesson)
 
 `npm run check` on the installation machine: both content harnesses passed,
