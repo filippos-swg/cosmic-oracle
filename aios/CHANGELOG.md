@@ -4,6 +4,128 @@ Newest-first.
 
 ---
 
+## 2026-08-18 (later) — Rewritten for a solo, non-technical build
+
+Filippos: not technical, building this alone. That is a constraint, not a
+detail, and it changes two decisions.
+
+- **PICTURE CHAIN RECOMMENDATION REVERSED.** The aerial route (unmodified
+  set + professional VHF modulator) was the right call for someone with a
+  workbench. For one person alone it is wrong: a ~3 000 SEK headend box with
+  menus, a VHF channel to find, System B/G and 5.5 MHz to set, and a level to
+  trim — versus asking the technician who is already recapping the set to add
+  a composite video input, after which the whole chain is one yellow plug.
+  The cost is that the set is permanently modified, which is a real loss and
+  was the reason for the original choice. It is outweighed by what happens at
+  eight in the morning with a gallery opening and a picture that will not
+  come up. PICTURE_CHAIN.md now carries the reversal at the top and keeps the
+  modulator route as the fallback if the technician declines.
+- **`exhibition/BUILD_GUIDE.md` — new, and now the document to follow.**
+  Plain language, nothing assumed, no soldering anywhere. Ordered steps, a
+  shopping list with exact search terms, the four questions to ask the TV
+  technician verbatim, and the multimeter procedure for finding the dial
+  contacts written as "dial 9 and listen for ten beeps".
+- **NO SOLDERING, RESOLVED PROPERLY.** Raspberry Pi **Pico H** (the H ships
+  with headers already soldered) into a screw-terminal expansion board. The
+  surplus bench dial already has screw terminals. Four wires, one
+  screwdriver, both ends.
+- **STEP 0 IS NOW "DO NOT PLUG THE TELEVISION IN".** It has not been powered
+  on. A set that has been off for decades can destroy itself on first
+  power-up, and the back never comes off. Technician first — and most of the
+  build (dial, firmware, wiring, testing) happens while the set is at the
+  shop, so this costs no time.
+- **MAC PORTS CONFIRMED: 15" MacBook Pro 2016–2018 — USB-C only, no HDMI.**
+  A USB-C→HDMI adapter is needed and is not yet owned; the 100 W USB-C cable
+  already bought carries power, not video. Power, video and dial take one
+  port each of four.
+- **HDMI2AV BOX ALREADY OWNED — one thing to verify.** It must have a
+  PAL/NTSC switch, set to PAL. The set is 625/50 and will never lock to
+  NTSC's 525/60; the symptom is an endlessly rolling picture that reads as a
+  dead television. No switch means NTSC-only and useless here.
+- **PUSHED BACK ON "the sound is just a hum anyway".** It is not — the launch
+  revision made it a composed drone with a real interval, breathing on the
+  entity's cycle. And where a sound comes from is part of what the object is:
+  out of the television, the set is alive; out of a laptop on the floor,
+  every visitor locates it instantly and stops believing. Order of
+  preference recorded: TV speaker via an audio input added by the technician
+  → small powered speaker hidden in the cabinet → the Mac's own speakers,
+  last and only if the Mac sits outside.
+
+---
+
+## 2026-08-18 — Hardware phase opens: TV identified, dial firmware written
+
+Cowork session against `aios/tasks/TASK_hardware_installation.md`. The two
+things that blocked the physical build are no longer blocked.
+
+- **TV IDENTIFIED: DUX TYP V6397.** From the rear-plate photographs: 220 V
+  *växelström* (AC only), 170 W, **300 Ω balanced antenna terminals**, no AV
+  input, Swedish "S" mark, multi-position tuner on the front. "Växelström"
+  rather than "växel- och likström" is the tell that the set has a mains
+  transformer and therefore an isolated chassis — a strong indication, to be
+  confirmed with a meter, not a certificate. This discharges the standing
+  rule carried from the old handoff: conversion hardware can now be specified.
+- **PICTURE CHAIN SPECIFIED** — `exhibition/PICTURE_CHAIN.md`, new. Sweden
+  broadcast 625-line CCIR System B on VHF from 1956, so the modulator must
+  cover VHF Band I/III at System B/G with a **5.5 MHz** sound carrier. This is
+  the expensive mistake waiting to be made: almost every cheap "AV to RF" box
+  is UHF-only or PAL I (6.0 MHz), and this set has no UHF tuner at all — a
+  UHF box gives nothing, a PAL I box gives a picture with no sound. Chain:
+  Mac → HDMI-to-composite (PAL) → Terra MT47 agile modulator (B/G, 5.5 MHz,
+  ch E4) → 75/300 Ω balun → antenna terminals. Nothing inside the set is
+  touched; the whole chain is reversible. Costed parts list, bring-up order,
+  and the sound/heat consequences are in the document.
+- **CONVERTER GRADE LEFT OPEN, DELIBERATELY.** Consumer box (~300 SEK, buy
+  three) vs Blackmagic two-box (~3 800 SEK). The picture is soft either way —
+  the tuner and the phosphor take more resolution than any converter will.
+  What the money actually buys is deterministic behaviour after a power cut,
+  which is what decides whether the piece survives three weeks unattended.
+  Decide after watching the cheap box cold-boot twenty times.
+- **MCU DECIDED: Raspberry Pi Pico**, with an Arduino Pro Micro variant
+  shipped alongside so a board swap costs nothing. ESP32 dropped — a WiFi
+  stack has no business in an offline piece.
+- **`firmware/` WRITTEN.** CircuitPython (`pico-circuitpython/`) and Arduino
+  C (`pro-micro-arduino/`), same state machine, same constants, both
+  implementing the Swedish mapping `digit = pulses − 1`. Debounce 20 ms,
+  pulse-width plausibility window 15–200 ms, digits 0–9 and nothing else.
+  A digit whose pulse train looks implausible is discarded rather than
+  guessed at — a wrong digit in a birthdate is worse than a missing one.
+- **`boot.py` HIDES THE CIRCUITPY DRIVE.** If it mounts, the appliance Mac
+  opens a Finder window at login, over a 1950s television, and launchd cannot
+  undo it. Ground GP15 at plug-in to get the drive and REPL back.
+- **THE OFF-NORMAL CONTACT IS NOW REQUIRED, and HARDWARE_DIAL.md's two-wire
+  plan is superseded.** In the Swedish mapping a single pulse is a legitimate
+  `0`, so one spurious pulse — hum coupling, a dirty contact settling —
+  types a `0` into a visitor's birthdate and the machine reads the wrong day
+  with complete confidence. Wiring the off-normal contact makes the firmware
+  ignore the impulse line entirely while the dial is at rest. Two extra wires
+  buy the whole phantom-input class.
+- **BOTH FIRMWARES ARE TESTED WITHOUT HARDWARE.** `firmware/test_dial_logic.py`
+  and `test_dial_logic.cpp` run the real code against synthesized waveforms —
+  clean dialling, sloppy dialling, contact bounce, a welded contact, and the
+  phantom pulse. 18 checks, all passing, and the suite *documents* the
+  off-normal difference rather than asserting it:
+
+      [off-normal wired]   spurious 40 ms pulse at rest → nothing
+      [pulse pair only]    spurious 40 ms pulse at rest → types "0"
+
+- **`exhibition/RUNBOOK.md` WRITTEN** — open/close, triage by symptom, what is
+  not a fault (soft grey picture, warm-up bloom, cabinet hum), what is a fault
+  even when the piece looks fine (hot cabinet top, a digit appearing with
+  nobody at the dial), weekly checks, and the opening-night acceptance test.
+  Written for someone who is not Filippos, is not technical, and has four
+  minutes.
+
+**Still open, all of it needing the physical objects:** buy the modulator and
+converter; get the set recapped and its isolation confirmed by a technician
+before it runs unattended (never open the back — the CRT holds a lethal
+charge unplugged); bench the dial on the surplus unit, then migrate into the
+DBH 1001 with the original wiring untouched; `/testcard.html` on the tube and
+then `CONFIG.SAFE` / `CONFIG.TYPE_SCALE` measured and committed; sound judged
+through the TV's own speaker; 24 h phantom soak; ten cold boots.
+
+---
+
 ## 2026-08-17 — Launch revision: personal margins + sound redesign
 
 Response to final gallery feedback ("readings could feel more about ME";
