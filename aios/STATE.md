@@ -1,6 +1,6 @@
 <!-- GENERATED — do not edit. Edits are overwritten at next close. -->
-Generated 2026-09-04 09:09 +0200 · HEAD 5d40bb1 · branch migration/aios-v2-2026-09-04 · host Souths-MacBook-Air.local · generator v2.0
-STALENESS RULE: if `git rev-parse HEAD` ≠ 5d40bb1, or the tree is dirty, this file is HISTORY. Regenerate before acting on it.
+Generated 2026-09-04 09:11 +0200 · HEAD 638db18 · branch main · host Souths-MacBook-Air.local · generator v2.0
+STALENESS RULE: if `git rev-parse HEAD` ≠ 638db18, or the tree is dirty, this file is HISTORY. Regenerate before acting on it.
 
 ## 1 · Identity
 <sub>CLAUDE.md, the five human lines — the only human input in this file</sub>
@@ -14,19 +14,18 @@ STALENESS RULE: if `git rev-parse HEAD` ≠ 5d40bb1, or the tree is dirty, this 
 ## 2 · Head
 <sub>git rev-parse HEAD · git log -1 · git rev-list --left-right --count @{u}...HEAD</sub>
 
-> **As of `5d40bb1`.** The close commits this file after generating it, so the counts below are one commit old the moment they land. Re-run `aios-state` for current numbers.
+> **As of `638db18`.** The close commits this file after generating it, so the counts below are one commit old the moment they land. Re-run `aios-state` for current numbers.
 
-- **migration/aios-v2-2026-09-04 @ 5d40bb1** — docs: normalize ASTRA legacy decisions
-- Committed 2026-09-04 09:09 by Filippos Arvanitakis
-- Upstream: origin/migration/aios-v2-2026-09-04 · **0 ahead**, 0 behind
+- **main @ 638db18** — Merge pull request #2 from filippos-swg/migration/aios-v2-2026-09-04
+- Committed 2026-09-04 09:11 by filippos-swg
+- Upstream: origin/main · **0 ahead**, 0 behind
 
 ## 3 · Working tree
 <sub>git status --porcelain + a filesystem diff against git ls-files</sub>
 
-> **As of `5d40bb1`, before this file was committed.** `aios/STATE.md` and `aios/CLOSING` appear here for that reason and are not real dirt.
+> **As of `638db18`, before this file was committed.** `aios/STATE.md` and `aios/CLOSING` appear here for that reason and are not real dirt.
 
-- **1 modified:** `aios/CLOSING`
-- **1 untracked:** `aios/STATE.md`
+- Clean.
 - **1 empty directory** — invisible to git, so this is the only place they appear: `_to_delete/old-home-checkout/`
   <sub>Empty is a different fact from absent. A directory that exists and holds nothing is a vacuum someone made room for.</sub>
 
@@ -36,11 +35,13 @@ STALENESS RULE: if `git rev-parse HEAD` ≠ 5d40bb1, or the tree is dirty, this 
 - None. Every branch has an upstream.
 
 ## 5 · Since last close
-<sub>git log 2c02f67..HEAD</sub>
+<sub>git log 5d40bb1..HEAD</sub>
 
-- `5d40bb1` 2026-09-04 — docs: normalize ASTRA legacy decisions
+- `638db18` 2026-09-04 — Merge pull request #2 from filippos-swg/migration/aios-v2-2026-09-04
+- `c02a027` 2026-09-04 — close: delete the ASTRA migration ledger
+- `851bf86` 2026-09-04 — close: record the ASTRA migration state
 
-Close marker: 5d40bb1e88157b75216a01c09750eca1173f17a8
+Close marker: 638db180e2282689b4d32bf98bd1a0a6128d6c56
 
 ## 6 · Awaiting judgment
 <sub>aios/LOG.md headings + **Status:** lines — headings, dates and statuses only, never bodies</sub>
