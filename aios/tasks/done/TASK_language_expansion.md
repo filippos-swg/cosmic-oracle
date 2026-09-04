@@ -1,7 +1,7 @@
 # TASK — The Great Language Expansion
 
-**Status:** READY — approved by filippos 2026-08-04. Run in a fresh session.
-**Read first:** aios/AI_HANDOFF.md, then aios/ASTRA_MIND_v0.1.md (the voice
+**Status:** COMPLETE — delivered and curated 2026-08-17; v1.0 tagged.
+**Read first:** `aios/STATE.md`, then `aios/ASTRA_MIND_v0.1.md` (the voice
 bible — the six Adams operations and failure modes govern every line).
 
 ## Goal
@@ -50,7 +50,14 @@ Mechanics (code, small):
 - Verify after: regenerate oracle.json, check 12-sign distinctness AND
   same-day cross-sign no-repeat programmatically; run the Playwright
   walkthrough if in a cloud session, or a manual dial-through locally.
-- Log to CHANGELOG.md. Filippos curates the new corpus before v1.0.
+- Log to `aios/LOG.md`. Filippos curates the new corpus before v1.0.
+
+## Completion
+
+- [x] Corpus expansion delivered and curated
+- [x] Day-level no-repeat allocation and visitor-seeded selection delivered
+- [x] Full verification suite passed
+- [x] v1.0 tagged
 
 ## After this task
 

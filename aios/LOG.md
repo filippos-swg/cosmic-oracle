@@ -1,6 +1,27 @@
-# DECISIONS — Cosmic Oracle / Astra
+# ASTRA / Cosmic Oracle — Decision & Change Log
 
-Newest-first. Log every architectural, product, and naming decision here.
+**Vocabulary.** An entry with a `**Status:**` is a decision. An entry without one is a change.
+`APPROVED` — signed · `RECOMMENDED` — awaiting pass / adjust / kill · `OPEN` — undecided,
+needs work · `SUPERSEDED` — replaced, with a pointer to what replaced it.
+
+Newest first. Append only — never rewrite an entry. A correction is a new entry that
+supersedes the old one. The complete pre-v2 change history is preserved at
+`archive/aios-v1.3/CHANGELOG.md`.
+
+---
+
+## 2026-09-04 — Migrated ASTRA to AiOS v2.0
+
+**Status:** RECOMMENDED
+**Decision:** Use the `build` profile and public visibility. Keep the live canon, ASTRA mind,
+hardware task and still-useful installation report active; preserve superseded v1.3 context,
+plans and the complete change history under `archive/`.
+**Evidence:** GitHub reports `filippos-swg/cosmic-oracle` as public; tagged software v1.0 and
+the later launch revision are present; the active task says desk work is complete and the
+remaining work requires the physical television, dial and installation hardware.
+**Practical consequence:** Sessions enter through `CLAUDE.md`, use `aios/STATE.md`, this log,
+`aios/CANON.md` and `aios/tasks/`, and do not treat generated runtime outputs or obsolete
+automation proposals as current project truth.
 
 ---
 
@@ -45,7 +66,7 @@ engine.
 
 ## 2026-07-16 — Snapshot before experience rebuild
 
-**Status:** DONE
+**Status:** APPROVED
 **Decision:** The v1 desktop-dashboard experience is frozen in
 `snapshots/v1-2026-07-16-desktop-dashboard/` (runnable copy) before the installation UX
 (tv.html, ceremony state machine) is built.
@@ -61,9 +82,9 @@ engine.
 
 ---
 
-## OPEN — Project name: Cosmic Oracle vs Astra
+## 2026-06-18 — Project name: Cosmic Oracle vs Astra (SUPERSEDED)
 
-**Status:** OPEN — do not resolve without explicit approval
+**Status:** SUPERSEDED — by “Project name: ASTRA” (2026-07-16)
 **Background:**
 - v2 brief (cosmic_oracle_master_project_brief_v2.md) calls the project "Cosmic Oracle"
 - v3 brief (astra_master_project_brief_v3.md) calls the project "Astra"
@@ -75,32 +96,32 @@ engine.
 
 ---
 
-## OPEN — Astrologer_UPLOAD/ folder name
+## 2026-06-18 — Astrologer_UPLOAD/ folder name (SUPERSEDED)
 
-**Status:** OPEN
-**Background:** All source code lives in `Astrologer_UPLOAD/`. This name suggests a staging or upload folder — not a permanent source directory. Its origin and intent are undocumented.
+**Status:** SUPERSEDED — source files now live at the repository root and current run instructions use them
+**Background:** All source code lived in the folder named Astrologer_UPLOAD. That name suggested a staging or upload folder rather than a permanent source directory. Its origin and intent were undocumented.
 **Options:** Rename to `src/`, rename to `astrologer/`, leave as-is.
 **Note:** Any rename requires updating relative path references in oracle.py.
 **Unblocked by:** Next active work session.
 
 ---
 
-## APPROVED — Two-layer architecture (machine layer / human translation layer)
+## 2026-06-18 — Two-layer architecture (machine layer / human translation layer)
 
 **Status:** APPROVED (from v3 brief)
 **Decision:** The system maintains two distinct layers. Machine layer is cold/symbolic/compressed. Human layer is warm/dry/readable. These must not collapse into each other.
-**Documented in:** PROJECT_CANON.md
+**Documented in:** `aios/CANON.md`
 
 ---
 
-## APPROVED — Physical object deferred until web MVP validated
+## 2026-06-18 — Physical object deferred until web MVP validated (SUPERSEDED)
 
-**Status:** APPROVED (from v3 brief)
+**Status:** SUPERSEDED — by “Installation before web MVP” (2026-07-16)
 **Decision:** Build web version first. Physical retro TV/cabinet kiosk comes after web MVP is working and validated.
 
 ---
 
-## APPROVED — V1 user input: zodiac sign selection only
+## 2026-06-18 — V1 user input: zodiac sign selection only
 
 **Status:** APPROVED (from v3 brief)
 **Decision:** Do not add date-of-birth input in v1. Too much friction too early. Sign selection is sufficient for first public interaction.

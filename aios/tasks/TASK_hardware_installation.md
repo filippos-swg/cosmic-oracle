@@ -1,13 +1,14 @@
 # TASK — Hardware Installation (the physical build)
 
-**Status:** IN PROGRESS — the final phase. Desk work done 2026-08-18
-(TV identified, picture chain specified, dial firmware written and tested).
+**Status:** IN PROGRESS — physical installation is the remaining phase.
+Desk work finished 2026-08-18 (TV identified, picture chain specified, dial firmware written and tested).
 What remains needs the physical objects in a room.
 **Supersedes:** ASTRA_TECHNICAL_HANDOFF.md (recovery-era document; its
 software, runtime, folder and Cloudflare sections are obsolete — see
 "Resolved since" below. Its TV-identification discipline and working
 principle are carried forward here.)
-**Read first:** aios/AI_HANDOFF.md → **exhibition/BUILD_GUIDE.md** →
+**Read first:** `aios/STATE.md` → `aios/CANON.md` → `aios/LOG.md` →
+`aios/ASTRA_MIND_v0.1.md` → **exhibition/BUILD_GUIDE.md** →
 exhibition/PICTURE_CHAIN.md → firmware/README.md → exhibition/RUNBOOK.md →
 kiosk/install.sh + kiosk/astra-kiosk.sh → aios/STATUS_REPORT.md §5–6.
 BUILD_GUIDE.md is the operative document: this is a solo, non-technical
@@ -132,18 +133,16 @@ birthdate; sound and CONFIG values committed; doors-open ritual decided.
 
 ## Deliverables
 
-| | |
-|---|---|
-| `firmware/` — dial sketch, both boards, tested | ✅ 2026-08-18 |
-| `exhibition/PICTURE_CHAIN.md` — chain, parts, bring-up | ✅ 2026-08-18 |
-| `exhibition/RUNBOOK.md` — open/close, triage, acceptance | ✅ 2026-08-18 |
-| CHANGELOG entry | ✅ 2026-08-18 |
-| Final hardware list AFTER the TV is identified | ✅ in PICTURE_CHAIN.md |
-| Calibrated `CONFIG.SAFE` / `CONFIG.TYPE_SCALE` | ⬜ needs the tube |
-| RUNBOOK contacts filled in (TV technician) | ⬜ needs the technician |
-| `exhibition/BUILD_GUIDE.md` — solo, non-technical, no soldering | ✅ 2026-08-18 |
-| TV to a technician; four questions asked | ⬜ blocks everything on the TV |
-| USB-C→HDMI adapter bought (Mac is USB-C only) | ⬜ |
-| HDMI2AV box confirmed to have a PAL switch | ⬜ check the side of the box |
-| Pico H + screw-terminal board + multimeter bought | ⬜ |
-| Converter grade decided | ⬜ only if the modulator route is forced |
+- [x] `firmware/` — dial sketch, both boards, tested (2026-08-18)
+- [x] `exhibition/PICTURE_CHAIN.md` — chain, parts and bring-up (2026-08-18)
+- [x] `exhibition/RUNBOOK.md` — open/close, triage and acceptance (2026-08-18)
+- [x] `aios/LOG.md` entry (2026-08-18)
+- [x] Final hardware list after the TV was identified, in PICTURE_CHAIN.md
+- [ ] Calibrate `CONFIG.SAFE` / `CONFIG.TYPE_SCALE` on the tube
+- [ ] Fill in RUNBOOK contacts for the TV technician
+- [x] `exhibition/BUILD_GUIDE.md` — solo, non-technical, no soldering (2026-08-18)
+- [ ] Take the TV to a technician and ask the four listed questions
+- [ ] Buy the USB-C-to-HDMI adapter for the Mac
+- [ ] Confirm the HDMI2AV box has a PAL switch
+- [ ] Buy the Pico H, screw-terminal board and multimeter
+- [ ] Decide converter grade if the modulator route is forced
