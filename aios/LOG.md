@@ -66,7 +66,7 @@ engine.
 
 ## 2026-07-16 — Snapshot before experience rebuild
 
-**Status:** DONE
+**Status:** APPROVED
 **Decision:** The v1 desktop-dashboard experience is frozen in
 `snapshots/v1-2026-07-16-desktop-dashboard/` (runnable copy) before the installation UX
 (tv.html, ceremony state machine) is built.
@@ -82,7 +82,7 @@ engine.
 
 ---
 
-## Project name: Cosmic Oracle vs Astra (SUPERSEDED)
+## 2026-06-18 — Project name: Cosmic Oracle vs Astra (SUPERSEDED)
 
 **Status:** SUPERSEDED — by “Project name: ASTRA” (2026-07-16)
 **Background:**
@@ -96,7 +96,7 @@ engine.
 
 ---
 
-## Astrologer_UPLOAD/ folder name (SUPERSEDED)
+## 2026-06-18 — Astrologer_UPLOAD/ folder name (SUPERSEDED)
 
 **Status:** SUPERSEDED — source files now live at the repository root and current run instructions use them
 **Background:** All source code lived in the folder named Astrologer_UPLOAD. That name suggested a staging or upload folder rather than a permanent source directory. Its origin and intent were undocumented.
@@ -106,7 +106,7 @@ engine.
 
 ---
 
-## APPROVED — Two-layer architecture (machine layer / human translation layer)
+## 2026-06-18 — Two-layer architecture (machine layer / human translation layer)
 
 **Status:** APPROVED (from v3 brief)
 **Decision:** The system maintains two distinct layers. Machine layer is cold/symbolic/compressed. Human layer is warm/dry/readable. These must not collapse into each other.
@@ -114,14 +114,14 @@ engine.
 
 ---
 
-## Physical object deferred until web MVP validated (SUPERSEDED)
+## 2026-06-18 — Physical object deferred until web MVP validated (SUPERSEDED)
 
 **Status:** SUPERSEDED — by “Installation before web MVP” (2026-07-16)
 **Decision:** Build web version first. Physical retro TV/cabinet kiosk comes after web MVP is working and validated.
 
 ---
 
-## APPROVED — V1 user input: zodiac sign selection only
+## 2026-06-18 — V1 user input: zodiac sign selection only
 
 **Status:** APPROVED (from v3 brief)
 **Decision:** Do not add date-of-birth input in v1. Too much friction too early. Sign selection is sufficient for first public interaction.

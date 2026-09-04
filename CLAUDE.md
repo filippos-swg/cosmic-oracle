@@ -3,7 +3,7 @@
 Standard: AiOS v2.0 · canon: `../AIOS/Framework/project-aios/aios/CANON.md` · **Profile:** build · **Visibility:** public
 State: read `aios/STATE.md` first. If its HEAD stamp ≠ `git rev-parse HEAD`, or the tree is dirty, regenerate before acting.
 Truth: git history and `aios/`. Not chat. Not this file.
-Depends on: designing-intelligence
+Depends on: nothing
 Do not create AiOS core files at project root. Commit as filippos@southnorth.se.
 
 ## What this repo is
