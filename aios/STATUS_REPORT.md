@@ -6,6 +6,9 @@ Context: prototype is functional and design-matched. Target: a website running o
 old MacBook Pro, output to a 1950s DUX television (wooden cabinet, rounded B&W CRT, doors),
 running as a physical art installation.
 
+> Dated planning record, not current state. Read `aios/STATE.md` and the active hardware task
+> first. Sections 5–6 remain useful technical reference for the tube and appliance setup.
+
 ---
 
 ## 1. Where the project stands
@@ -17,8 +20,8 @@ daily token stream actually changes daily instead of being permanently occupied 
 aspects that hold for months. `librarian.py` translates tokens through the curated voice table,
 and — new — when no curated token matches, it composes a reading from the tightest
 personal-planet aspect in the same archival voice, so the generic fallback text now only
-appears on genuinely quiet skies. `oracle.py` orchestrates the loop and writes
-`visual/oracle.json` every 60 seconds.
+appears on genuinely quiet skies. `oracle.py` orchestrates the loop and writes the generated
+oracle payload every 60 seconds.
 
 The frontend (`visual/index.html`) matches the design reference closely: Courier Prime
 typewriter mono, corrected moon-phase mathematics (the cycle-vs-illumination bug is fixed, and
@@ -28,9 +31,8 @@ particle entity rebuilt to the close-up reference: a bright ragged rim ribbon tr
 head and wide shoulders, dark face, uniformly dust-filled torso, dissolving base, full-frame
 starfield. 100,000 particles, software-rendered.
 
-Open decisions carried from DECISIONS.md: the project name (Cosmic Oracle vs Astra) remains
-unresolved, and becomes visible the moment we design a startup screen — the object will have to
-say its own name. Worth deciding before the UX build.
+The naming question described in this dated report was resolved later: the piece is ASTRA and
+the repository remains `cosmic-oracle`.
 
 ---
 
@@ -168,8 +170,8 @@ state machine in §3 already implies. IDLE rotates slow scenes (entity → headl
 one section at a time. Nothing is lost; the dashboard's density is redistributed into time.
 
 **First concrete step before any resizing: a test card.** A `testcard.html` — calibration
-grid, concentric circles, safe-area rectangles at 70/80/90%, and sample text at 18/22/26/32/
-44px — displayed on the actual DUX through the actual converter chain. Ten minutes with that
+grid, concentric circles, safe-area rectangles at 70%, 80%, and 90%, and sample text at 18,
+22, 26, 32, and 44px — displayed on the actual DUX through the actual converter chain. Ten minutes with that
 page answers every sizing question with measurements instead of assumptions, and tells us the
 true visible area of the rounded mask. Build this first, tune tv.html to what the tube
 actually shows.

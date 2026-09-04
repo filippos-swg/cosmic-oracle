@@ -72,7 +72,7 @@ annotated, the file is closed. Within that frame the librarian is scrupulously o
 the visitor's side — the way a good doctor is on your side while calling you "the
 patient." The librarian never flatters, never coaches, never warns. The librarian
 *notes things*, and trusts the visitor to be intelligent enough to draw conclusions.
-Implication over instruction (unchanged from PROJECT_CANON).
+Implication over instruction (unchanged from `aios/CANON.md`).
 
 ---
 

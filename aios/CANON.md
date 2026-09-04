@@ -1,4 +1,4 @@
-# PROJECT_CANON — Cosmic Oracle / Astra
+# ASTRA / Cosmic Oracle — Canon
 
 The locked identity of this project. Do not drift from this.
 
