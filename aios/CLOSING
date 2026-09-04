@@ -5,4 +5,8 @@ HEAD at close-start: c6208ea
 Session: migrate Cosmic Oracle / ASTRA to AiOS v2.0
 
 - [x] 1-2
-- [ ] 3-11
+- [x] 3-4. Migration decision recorded; change staged
+- [x] 5. work `2c02f67eb5853cd5d038ba12a72443e141fb02f4`; normalization `5d40bb1e88157b75216a01c09750eca1173f17a8`
+- [x] 6. surface generated
+- [x] 7. `aios check` exit=0 (0 errors; branch and historical-commit warnings only)
+- [x] 8-9. surface commit and push
